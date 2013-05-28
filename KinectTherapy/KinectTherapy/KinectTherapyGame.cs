@@ -93,7 +93,7 @@ namespace KinectTherapy
             #endregion
 
             #region Components
-            exerciseComponent = new ExerciseGameComponent(this, skeletonPool);
+            exerciseComponent = new ExerciseGameComponent(this);
             colorStream = new ColorStreamRenderer(this);
             #endregion
 

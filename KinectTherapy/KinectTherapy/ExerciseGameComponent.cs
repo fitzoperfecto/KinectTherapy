@@ -12,7 +12,23 @@ namespace SWENG
     class ExerciseGameComponent : DrawableGameComponent
     {
         // queue of skeletons
-        private SkeletonPool skeletonPool;
+        // reference to the skeleton pool service
+        private SkeletonPool skeletonPool
+        {
+            get
+            {
+                return (SkeletonPool)Game.Services.GetService(typeof(SkeletonPool));
+            }
+        }
+
+        private SpriteBatch spriteBatch
+        {
+            get
+            {
+                return (SpriteBatch)this.Game.Services.GetService(typeof(SpriteBatch));
+            }
+        }
+
         private Boolean repComplete;
         private Boolean repStarted;
         private int reps;
@@ -23,11 +39,9 @@ namespace SWENG
 
         private IRepetition repetition;
 
-        public ExerciseGameComponent(Game game, SkeletonPool skeletonPool)
+        public ExerciseGameComponent(Game game)
             : base(game)
         {
-            //grab the reference to the skeleton pool
-            this.skeletonPool = skeletonPool;
             this.repComplete = false;
             this.repStarted = false;
             this.reps = 0;
@@ -41,9 +55,9 @@ namespace SWENG
 
             // Hardcoding Right Angle Right Elbow Vertex Criteria
             Criteria rightElbowRightAngleVertex = new Criteria();
-            Microsoft.Kinect.JointType[] otherJoints = new Microsoft.Kinect.JointType[2] {Microsoft.Kinect.JointType.HandRight,Microsoft.Kinect.JointType.ShoulderRight};
-            Criterion rightElbow = new AngleCriterion(270f,Microsoft.Kinect.JointType.ElbowRight,otherJoints,10f);
-            rightElbowRightAngleVertex.addCriterion(Microsoft.Kinect.JointType.ElbowRight, new Criterion[]{rightElbow});
+            Microsoft.Kinect.JointType[] otherJoints = new Microsoft.Kinect.JointType[2] { Microsoft.Kinect.JointType.HandRight, Microsoft.Kinect.JointType.ShoulderRight };
+            Criterion rightElbow = new AngleCriterion(270f, Microsoft.Kinect.JointType.ElbowRight, otherJoints, 10f);
+            rightElbowRightAngleVertex.addCriterion(Microsoft.Kinect.JointType.ElbowRight, new Criterion[] { rightElbow });
             // Retrive the exercise definition... for now we'll hardcode this
             repetition = new CriteriaRepetition(rightElbowRightAngleVertex);
         }
@@ -56,12 +70,12 @@ namespace SWENG
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-           
+
             // the stamp being processed
-            SkeletonStamp skeletonStamp=skeletonPool.GetOldestSkeleton();
+            SkeletonStamp skeletonStamp = skeletonPool.GetOldestSkeleton();
 
             // determine whether a rep has been started based on Exercise Start Criteria.
-            if (skeletonStamp != null && skeletonStamp.getTrackedSkeleton()!=null)
+            if (skeletonStamp != null && skeletonStamp.getTrackedSkeleton() != null)
             {
                 if (!repStarted)
                 {
@@ -91,14 +105,12 @@ namespace SWENG
 
         public override void Draw(GameTime gameTime)
         {
-            
             // reset repMonitor if a rep is complete and reset
             if (repComplete)
             {
                 repComplete = repStarted = false;
             }
             // draw a number on the screen
-            SpriteBatch spriteBatch = (SpriteBatch)this.Game.Services.GetService(typeof(SpriteBatch));
             // display the rep counted
             spriteBatch.Begin();
             // this being the line that answers your question
