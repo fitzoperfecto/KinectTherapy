@@ -54,12 +54,17 @@ namespace SWENG
             //repetition = new TimerRepetition(); <<<<--- test of the repetition interface
 
             // Hardcoding Right Angle Right Elbow Vertex Criteria
-            Criteria rightElbowRightAngleVertex = new Criteria();
+            Criteria armExtensionExercise = new Criteria();
+
+            // criteria to start tracking a repetition
             Microsoft.Kinect.JointType[] otherJoints = new Microsoft.Kinect.JointType[2] { Microsoft.Kinect.JointType.HandRight, Microsoft.Kinect.JointType.ShoulderRight };
             Criterion rightElbow = new AngleCriterion(270f, Microsoft.Kinect.JointType.ElbowRight, otherJoints, 10f);
-            rightElbowRightAngleVertex.addCriterion(Microsoft.Kinect.JointType.ElbowRight, new Criterion[] { rightElbow });
+            armExtensionExercise.addStartingCriterion(Microsoft.Kinect.JointType.ElbowRight, new Criterion[] { rightElbow });
+            // criteria to track during the progress of a repetition
+            Criterion leftHand = new PointCriterion("Y", JointType.HandLeft, 0);
+            armExtensionExercise.addTrackingCriterion(JointType.HandLeft, new Criterion[] { leftHand });
             // Retrive the exercise definition... for now we'll hardcode this
-            repetition = new CriteriaRepetition(rightElbowRightAngleVertex);
+            repetition = new CriteriaRepetition(armExtensionExercise);
         }
 
         protected override void LoadContent()
@@ -72,10 +77,11 @@ namespace SWENG
             base.Update(gameTime);
 
             // the stamp being processed
-            SkeletonStamp skeletonStamp = skeletonPool.GetOldestSkeleton();
+            SkeletonStamp skeletonStamp=skeletonPool.GetOldestSkeleton();
+            double[] percentBad = new double[20]; 
 
             // determine whether a rep has been started based on Exercise Start Criteria.
-            if (skeletonStamp != null && skeletonStamp.getTrackedSkeleton() != null)
+            if (skeletonStamp != null && skeletonStamp.GetTrackedSkeleton() != null)
             {
                 if (!repStarted)
                 {
@@ -87,9 +93,12 @@ namespace SWENG
                     // A couple updates could occur before the next draw. 
                     if (!repComplete)
                     {
+                        // if the rep has been started we need to check the form of the repetition
+                        // just a stub of what needs to be done... we'll need to determine how a FormResponse should look. 
+                        percentBad = repetition.checkForm(skeletonStamp);
+
                         // see if the rep has been completed
-                        repComplete = repetition.isRepComplete(skeletonStamp);
-                        if (repComplete)
+                        if (repComplete = repetition.isRepComplete(skeletonStamp))
                         {
                             reps++;
                         }
@@ -100,6 +109,7 @@ namespace SWENG
             if (skeletonStamp != null)
             {
                 skeletonPool.Remove(skeletonStamp.TimeStamp);
+                //skeletonPool.FinishedWithSkeleton(skeletonStamp.TimeStamp,percentBad);
             }
         }
 

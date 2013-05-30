@@ -37,10 +37,10 @@ namespace SWENG
             this.PercentBad = new double[20];
         }
 
-        public Skeleton getTrackedSkeleton()
+        public Skeleton GetTrackedSkeleton()
         {
             Skeleton trackedSkelly = null;
-            foreach (Skeleton skeleton in skeletonData)
+            foreach (Skeleton skeleton in SkeletonData)
             {
                 if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                 {

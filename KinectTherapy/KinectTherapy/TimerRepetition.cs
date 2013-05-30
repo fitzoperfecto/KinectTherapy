@@ -42,6 +42,10 @@ namespace SWENG
         {
             return DateTime.Now > endTime;
         }
-        
+
+        public double[] checkForm(SkeletonStamp skeletonStamp)
+        {
+            return new double[20];
+        }
     }
 }

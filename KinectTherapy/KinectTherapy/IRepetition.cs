@@ -12,5 +12,7 @@ namespace SWENG
     {
         bool isRepStarted(SkeletonStamp skeletonStamp);
         bool isRepComplete(SkeletonStamp skeletonStamp);
+
+        double[] checkForm(SkeletonStamp skeletonStamp);
     }
 }

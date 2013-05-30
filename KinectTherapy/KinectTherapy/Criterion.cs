@@ -17,6 +17,21 @@ namespace SWENG
             this.Variance = variance;
         }
 
+        public Skeleton GetTrackedSkeleton(Skeleton[] skeletonData)
+        {
+            Skeleton trackedSkelly = null;
+            foreach (Skeleton skeleton in skeletonData)
+            {
+                if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
+                {
+                    trackedSkelly = skeleton;
+                    break;
+                }
+            }
+            return trackedSkelly;
+        }
+
         public abstract bool matchesCriterion(SkeletonStamp skeletonStamp);
+        public abstract bool compareToOriginal(Skeleton[] originalSkeleton, SkeletonStamp currentSkeleton);
     }
 }

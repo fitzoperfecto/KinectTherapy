@@ -50,7 +50,7 @@
         /// <returns></returns>
         public SkeletonStamp GetOldestSkeleton()
         {
-            int index = 0;
+            int index = int.MinValue;
 
             for (int i = 0; i < this.universe.Length; ++i)
             {
@@ -59,12 +59,19 @@
                     continue;
                 }
 
-                if (index == i || this.universe[index].TimeStamp > this.universe[i].TimeStamp)
+                if (index == int.MinValue)
+                {
+                    index = i;
+                }
+                else if (this.universe[index].TimeStamp > this.universe[i].TimeStamp)
                 {
                     index = i;
                 }
             }
-
+            if (index == int.MinValue)
+            {
+                index = 0;
+            }
             this.universe[index].InUse = true;
 
             return this.universe[index];
@@ -89,17 +96,17 @@
         public void Add(Skeleton[] skeleton, long timeStamp)
         {
             // Is there any space left?
-            if (free.Count == 0)
-            {
-                for (int i = 0; i < maxInstances; ++i)
-                {
-                    // enqueue again so long as no one else is using this
-                    if (!this.universe[i].InUse)
-                    {
-                        free.Enqueue(this.universe[i]);
-                    }
-                }
-            }
+          //  if (free.Count == 0)
+            //{
+            //    for (int i = 0; i < maxInstances; ++i)
+            //    {
+            //        // enqueue again so long as no one else is using this
+            //        if (!this.universe[i].InUse)
+            //        {
+            //            free.Enqueue(this.universe[i]);
+            //        }
+            //    }
+            //}
 
             if (free.Count > 0)
             {
@@ -122,7 +129,7 @@
         /// </summary>
         /// <param name="timeStamp">Time stamp of the skeleton you are done with</param>
         /// <param name="percentBad">How bad was the skeleton (between 0.0 and 1.0)</param>
-        public void FinishedWithSkeleton(long timeStamp, double percentBad)
+        public void FinishedWithSkeleton(long timeStamp, double[] percentBad)
         {
             foreach (SkeletonStamp skeleton in this.universe)
             {
