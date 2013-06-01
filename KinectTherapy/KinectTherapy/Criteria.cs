@@ -26,7 +26,7 @@ namespace SWENG
         /// <param name="original">The skeleton provided at the start of the repetition</param>
         /// <param name="current">The current skeleton during the repetition</param>
         /// <returns></returns>
-        public double[] checkForm(Skeleton[] originalSkeleton, SkeletonStamp skeletonStamp)
+        public double[] checkForm(SkeletonStamp skeletonStamp)
         {
             double[] jointAccuracy = new double[20];
             // loop through each joint and determine if it is bad or not.
@@ -36,9 +36,9 @@ namespace SWENG
                 
                 foreach (Criterion criterion in trackedJoint.Value)
                 {
-                    if (!criterion.compareToOriginal(originalSkeleton,skeletonStamp))
+                    if (!criterion.matchesCriterion(skeletonStamp))
                     {
-                        percentBad = 100.0;
+                        percentBad = 1.0;
                     }
                 }
                 // store into an array indexed by joint id. 

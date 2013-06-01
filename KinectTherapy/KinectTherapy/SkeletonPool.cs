@@ -96,17 +96,17 @@
         public void Add(Skeleton[] skeleton, long timeStamp)
         {
             // Is there any space left?
-          //  if (free.Count == 0)
-            //{
-            //    for (int i = 0; i < maxInstances; ++i)
-            //    {
-            //        // enqueue again so long as no one else is using this
-            //        if (!this.universe[i].InUse)
-            //        {
-            //            free.Enqueue(this.universe[i]);
-            //        }
-            //    }
-            //}
+            if (free.Count == 0)
+            {
+                for (int i = 0; i < maxInstances; ++i)
+                {
+                    //   enqueue again so long as no one else is using this
+                    if (!this.universe[i].InUse)
+                    {
+                        free.Enqueue(this.universe[i]);
+                    }
+                }
+            }
 
             if (free.Count > 0)
             {

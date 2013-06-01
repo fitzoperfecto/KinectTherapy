@@ -32,6 +32,5 @@ namespace SWENG
         }
 
         public abstract bool matchesCriterion(SkeletonStamp skeletonStamp);
-        public abstract bool compareToOriginal(Skeleton[] originalSkeleton, SkeletonStamp currentSkeleton);
     }
 }

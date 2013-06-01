@@ -57,12 +57,14 @@ namespace SWENG
             Criteria armExtensionExercise = new Criteria();
 
             // criteria to start tracking a repetition
-            Microsoft.Kinect.JointType[] otherJoints = new Microsoft.Kinect.JointType[2] { Microsoft.Kinect.JointType.HandRight, Microsoft.Kinect.JointType.ShoulderRight };
-            Criterion rightElbow = new AngleCriterion(270f, Microsoft.Kinect.JointType.ElbowRight, otherJoints, 10f);
+            JointType[] otherJoints = new JointType[2] {JointType.HandRight, JointType.ShoulderRight };
+            Criterion rightElbow = new AngleCriterion(90f, Microsoft.Kinect.JointType.ElbowRight, otherJoints, 10f);
             armExtensionExercise.addStartingCriterion(Microsoft.Kinect.JointType.ElbowRight, new Criterion[] { rightElbow });
             // criteria to track during the progress of a repetition
-            Criterion leftHand = new PointCriterion("Y", JointType.HandLeft, 0);
-            armExtensionExercise.addTrackingCriterion(JointType.HandLeft, new Criterion[] { leftHand });
+            // make sure hips stay horizontally aligned
+            JointType[] hipJoints = new JointType[2] {JointType.HipLeft, JointType.HipRight };
+            Criterion hips = new AlignmentCriterion(hipJoints, AlignmentCriterion.Alignment.Horizontal, 0.1f);
+            armExtensionExercise.addTrackingCriterion(JointType.HipLeft, new Criterion[] { hips });
             // Retrive the exercise definition... for now we'll hardcode this
             repetition = new CriteriaRepetition(armExtensionExercise);
         }
@@ -101,6 +103,8 @@ namespace SWENG
                         if (repComplete = repetition.isRepComplete(skeletonStamp))
                         {
                             reps++;
+                            // remove all the skeletons before this skeleton
+                            skeletonPool.Remove(skeletonStamp.TimeStamp);
                         }
                     }
                 }
@@ -108,8 +112,8 @@ namespace SWENG
             // remove the skeleton stamp so it can move on
             if (skeletonStamp != null)
             {
+
                 skeletonPool.Remove(skeletonStamp.TimeStamp);
-                //skeletonPool.FinishedWithSkeleton(skeletonStamp.TimeStamp,percentBad);
             }
         }
 
