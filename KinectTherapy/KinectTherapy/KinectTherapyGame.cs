@@ -101,7 +101,7 @@ namespace KinectTherapy
             Services.AddService(typeof(SkeletonPool), skeletonPool);
 
             exerciseQueue = new ExerciseQueue(this);
-            Services.AddService(typeof(IExerciseQueue), exerciseQueue);
+            Services.AddService(typeof(ExerciseQueue), exerciseQueue);
             #endregion
 
             #region Components

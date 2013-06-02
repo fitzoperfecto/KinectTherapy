@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using SWENG.Criteria;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Kinect;
+using System.Diagnostics;
 
 namespace SWENG.Service
 {
@@ -16,36 +17,15 @@ namespace SWENG.Service
     /// Exercises will be loaded from a local xml file. This service then can be accessed by the UI 
     /// components to display the necessary data. 
     /// </summary>
-    public class ExerciseQueue : GameComponent, IExerciseQueue
+    public class ExerciseQueue : GameComponent
     {
-        private ExerciseGameComponent[] _Exercises;
-        private Queue<ExerciseGameComponent> _PendingExercises;
-        private Queue<ExerciseGameComponent> _CompletedExercises;
         // what we need. 
         // list of exercises.
-        public ExerciseGameComponent[] Exercises
-        {
-            get
-            {
-                return _Exercises;
-            }
-        }
-        public Queue<ExerciseGameComponent> PendingExercises
-        {
-            get
-            {
-                return _PendingExercises;
-            }
-        }
-        public Queue<ExerciseGameComponent> CompletedExercises
-        {
-            get
-            {
-                return _CompletedExercises;
-            }
-        }
+        public ExerciseGameComponent[] Exercises { get; internal set; }
+        public Queue<ExerciseGameComponent> PendingExercises { get; internal set; }
+        public Queue<ExerciseGameComponent> CompletedExercises { get; internal set; }
         public int mostRecentComlpleteIndex = 0;
-        public bool isInitialized { get; set; }
+        public bool isInitialized { get; internal set; }
 
         // an exercies game component for the current exercise.
         public ExerciseGameComponent currentExercise;
@@ -54,8 +34,8 @@ namespace SWENG.Service
         public ExerciseQueue(Game game)
             : base(game)
         {
-            _PendingExercises = new Queue<ExerciseGameComponent>();
-            _CompletedExercises = new Queue<ExerciseGameComponent>();
+            PendingExercises = new Queue<ExerciseGameComponent>();
+            CompletedExercises = new Queue<ExerciseGameComponent>();
         }
 
         public override void Initialize()
@@ -65,12 +45,12 @@ namespace SWENG.Service
                 // load the exercises. Should be done through content loader. will hardcode for now.
                 Exercise[] GeneratedExercises = generateExercises();
                 // create a game component for each exercise.
-                _Exercises = new ExerciseGameComponent[GeneratedExercises.Length];
+                Exercises = new ExerciseGameComponent[GeneratedExercises.Length];
                 int i = 0;
                 foreach (Exercise Exercise in GeneratedExercises)
                 {
                     ExerciseGameComponent egc = new ExerciseGameComponent(this.Game, Exercise);
-                    _Exercises[i++] = egc;
+                    Exercises[i++] = egc;
                     PendingExercises.Enqueue(egc);
                 }
                 // add remove the first element and make the current exercise being performed.

@@ -20,8 +20,6 @@ namespace SWENG.UserInterface
     /// </summary>
     public class ExerciseScreen : Screen
     {
-        
-        private ContentManager contentManager;
         private Texture2D blankTexture;
         private SpriteFont spriteFont;
         private Rectangle viewableArea;
@@ -38,11 +36,11 @@ namespace SWENG.UserInterface
         #region ExerciseQueue Variables
         // queue of exercises
         // reference to the exercise queue service
-        private IExerciseQueue ExerciseQueue
+        private ExerciseQueue ExerciseQueue
         {
             get
             {
-                return (IExerciseQueue)Game.Services.GetService(typeof(IExerciseQueue));
+                return (ExerciseQueue)Game.Services.GetService(typeof(ExerciseQueue));
             }
         }
         private ExerciseTile[] fakeExerciseQueue;

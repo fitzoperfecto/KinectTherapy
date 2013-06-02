@@ -33,7 +33,7 @@ namespace SWENG.UserInterface
 
             #region Laying out the positions
             // Keep the buttons the same size
-            Vector2 buttonSize = new Vector2(100, 30f);
+            Vector2 buttonSize = new Vector2(150, 30f);
             
             // Starting button position
             Vector2 buttonPosition = new Vector2(
@@ -42,7 +42,8 @@ namespace SWENG.UserInterface
             );
 
             this.buttonList = new GuiButton[]{
-                new GuiButton("Exercise", buttonSize, buttonPosition)
+                new GuiButton("Exercise", buttonSize, buttonPosition),
+                new GuiButton("Exit Program", buttonSize, buttonPosition + new Vector2(0f, buttonSize.Y + 3f)),
             };
             #endregion
 
@@ -92,10 +93,19 @@ namespace SWENG.UserInterface
                 {
                     button.Hovered = true;
 
-                    if (mouseState.LeftButton == ButtonState.Pressed && mouseState.LeftButton != oldMouseState.LeftButton)
+                    if (mouseState.LeftButton == ButtonState.Pressed 
+                        && mouseState.LeftButton != oldMouseState.LeftButton)
                     {
-                        this.Transition();
-                        this.Manager.CallOpen("Exercise");
+                        switch (button.Text)
+                        {
+                            case "Exercise":
+                                this.Transition();
+                                this.Manager.CallOpen("Exercise");
+                                break;
+                            case "Exit Program":
+                                this.Game.Exit();
+                                break;
+                        }
                     }
                 }
                 else

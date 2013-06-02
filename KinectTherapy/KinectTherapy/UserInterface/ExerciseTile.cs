@@ -26,11 +26,11 @@ namespace SWENG.UserInterface
         /// <summary>
         /// Gets the ExerciseQueue from the services.
         /// </summary>
-        private IExerciseQueue ExerciseQueue
+        private ExerciseQueue SharedExerciseQueue
         {
             get
             {
-                return (IExerciseQueue)Game.Services.GetService(typeof(IExerciseQueue));
+                return (ExerciseQueue)Game.Services.GetService(typeof(ExerciseQueue));
             }
         }
 
@@ -53,6 +53,8 @@ namespace SWENG.UserInterface
         public Vector2 Position { get; set; }
         public Vector2 Size { get; set; }
         public int ExerciseIndex { get; internal set; }
+
+        private string repetitionSentence;
 
         public ExerciseTile(Game game, string title)
             : base(game)
@@ -128,7 +130,20 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            Debug.WriteLine("Name: " + Title + "Reps: " + ExerciseQueue.Exercises[ExerciseIndex].reps + "Index: " + ExerciseIndex);
+            if (this.SharedExerciseQueue.currentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
+            {
+                repetitionSentence = string.Format(
+                    "Name: {0} | Reps: {1} | Index: {2}",
+                    Title,
+                    SharedExerciseQueue.Exercises[ExerciseIndex].reps,
+                    ExerciseIndex
+                );
+            }
+            else
+            {
+                repetitionSentence = null;
+            }
+
             if (this.TitleSize > this.Size.X - (2 * MARGIN))
             {
                 this.drawableSection.X = this.drawableSection.X + SCROLL_RATE;
@@ -169,6 +184,11 @@ namespace SWENG.UserInterface
                 this.body,
                 Color.White
             );
+
+            if (!string.IsNullOrEmpty(repetitionSentence))
+            {
+                Debug.WriteLine(repetitionSentence);
+            }
 
             this.SharedSpriteBatch.End();
 

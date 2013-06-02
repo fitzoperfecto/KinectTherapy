@@ -125,7 +125,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="KinectTherapyGame.cs" />
-    <Compile Include="Service\IExerciseQueue.cs" />
     <Compile Include="Service\SkeletonPool.cs" />
     <Compile Include="SkeletonStamp.cs" />
     <Compile Include="SkeletonStreamRenderer.cs" />
