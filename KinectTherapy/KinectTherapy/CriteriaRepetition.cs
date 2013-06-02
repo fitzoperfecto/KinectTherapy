@@ -16,11 +16,11 @@ namespace SWENG
     /// </summary>
     class CriteriaRepetition:IRepetition
     {
-        private Criteria criteria;
+        private Exercise criteria;
         private DateTime startTime;
         private DateTime endTime;
         //***********************************
-        public CriteriaRepetition(Criteria criteria)
+        public CriteriaRepetition(Exercise criteria)
         {
             this.criteria = criteria;
         }

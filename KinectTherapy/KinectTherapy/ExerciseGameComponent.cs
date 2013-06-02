@@ -54,17 +54,17 @@ namespace SWENG
             //repetition = new TimerRepetition(); <<<<--- test of the repetition interface
 
             // Hardcoding Right Angle Right Elbow Vertex Criteria
-            Criteria armExtensionExercise = new Criteria();
+            Exercise armExtensionExercise = new Exercise();
 
             // criteria to start tracking a repetition
             JointType[] otherJoints = new JointType[2] {JointType.HandRight, JointType.ShoulderRight };
             Criterion rightElbow = new AngleCriterion(90f, Microsoft.Kinect.JointType.ElbowRight, otherJoints, 10f);
-            armExtensionExercise.addStartingCriterion(Microsoft.Kinect.JointType.ElbowRight, new Criterion[] { rightElbow });
+            armExtensionExercise.StartingCriteria= new Criterion[] { rightElbow };
             // criteria to track during the progress of a repetition
             // make sure hips stay horizontally aligned
             JointType[] hipJoints = new JointType[2] {JointType.HipLeft, JointType.HipRight };
             Criterion hips = new AlignmentCriterion(hipJoints, AlignmentCriterion.Alignment.Horizontal, 0.1f);
-            armExtensionExercise.addTrackingCriterion(JointType.HipLeft, new Criterion[] { hips });
+            armExtensionExercise.TrackingCriteria = new Criterion[] { hips };
             // Retrive the exercise definition... for now we'll hardcode this
             repetition = new CriteriaRepetition(armExtensionExercise);
         }

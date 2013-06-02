@@ -111,9 +111,9 @@
     <Compile Include="AlignmentCriterion.cs" />
     <Compile Include="AngleCriterion.cs" />
     <Compile Include="ColorStreamRenderer.cs" />
-    <Compile Include="Criteria.cs" />
     <Compile Include="CriteriaRepetition.cs" />
     <Compile Include="Criterion.cs" />
+    <Compile Include="Exercise.cs" />
     <Compile Include="ExerciseGameComponent.cs" />
     <Compile Include="FormResult.cs" />
     <Compile Include="IRepetition.cs" />
