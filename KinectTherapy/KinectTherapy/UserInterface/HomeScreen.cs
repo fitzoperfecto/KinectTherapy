@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-
 
 namespace SWENG.UserInterface
 {
@@ -17,7 +10,6 @@ namespace SWENG.UserInterface
     /// </summary>
     public class HomeScreen : Screen
     {
-        private ContentManager contentManager;
         private Texture2D blankTexture;
         private SpriteFont spriteFont;
         private Rectangle viewableArea;
@@ -25,6 +17,12 @@ namespace SWENG.UserInterface
         private bool isInitialized;
         private MouseState oldMouseState;
 
+        /// <summary>
+        /// Initialize a new instance of the HomeScreen class.
+        /// </summary>
+        /// <param name="game">The related game object.</param>
+        /// <param name="viewableArea">The desired canvas size to draw on.</param>
+        /// <param name="startingState">The desired starting Screen State</param>
         public HomeScreen(Game game, Rectangle viewableArea, ScreenState startingState)
             : base(game)
         {
@@ -33,7 +31,11 @@ namespace SWENG.UserInterface
 
             this.Title = "The Hub";
 
+            #region Laying out the positions
+            // Keep the buttons the same size
             Vector2 buttonSize = new Vector2(100, 30f);
+            
+            // Starting button position
             Vector2 buttonPosition = new Vector2(
                 (viewableArea.Width / 2) - (buttonSize.X / 2),
                 (viewableArea.Height / 2) - (buttonSize.Y / 2)
@@ -42,9 +44,9 @@ namespace SWENG.UserInterface
             this.buttonList = new GuiButton[]{
                 new GuiButton("Exercise", buttonSize, buttonPosition)
             };
+            #endregion
 
             this.isInitialized = false;
-            // TODO: Construct any child components here
         }
 
         /// <summary>
@@ -53,27 +55,26 @@ namespace SWENG.UserInterface
         /// </summary>
         public override void Initialize()
         {
-            isInitialized = true;
+            this.isInitialized = true;
 
             base.Initialize();
         }
 
+        /// <summary>
+        /// This method creates a new ContentManager 
+        /// and loads the textures and fonts.
+        /// </summary>
         public override void LoadContent()
         {
-            if (null == contentManager)
+            if (null == this.contentManager)
             {
-                contentManager = new ContentManager(this.Game.Services, "Content");
+                this.contentManager = new ContentManager(this.Game.Services, "Content");
             }
 
-            spriteFont = contentManager.Load<SpriteFont>("Arial16");
-            blankTexture = contentManager.Load<Texture2D>("blank");
+            this.spriteFont = this.contentManager.Load<SpriteFont>("Arial16");
+            this.blankTexture = this.contentManager.Load<Texture2D>("blank");
 
             base.LoadContent();
-        }
-
-        public override void UnloadContent()
-        {
-            contentManager.Unload();
         }
 
         /// <summary>
@@ -85,7 +86,7 @@ namespace SWENG.UserInterface
             MouseState mouseState = Mouse.GetState();
             Rectangle mouseBoundingBox = new Rectangle(mouseState.X, mouseState.Y, 1, 1);
 
-            foreach (GuiButton button in buttonList)
+            foreach (GuiButton button in this.buttonList)
             {
                 if (mouseBoundingBox.Intersects(button.Rectangle))
                 {
@@ -103,10 +104,15 @@ namespace SWENG.UserInterface
                 }
             }
 
-            oldMouseState = mouseState;
+            this.oldMouseState = mouseState;
+            
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// This method renders the current state of the HomeScreen.
+        /// </summary>
+        /// <param name="gameTime">The elapsed game time.</param>
         public override void Draw(GameTime gameTime)
         {
             if (this.isInitialized)
@@ -143,6 +149,7 @@ namespace SWENG.UserInterface
 
                 this.SharedSpriteBatch.End();
             }
+
             base.Draw(gameTime);
         }
     }

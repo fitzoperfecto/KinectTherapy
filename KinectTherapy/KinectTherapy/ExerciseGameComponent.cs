@@ -12,8 +12,9 @@ namespace SWENG
 {
     public class ExerciseGameComponent : GameComponent
     {
-        // queue of skeletons
-        // reference to the skeleton pool service
+        /// <summary>
+        /// Gets the SkeletonPool from the services.
+        /// </summary>
         private SkeletonPool skeletonPool
         {
             get
@@ -22,6 +23,9 @@ namespace SWENG
             }
         }
 
+        /// <summary>
+        /// Gets the SpriteBatch from the services.
+        /// </summary>
         private SpriteBatch spriteBatch
         {
             get

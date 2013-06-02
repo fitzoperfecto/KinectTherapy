@@ -1,16 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using SWENG.Service;
 using System.Diagnostics;
-
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using SWENG.Service;
 
 namespace SWENG.UserInterface
 {
@@ -31,7 +24,7 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// get the exercise queue from the services
+        /// Gets the ExerciseQueue from the services.
         /// </summary>
         private IExerciseQueue ExerciseQueue
         {
@@ -40,6 +33,7 @@ namespace SWENG.UserInterface
                 return (IExerciseQueue)Game.Services.GetService(typeof(IExerciseQueue));
             }
         }
+
         private ContentManager contentManager;
         private Texture2D blankTexture;
         private SpriteFont spriteFont;
@@ -66,13 +60,14 @@ namespace SWENG.UserInterface
             this.Title = title;
         }
 
-        public ExerciseTile(Game game, ExerciseGameComponent exercise,int exerciseIndex)
+        // TODO: With a reference to the exerciseIndex and the ExerciseQueue passing in 
+        // the ExerciseGameComponent may be redundant.  Need to check performance measures
+        public ExerciseTile(Game game, ExerciseGameComponent exercise, int exerciseIndex)
             : base(game)
         {
             this.Title = exercise.Name;
             this.ExerciseIndex = exerciseIndex;
         }
-
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
@@ -83,6 +78,10 @@ namespace SWENG.UserInterface
             base.Initialize();
         }
 
+        /// <summary>
+        /// This method creates a new ContentManager 
+        /// and loads the textures and fonts.
+        /// </summary>
         protected override void LoadContent()
         {
             if (null == this.contentManager)
@@ -140,36 +139,15 @@ namespace SWENG.UserInterface
                 }
             }
 
-            Game.GraphicsDevice.SetRenderTarget(this.renderTarget2d);
-            Game.GraphicsDevice.Clear(ClearOptions.Target, Color.DarkMagenta, 0, 0);
-            this.SharedSpriteBatch.Begin();
-
-            this.SharedSpriteBatch.Draw(
-                this.blankTexture,
-                new Rectangle(
-                    MARGIN,
-                    MARGIN,
-                    this.header.Width - (2 * MARGIN),
-                    this.header.Height - (2 * MARGIN)
-                ),
-                Color.DarkMagenta
-            );
-
-            this.SharedSpriteBatch.DrawString(
-                this.spriteFont,
-                this.Title,
-                this.drawableSection,
-                Color.White
-            );
-
-            this.SharedSpriteBatch.End();
-            Game.GraphicsDevice.SetRenderTarget(null);
-
-            this.titleTexture = (Texture2D)this.renderTarget2d;
+            this.titleTexture = CreateScrollingHeader();
 
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// This method renders the current state of the ExerciseTile.
+        /// </summary>
+        /// <param name="gameTime">The elapsed game time.</param>
         public override void Draw(GameTime gameTime)
         {
             this.SharedSpriteBatch.Begin();
@@ -195,6 +173,40 @@ namespace SWENG.UserInterface
             this.SharedSpriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Create a texture with the text scrolled
+        /// </summary>
+        /// <returns>Updated texture</returns>
+        private Texture2D CreateScrollingHeader()
+        {
+            Game.GraphicsDevice.SetRenderTarget(this.renderTarget2d);
+            Game.GraphicsDevice.Clear(ClearOptions.Target, Color.DarkMagenta, 0, 0);
+            this.SharedSpriteBatch.Begin();
+
+            this.SharedSpriteBatch.Draw(
+                this.blankTexture,
+                new Rectangle(
+                    MARGIN,
+                    MARGIN,
+                    this.header.Width - (2 * MARGIN),
+                    this.header.Height - (2 * MARGIN)
+                ),
+                Color.DarkMagenta
+            );
+
+            this.SharedSpriteBatch.DrawString(
+                this.spriteFont,
+                this.Title,
+                this.drawableSection,
+                Color.White
+            );
+
+            this.SharedSpriteBatch.End();
+            Game.GraphicsDevice.SetRenderTarget(null);
+
+            return (Texture2D)renderTarget2d;
         }
     }
 }

@@ -52,6 +52,12 @@ namespace SWENG.UserInterface
         private GuiButton[] buttonList;
         #endregion
 
+        /// <summary>
+        /// Initialize a new instance of the ExerciseScreen class.
+        /// </summary>
+        /// <param name="game">The related game object.</param>
+        /// <param name="viewableArea">The desired canvas size to draw on.</param>
+        /// <param name="startingState">The desired starting Screen State</param>
         public ExerciseScreen(Game game, Rectangle viewableArea, ScreenState startingState)
             : base(game)
         {
@@ -62,19 +68,12 @@ namespace SWENG.UserInterface
 
             // for now we'll generate hardcoded exercises....
             // note the location of this will need to change if we load these from an external file. 
-            ExerciseGameComponent[] exercises = ExerciseQueue.Exercises;
+            ExerciseGameComponent[] exercises = this.ExerciseQueue.Exercises;
             this.fakeExerciseQueue = new ExerciseTile[exercises.Length];
             for (int i = 0; i < exercises.Length; i++)
             {
                 fakeExerciseQueue[i] = new ExerciseTile(game, exercises[i],i);
             }
-            //this.fakeExerciseQueue = new ExerciseTile[] {
-
-            //    new ExerciseTile(game, "A much much longer name than the rest"),
-            //    new ExerciseTile(game, "Right Angle"),
-            //    new ExerciseTile(game, "Toe Dip"),
-            //    new ExerciseTile(game, "Push-ups"),
-            //};
 
             #region Laying out the positions
             this.colorStreamPosition = new Vector2(
@@ -138,9 +137,7 @@ namespace SWENG.UserInterface
         /// </summary>
         public override void Initialize()
         {
-            // make sure there is a margin between the top header and left side of the screen
             this.colorStream.Position = this.colorStreamPosition;
-            // the color stream should only be half the viewable area to keep room for more information
             this.colorStream.Size = this.colorStreamSize;
             this.colorStream.Initialize();
 
@@ -149,33 +146,29 @@ namespace SWENG.UserInterface
                 exerciseTile.Initialize();
             }
 
-            isInitialized = true;
-
+            this.isInitialized = true;
 
             base.Initialize();
         }
 
+        /// <summary>
+        /// This method creates a new ContentManager 
+        /// and loads the textures and fonts.
+        /// </summary>
         public override void LoadContent()
         {
-            if (null == contentManager)
+            if (null == this.contentManager)
             {
-                contentManager = new ContentManager(this.Game.Services, "Content");
+                this.contentManager = new ContentManager(this.Game.Services, "Content");
             }
 
-            spriteFont = contentManager.Load<SpriteFont>("Arial16");
-            blankTexture = contentManager.Load<Texture2D>("blank");
+            this.spriteFont = this.contentManager.Load<SpriteFont>("Arial16");
+            this.blankTexture = this.contentManager.Load<Texture2D>("blank");
             
             // load the exercise routine here
             //Exercise[] exercises = contentManager.Load<Exercise>("ArmExtensions");
-            
+
             base.LoadContent();
-        }
-
-     
-
-        public override void UnloadContent()
-        {
-            contentManager.Unload();
         }
 
         /// <summary>
@@ -195,7 +188,8 @@ namespace SWENG.UserInterface
                     {
                         button.Hovered = true;
 
-                        if (mouseState.LeftButton == ButtonState.Pressed && mouseState.LeftButton != oldMouseState.LeftButton)
+                        if (mouseState.LeftButton == ButtonState.Pressed 
+                            && mouseState.LeftButton != this.oldMouseState.LeftButton)
                         {
                             this.Transition();
                             this.Manager.CallOpen("The Hub");
@@ -207,7 +201,7 @@ namespace SWENG.UserInterface
                     }
                 }
 
-                oldMouseState = mouseState;
+                this.oldMouseState = mouseState;
 
                 this.colorStream.Update(gameTime);
                 foreach (ExerciseTile exerciseTile in this.fakeExerciseQueue)
@@ -219,9 +213,13 @@ namespace SWENG.UserInterface
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// This method renders the current state of the ExerciseScreen.
+        /// </summary>
+        /// <param name="gameTime">The elapsed game time.</param>
         public override void Draw(GameTime gameTime)
         {
-            if (isInitialized)
+            if (this.isInitialized)
             {
                 this.GraphicsDevice.Clear(Color.White);
                 this.SharedSpriteBatch.Begin();

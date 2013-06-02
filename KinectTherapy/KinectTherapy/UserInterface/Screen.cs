@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 using Microsoft.Samples.Kinect.XnaBasics;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SWENG.UserInterface
 {
@@ -19,7 +12,8 @@ namespace SWENG.UserInterface
     }
 
     /// <summary>
-    /// This is a game component that implements IUpdateable.
+    /// Required abstract class if the UserInterface screen
+    /// wants to be managed.
     /// </summary>
     public abstract class Screen : DrawableGameComponent
     {
@@ -46,16 +40,21 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// Protected set so only the screen itself can change its state
+        /// Get the ScreenState
         /// </summary>
         public ScreenState ScreenState { get; protected set; }
 
         /// <summary>
-        /// Internal 
+        /// Get the UserInterface.Manager
         /// </summary>
         public Manager Manager { get; internal set; }
 
+        /// <summary>
+        /// Get the Title
+        /// </summary>
         public string Title { get; internal set; }
+
+        public ContentManager contentManager { get; internal set; }
 
         public Screen(Game game)
             : base(game)
@@ -63,10 +62,8 @@ namespace SWENG.UserInterface
             this.ScreenState = UserInterface.ScreenState.Hidden;
         }
 
-
         /// <summary>
-        /// By default, this will just switch between active and hidden
-        /// Override to add logic such as fading in/out, star swipe, bounce, etc...
+        /// This will just switch between active and hidden
         /// </summary>
         public virtual void Transition()
         {
@@ -100,6 +97,16 @@ namespace SWENG.UserInterface
 
         public virtual void LoadContent() { }
 
-        public virtual void UnloadContent() { }
+        /// <summary>
+        /// This method ensures that the ContentManager 
+        /// releases its loaded Content.
+        /// </summary>
+        public virtual void UnloadContent()
+        {
+            if (null != this.contentManager)
+            {
+                this.contentManager.Unload();
+            }
+        }
     }
 }
