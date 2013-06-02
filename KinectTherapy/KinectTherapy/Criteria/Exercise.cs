@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Kinect;
 using System.Collections;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
     /// <summary>
     /// Contains the criteria for an exercise.  
@@ -14,11 +14,12 @@ namespace SWENG
     /// 
     /// Will contain a map of the joints to be tracked, what axis should be tracked and the variance allowed
     /// </summary>
-    class Exercise
+    public class Exercise
     {
+        public string Name { get; set; }
         public Criterion[] StartingCriteria { get; set; }
         public Criterion[] TrackingCriteria { get; set; }
-        public int Repetitions;
+        public int Repetitions { get; set; }
         /// <summary>
         /// Move this to an interface
         /// Check form will validate all the tracked joints based on the criteria provided by trackedJoints

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
-using SWENG;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Kinect;
+using SWENG.Service;
+using SWENG.Criteria;
 
 namespace SWENG
 {
-    class ExerciseGameComponent : DrawableGameComponent
+    public class ExerciseGameComponent : GameComponent
     {
         // queue of skeletons
         // reference to the skeleton pool service
@@ -29,54 +30,31 @@ namespace SWENG
             }
         }
 
-        private Boolean repComplete;
-        private Boolean repStarted;
-        private int reps;
-
-        // these i dont really understand yet just testing 
-        SpriteFont Font1;
-        //Vector2 FontPos;
-
+        private Exercise Exercise;
+        public Boolean repComplete { get; internal set; }
+        public Boolean repStarted { get; internal set; }
+        public int reps { get; internal set; }
+        public string Name { get; internal set; }
         private IRepetition repetition;
 
-        public ExerciseGameComponent(Game game)
+        public ExerciseGameComponent(Game game,Exercise exercise)
             : base(game)
         {
             this.repComplete = false;
             this.repStarted = false;
             this.reps = 0;
+            this.Exercise = exercise;
+            this.Name = exercise.Name;
+            this.repetition = new CriteriaRepetition(exercise);
         }
 
         public override void Initialize()
         {
             base.Initialize();
-            // may need a factory here to determine the repetition to use. for now hardcoding.
-            //repetition = new TimerRepetition(); <<<<--- test of the repetition interface
-
-            // Hardcoding Right Angle Right Elbow Vertex Criteria
-            Exercise armExtensionExercise = new Exercise();
-
-            // criteria to start tracking a repetition
-            JointType[] otherJoints = new JointType[2] {JointType.HandRight, JointType.ShoulderRight };
-            Criterion rightElbow = new AngleCriterion(90f, Microsoft.Kinect.JointType.ElbowRight, otherJoints, 10f);
-            armExtensionExercise.StartingCriteria= new Criterion[] { rightElbow };
-            // criteria to track during the progress of a repetition
-            // make sure hips stay horizontally aligned
-            JointType[] hipJoints = new JointType[2] {JointType.HipLeft, JointType.HipRight };
-            Criterion hips = new AlignmentCriterion(hipJoints, AlignmentCriterion.Alignment.Horizontal, 0.1f);
-            armExtensionExercise.TrackingCriteria = new Criterion[] { hips };
-            // Retrive the exercise definition... for now we'll hardcode this
-            repetition = new CriteriaRepetition(armExtensionExercise);
         }
 
-        protected override void LoadContent()
-        {
-            base.LoadContent();
-            this.Font1 = this.Game.Content.Load<SpriteFont>("Segoe16");
-        }
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
 
             // the stamp being processed
             SkeletonStamp skeletonStamp=skeletonPool.GetOldestSkeleton();
@@ -102,7 +80,9 @@ namespace SWENG
                         // see if the rep has been completed
                         if (repComplete = repetition.isRepComplete(skeletonStamp))
                         {
+                            // increment reps completed and reset the flags
                             reps++;
+                            repComplete = repStarted = false;
                             // remove all the skeletons before this skeleton
                             skeletonPool.Remove(skeletonStamp.TimeStamp);
                         }
@@ -112,25 +92,15 @@ namespace SWENG
             // remove the skeleton stamp so it can move on
             if (skeletonStamp != null)
             {
-
                 skeletonPool.Remove(skeletonStamp.TimeStamp);
             }
+
+            base.Update(gameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        public bool isExerciseComplete()
         {
-            // reset repMonitor if a rep is complete and reset
-            if (repComplete)
-            {
-                repComplete = repStarted = false;
-            }
-            // draw a number on the screen
-            // display the rep counted
-            spriteBatch.Begin();
-            // this being the line that answers your question
-            spriteBatch.DrawString(this.Font1, reps + " strt:" + repStarted + " com:" + repComplete, new Vector2(450, 0), Color.Red);
-            spriteBatch.End();
-            base.Draw(gameTime);
+            return reps >= Exercise.Repetitions;
         }
     }
 }

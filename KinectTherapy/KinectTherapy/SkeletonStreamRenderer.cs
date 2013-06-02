@@ -10,6 +10,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
     using Microsoft.Kinect;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
+    using SWENG.Service;
 
     /// <summary>
     /// A delegate method explaining how to map a SkeletonPoint from one space to another.
@@ -74,11 +75,11 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         private Matrix view;
         private Matrix projection;
 
-        private SWENG.SkeletonPool SkeletonPool
+        private SkeletonPool SkeletonPool
         {
             get
             {
-                return (SWENG.SkeletonPool)this.Game.Services.GetService(typeof(SWENG.SkeletonPool));
+                return (SkeletonPool)this.Game.Services.GetService(typeof(SkeletonPool));
             }
         }
 

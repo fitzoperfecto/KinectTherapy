@@ -6,12 +6,12 @@ using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
     /// <summary>
     /// Criteria for an angle between 3 joints
     /// </summary>
-    class AngleCriterion:Criterion
+    public class AngleCriterion:Criterion
     {
         float minAngle;
         float maxAngle;

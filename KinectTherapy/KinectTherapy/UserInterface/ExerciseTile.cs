@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using SWENG.Service;
+using System.Diagnostics;
 
 
 namespace SWENG.UserInterface
@@ -28,6 +30,16 @@ namespace SWENG.UserInterface
             }
         }
 
+        /// <summary>
+        /// get the exercise queue from the services
+        /// </summary>
+        private IExerciseQueue ExerciseQueue
+        {
+            get
+            {
+                return (IExerciseQueue)Game.Services.GetService(typeof(IExerciseQueue));
+            }
+        }
         private ContentManager contentManager;
         private Texture2D blankTexture;
         private SpriteFont spriteFont;
@@ -46,12 +58,21 @@ namespace SWENG.UserInterface
         public string Title { get; internal set; }
         public Vector2 Position { get; set; }
         public Vector2 Size { get; set; }
+        public int ExerciseIndex { get; internal set; }
 
         public ExerciseTile(Game game, string title)
             : base(game)
         {
             this.Title = title;
         }
+
+        public ExerciseTile(Game game, ExerciseGameComponent exercise,int exerciseIndex)
+            : base(game)
+        {
+            this.Title = exercise.Name;
+            this.ExerciseIndex = exerciseIndex;
+        }
+
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
@@ -108,6 +129,7 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            Debug.WriteLine("Name: " + Title + "Reps: " + ExerciseQueue.Exercises[ExerciseIndex].reps + "Index: " + ExerciseIndex);
             if (this.TitleSize > this.Size.X - (2 * MARGIN))
             {
                 this.drawableSection.X = this.drawableSection.X + SCROLL_RATE;

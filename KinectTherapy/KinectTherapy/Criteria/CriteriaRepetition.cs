@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Kinect;
 using System.Diagnostics;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
     /// <summary>
     /// This class expects a criteria for the start/stop position to be provided 
@@ -19,6 +19,7 @@ namespace SWENG
         private Exercise criteria;
         private DateTime startTime;
         private DateTime endTime;
+
         //***********************************
         public CriteriaRepetition(Exercise criteria)
         {

@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Kinect;
 using Microsoft.Samples.Kinect.XnaBasics;
 using System.Diagnostics;
+using SWENG.Service;
 
 namespace SWENG.UserInterface
 {
@@ -35,6 +36,15 @@ namespace SWENG.UserInterface
         #endregion
 
         #region ExerciseQueue Variables
+        // queue of exercises
+        // reference to the exercise queue service
+        private IExerciseQueue ExerciseQueue
+        {
+            get
+            {
+                return (IExerciseQueue)Game.Services.GetService(typeof(IExerciseQueue));
+            }
+        }
         private ExerciseTile[] fakeExerciseQueue;
         #endregion
 
@@ -50,12 +60,21 @@ namespace SWENG.UserInterface
             this.colorStream = new ColorStreamRenderer(game);
             this.Title = "Exercise";
 
-            this.fakeExerciseQueue = new ExerciseTile[] {
-                new ExerciseTile(game, "A much much longer name than the rest"),
-                new ExerciseTile(game, "Right Angle"),
-                new ExerciseTile(game, "Toe Dip"),
-                new ExerciseTile(game, "Push-ups"),
-            };
+            // for now we'll generate hardcoded exercises....
+            // note the location of this will need to change if we load these from an external file. 
+            ExerciseGameComponent[] exercises = ExerciseQueue.Exercises;
+            this.fakeExerciseQueue = new ExerciseTile[exercises.Length];
+            for (int i = 0; i < exercises.Length; i++)
+            {
+                fakeExerciseQueue[i] = new ExerciseTile(game, exercises[i],i);
+            }
+            //this.fakeExerciseQueue = new ExerciseTile[] {
+
+            //    new ExerciseTile(game, "A much much longer name than the rest"),
+            //    new ExerciseTile(game, "Right Angle"),
+            //    new ExerciseTile(game, "Toe Dip"),
+            //    new ExerciseTile(game, "Push-ups"),
+            //};
 
             #region Laying out the positions
             this.colorStreamPosition = new Vector2(
@@ -132,6 +151,7 @@ namespace SWENG.UserInterface
 
             isInitialized = true;
 
+
             base.Initialize();
         }
 
@@ -144,9 +164,14 @@ namespace SWENG.UserInterface
 
             spriteFont = contentManager.Load<SpriteFont>("Arial16");
             blankTexture = contentManager.Load<Texture2D>("blank");
-
+            
+            // load the exercise routine here
+            //Exercise[] exercises = contentManager.Load<Exercise>("ArmExtensions");
+            
             base.LoadContent();
         }
+
+     
 
         public override void UnloadContent()
         {

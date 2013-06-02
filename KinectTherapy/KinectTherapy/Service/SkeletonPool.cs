@@ -1,4 +1,4 @@
-﻿namespace SWENG
+﻿namespace SWENG.Service
 {
     using System;
     using Microsoft.Kinect;

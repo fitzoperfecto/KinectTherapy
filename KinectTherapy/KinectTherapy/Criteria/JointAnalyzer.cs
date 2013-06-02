@@ -5,14 +5,14 @@ using System.Text;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
     /// <summary>
     /// The purpose of the joint analyzer is to encapsulate the mathematics behind comparing joints.
     /// These methods should return a numerical result representing the degree off perfect alignment.
     /// 
     /// </summary>
-    class JointAnalyzer
+    public class JointAnalyzer
     {
         /// <summary>
         /// to see if the joints are aligned we must choose one joint as the starting point (NOT THE CENTER) and compare to the other two joints

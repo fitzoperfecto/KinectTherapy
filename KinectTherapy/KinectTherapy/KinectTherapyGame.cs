@@ -14,6 +14,7 @@ using Microsoft.Samples.Kinect.XnaBasics;
 using SWENG;
 using SWENG.UserInterface;
 using Microsoft.Kinect;
+using SWENG.Service;
 
 namespace KinectTherapy
 {
@@ -50,14 +51,16 @@ namespace KinectTherapy
         private const int SKELETON_POOL_SIZE = 100;
 
         /// <summary>
-        /// This manages the current exercise being performed
+        /// This manages the queue of exercises as well as the current exercise being performed
         /// </summary>
-        private readonly ExerciseGameComponent exerciseComponent;
+        private readonly ExerciseQueue exerciseQueue;
 
         /// <summary>
         /// The exercise screen
         /// </summary>
         private readonly Manager userInterfaceManager;
+
+        
 
         /// <summary>
         /// preloading assets
@@ -96,10 +99,12 @@ namespace KinectTherapy
 
             skeletonPool = new SkeletonPool(this, SKELETON_POOL_SIZE);
             Services.AddService(typeof(SkeletonPool), skeletonPool);
+
+            exerciseQueue = new ExerciseQueue(this);
+            Services.AddService(typeof(IExerciseQueue), exerciseQueue);
             #endregion
 
             #region Components
-            exerciseComponent = new ExerciseGameComponent(this);
             userInterfaceManager = new Manager(this);
             #endregion
 
@@ -115,8 +120,8 @@ namespace KinectTherapy
         {
             // TODO: Add your initialization logic here
             skeletonPool.Initialize();
-
-            Components.Add(this.exerciseComponent);
+            exerciseQueue.Initialize();
+            Components.Add(this.exerciseQueue);
             Components.Add(this.userInterfaceManager);
 
             this.userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Active));
