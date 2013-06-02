@@ -128,6 +128,12 @@
     <Compile Include="SkeletonStamp.cs" />
     <Compile Include="SkeletonStreamRenderer.cs" />
     <Compile Include="TimerRepetition.cs" />
+    <Compile Include="UserInterface\GuiButton.cs" />
+    <Compile Include="UserInterface\ExerciseTile.cs" />
+    <Compile Include="UserInterface\HomeScreen.cs" />
+    <Compile Include="UserInterface\Manager.cs" />
+    <Compile Include="UserInterface\ExerciseScreen.cs" />
+    <Compile Include="UserInterface\Screen.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

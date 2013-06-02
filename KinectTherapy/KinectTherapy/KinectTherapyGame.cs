@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Samples.Kinect.XnaBasics;
 
 using SWENG;
+using SWENG.UserInterface;
 using Microsoft.Kinect;
 
 namespace KinectTherapy
@@ -43,11 +44,6 @@ namespace KinectTherapy
         private KeyboardState previousKeyboard;
 
         /// <summary>
-        /// This is the font.
-        /// </summary>
-        private SpriteFont font;
-
-        /// <summary>
         /// This is the queue of SkeletonStamps
         /// </summary>
         private readonly SkeletonPool skeletonPool;
@@ -59,9 +55,19 @@ namespace KinectTherapy
         private readonly ExerciseGameComponent exerciseComponent;
 
         /// <summary>
-        /// This is using the color stream for now
+        /// The exercise screen
         /// </summary>
-        private readonly ColorStreamRenderer colorStream;
+        private readonly Manager userInterfaceManager;
+
+        /// <summary>
+        /// preloading assets
+        /// </summary>
+        static readonly string[] preloadGraphics = 
+        {
+            "gradient",
+            "blank",
+        };
+
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -94,7 +100,7 @@ namespace KinectTherapy
 
             #region Components
             exerciseComponent = new ExerciseGameComponent(this);
-            colorStream = new ColorStreamRenderer(this);
+            userInterfaceManager = new Manager(this);
             #endregion
 
         }
@@ -110,8 +116,11 @@ namespace KinectTherapy
             // TODO: Add your initialization logic here
             skeletonPool.Initialize();
 
-            Components.Add(this.colorStream);
             Components.Add(this.exerciseComponent);
+            Components.Add(this.userInterfaceManager);
+
+            this.userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Active));
+            this.userInterfaceManager.AddScreen(new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden));
 
             base.Initialize();
         }

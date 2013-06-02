@@ -62,7 +62,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         public override void Initialize()
         {
             base.Initialize();
-            this.Size = new Vector2(Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height);
+            //this.Size = new Vector2(Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height);
         }
 
         /// <summary>
