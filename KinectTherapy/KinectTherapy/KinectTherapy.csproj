@@ -111,6 +111,7 @@
     <Compile Include="Criteria\AlignmentCriterion.cs" />
     <Compile Include="Criteria\AngleCriterion.cs" />
     <Compile Include="ColorStreamRenderer.cs" />
+    <Compile Include="Record\DepthStreamRecorder.cs" />
     <Compile Include="Record\ReplayColorImageFrame.cs" />
     <Compile Include="Record\ColorStreamRecorder.cs" />
     <Compile Include="Record\enum.cs" />
@@ -120,7 +121,7 @@
     <Compile Include="Record\ReplaySkeletonFrame.cs" />
     <Compile Include="Record\ReplaySkeletonFrameReadyEventArgs.cs" />
     <Compile Include="Record\SkeletonStreamRecorder.cs" />
-    <Compile Include="Record\StreamRecorder.cs" />
+    <Compile Include="Record\KinectStreamRecorder.cs" />
     <Compile Include="Record\KinectReplay.cs" />
     <Compile Include="Record\ReplaySystem.cs" />
     <Compile Include="Record\ReplayColorImageFrameReadyEventArgs.cs" />
