@@ -85,7 +85,7 @@ namespace SWENG.Service
             armExtensionExerciseLeft.Repetitions = 3;
             // criteria to start tracking a repetition
             JointType[] leftJoints = new JointType[2] { JointType.HandLeft, JointType.ShoulderLeft };
-            Criterion leftElbow = new AngleCriterion(90f, Microsoft.Kinect.JointType.ElbowLeft, otherJoints, 10f);
+            Criterion leftElbow = new AngleCriterion(90f, Microsoft.Kinect.JointType.ElbowLeft, leftJoints, 10f);
             armExtensionExerciseLeft.StartingCriteria = new Criterion[] { leftElbow };
             // criteria to track during the progress of a repetition
             // make sure hips stay horizontally aligned
