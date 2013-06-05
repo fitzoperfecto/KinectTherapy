@@ -132,8 +132,8 @@ namespace SWENG.UserInterface
         {
             if (this.SharedExerciseQueue.currentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
             {
-                repetitionSentence = string.Format(
-                    "Name: {0} | Reps: {1} | Index: {2}",
+                this.repetitionSentence = string.Format(
+                    "Reps: {1}",
                     Title,
                     SharedExerciseQueue.Exercises[ExerciseIndex].reps,
                     ExerciseIndex
@@ -141,7 +141,7 @@ namespace SWENG.UserInterface
             }
             else
             {
-                repetitionSentence = null;
+                this.repetitionSentence = null;
             }
 
             if (this.TitleSize > this.Size.X - (2 * MARGIN))
@@ -187,7 +187,16 @@ namespace SWENG.UserInterface
 
             if (!string.IsNullOrEmpty(repetitionSentence))
             {
-                Debug.WriteLine(repetitionSentence);
+                this.SharedSpriteBatch.DrawString(
+                    this.spriteFont, 
+                    this.repetitionSentence,
+                    // stupid quick way of centering this for the meeting
+                    new Vector2(
+                        this.body.X + (this.body.Width / 4), 
+                        this.body.Y + (this.body.Height / 2) - 12 
+                    ), 
+                    Color.Blue
+                );
             }
 
             this.SharedSpriteBatch.End();
