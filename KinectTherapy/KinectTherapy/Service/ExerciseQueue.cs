@@ -7,6 +7,8 @@ using SWENG.Criteria;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Kinect;
 using System.Diagnostics;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace SWENG.Service
 {
@@ -43,7 +45,8 @@ namespace SWENG.Service
             if (!isInitialized)
             {
                 // load the exercises. Should be done through content loader. will hardcode for now.
-                Exercise[] GeneratedExercises = generateExercises();
+                //Exercise[] GeneratedExercises = generateExercises();
+                Exercise[] GeneratedExercises = ReadExercises();
                 // create a game component for each exercise.
                 Exercises = new ExerciseGameComponent[GeneratedExercises.Length];
                 int i = 0;
@@ -62,6 +65,18 @@ namespace SWENG.Service
             
         }
 
+        private Exercise[] ReadExercises()
+        {
+            Workout workout = null;
+            string path = "C:/Users/HDomingo/Documents/GitHub/KinectTherapy/KinectTherapy/KinectTherapyContent/Exercises/ArmExtensions.xml";
+
+            XmlSerializer serializer = new XmlSerializer(typeof(Workout));
+            StreamReader reader = new StreamReader(path);
+            workout = (Workout)serializer.Deserialize(reader);
+            reader.Close();
+            return workout.Exercises;
+        }
+
         private Exercise[] generateExercises()
         {
             Exercise[] exercises = new Exercise[2];
@@ -70,13 +85,13 @@ namespace SWENG.Service
             armExtensionExerciseRight.Name = "Right Arm Extension";
             armExtensionExerciseRight.Repetitions = 3;
             // criteria to start tracking a repetition
-            JointType[] otherJoints = new JointType[2] { JointType.HandRight, JointType.ShoulderRight };
-            Criterion rightElbow = new AngleCriterion(90f, Microsoft.Kinect.JointType.ElbowRight, otherJoints, 10f);
+            XmlJointType[] otherJoints = new XmlJointType[2] { new XmlJointType("WristRight"), new XmlJointType("ShoulderRight")};
+            Criterion rightElbow = new AngleCriterion(90f, new XmlJointType("ElbowRight"), otherJoints, 10f);
             armExtensionExerciseRight.StartingCriteria = new Criterion[] { rightElbow };
             // criteria to track during the progress of a repetition
             // make sure hips stay horizontally aligned
-            JointType[] hipJoints = new JointType[2] { JointType.HipLeft, JointType.HipRight };
-            Criterion hips = new AlignmentCriterion(hipJoints, AlignmentCriterion.Alignment.Horizontal, 0.1f);
+            XmlJointType[] hipJoints = new XmlJointType[2] { new XmlJointType("HipLeft"), new XmlJointType("HipRight") };
+            Criterion hips = new AlignmentCriterion(hipJoints, Alignment.Horizontal, 0.1f);
             armExtensionExerciseRight.TrackingCriteria = new Criterion[] { hips };
 
             // don't forget the left arm
@@ -84,8 +99,8 @@ namespace SWENG.Service
             armExtensionExerciseLeft.Name = "Left Arm Extension";
             armExtensionExerciseLeft.Repetitions = 3;
             // criteria to start tracking a repetition
-            JointType[] leftJoints = new JointType[2] { JointType.HandLeft, JointType.ShoulderLeft };
-            Criterion leftElbow = new AngleCriterion(90f, Microsoft.Kinect.JointType.ElbowLeft, leftJoints, 10f);
+            XmlJointType[] leftJoints = new XmlJointType[2] { new XmlJointType("WristLeft"), new XmlJointType("ShoulderLeft") };
+            Criterion leftElbow = new AngleCriterion(90f, new XmlJointType("ElbowLeft"), leftJoints, 10f);
             armExtensionExerciseLeft.StartingCriteria = new Criterion[] { leftElbow };
             // criteria to track during the progress of a repetition
             // make sure hips stay horizontally aligned
