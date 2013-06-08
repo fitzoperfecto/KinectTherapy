@@ -16,24 +16,26 @@ namespace SWENG.Criteria
     /// </summary>
     class CriteriaRepetition:IRepetition
     {
-        private Exercise criteria;
+        private Exercise Exercise;
         private DateTime startTime;
         private DateTime endTime;
+        private int _checkpoint;
 
         //***********************************
         public CriteriaRepetition(Exercise criteria)
         {
-            this.criteria = criteria;
+            this.Exercise = criteria;
+            this._checkpoint = 0;
         }
 
         /// <summary>
-        /// 
+        /// Determines if the repetition has been started
         /// </summary>
         /// <param name="skeletonStamp"></param>
         /// <returns></returns>
         public bool isRepStarted(SkeletonStamp skeletonStamp)
         {
-            bool matches = criteria.matchesCriteria(skeletonStamp);
+            bool matches = Exercise.matchesCriteria(skeletonStamp,Exercise.StartingCriteria);
             if (matches)
             {
                 startTime = DateTime.Now;
@@ -52,16 +54,27 @@ namespace SWENG.Criteria
         public bool isRepComplete(SkeletonStamp skeletonStamp)
         {
             bool matches = false;
-            if (DateTime.Now > endTime)
+
+            matches = Exercise.matchesCriteria(skeletonStamp,Exercise.Checkpoints[_checkpoint].Criteria);
+            if (matches)
             {
-                matches = criteria.matchesCriteria(skeletonStamp);
+                // increment the checkpoint
+                _checkpoint++;
+
+                if (_checkpoint >= Exercise.Checkpoints.Length)
+                {
+                    // we have now completed a repetition reset our counter
+                    _checkpoint = 0;
+                    return true;
+                }
             }
-            return matches;
+            
+            return false;
         }
 
         public double[] checkForm(SkeletonStamp skeletonStamp)
         {
-            return criteria.checkForm(skeletonStamp);
+            return Exercise.checkForm(skeletonStamp);
         }
     }
 }

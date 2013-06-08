@@ -92,6 +92,7 @@ namespace SWENG.Criteria
             vector1.Normalize();
             float dotAngle = (float)Math.Acos(Vector3.Dot(vector0, vector1));
             int convertedDotAngle = Convert.ToInt32(dotAngle * (180.0 / Math.PI));
+            Debug.WriteLine("Angle: " + convertedDotAngle);
             return convertedDotAngle > MinimumAngle && convertedDotAngle < MaximumAngle;
         }
     }

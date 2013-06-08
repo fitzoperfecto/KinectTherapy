@@ -69,7 +69,7 @@ namespace SWENG.Service
         private Exercise[] ReadExercises()
         {
             Workout workout = null;
-            // i know this is a terrible way to do this, but not sure a better way right now
+            // i know this is a terrible way to do this, but not sure a better way right now so sleepy
             string path = System.AppDomain.CurrentDomain.BaseDirectory +"../../../../KinectTherapyContent/Exercises/ArmExtensions.xml";
 
             XmlSerializer serializer = new XmlSerializer(typeof(Workout));

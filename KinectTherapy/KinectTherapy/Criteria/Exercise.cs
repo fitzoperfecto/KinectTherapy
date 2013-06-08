@@ -27,6 +27,9 @@ namespace SWENG.Criteria
         [XmlArray("TrackingCriteria")]
         [XmlArrayItem("Criterion")]
         public Criterion[] TrackingCriteria { get; set; }
+        [XmlArray("Checkpoints")]
+        [XmlArrayItem(ElementName = "Checkpoint", NestingLevel = 0)]
+        public Checkpoint[] Checkpoints { get; set; }
         [XmlAttribute("Repetitions")]
         public int Repetitions { get; set; }
 
@@ -67,11 +70,11 @@ namespace SWENG.Criteria
         /// </summary>
         /// <param name="skeletonStamp"></param>
         /// <returns></returns>
-        internal bool matchesCriteria(SkeletonStamp skeletonStamp)
+        internal bool matchesCriteria(SkeletonStamp skeletonStamp, Criterion[] criterion)
         {
             bool matches = true;
             // go through each joint's criteria and verify it is true
-            foreach (Criterion c in StartingCriteria)
+            foreach (Criterion c in criterion)
             {
                 if (!c.matchesCriterion(skeletonStamp))
                 {
@@ -79,7 +82,6 @@ namespace SWENG.Criteria
                     return false;
                 }
             }
-
             return matches;
         }
     }
