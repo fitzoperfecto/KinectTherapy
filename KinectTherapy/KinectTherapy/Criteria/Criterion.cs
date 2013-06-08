@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
     /// <summary>
     /// Simple object to contain a single criterion of a Joint's exercise criteria
     /// </summary>
-    abstract class Criterion
+    public abstract class Criterion
     {
         public float Variance { get; set; }
         public Criterion(float variance)

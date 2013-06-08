@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
-    class PointCriterion:Criterion
+    public class PointCriterion:Criterion
     {
         public String Axis { get; set; }
         public JointType JointType;

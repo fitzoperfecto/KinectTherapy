@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Kinect;
 using System.Diagnostics;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
     /// <summary>
     /// This class expects a criteria for the start/stop position to be provided 
@@ -16,11 +16,12 @@ namespace SWENG
     /// </summary>
     class CriteriaRepetition:IRepetition
     {
-        private Criteria criteria;
+        private Exercise criteria;
         private DateTime startTime;
         private DateTime endTime;
+
         //***********************************
-        public CriteriaRepetition(Criteria criteria)
+        public CriteriaRepetition(Exercise criteria)
         {
             this.criteria = criteria;
         }

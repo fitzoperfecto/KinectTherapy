@@ -1,4 +1,4 @@
-﻿namespace SWENG
+﻿namespace SWENG.Service
 {
     using System;
     using Microsoft.Kinect;
@@ -115,7 +115,7 @@
                 s.SkeletonData = skeleton;
                 s.InUse = false;
                 s.IsActive = true;
-                Debug.WriteLine("Adding {0}", free.Count);
+                //Debug.WriteLine("Adding {0}", free.Count);
             }
             else
             {

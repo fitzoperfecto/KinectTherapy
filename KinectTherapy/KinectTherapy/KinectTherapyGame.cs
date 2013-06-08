@@ -12,7 +12,9 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Samples.Kinect.XnaBasics;
 
 using SWENG;
+using SWENG.UserInterface;
 using Microsoft.Kinect;
+using SWENG.Service;
 
 namespace KinectTherapy
 {
@@ -43,25 +45,32 @@ namespace KinectTherapy
         private KeyboardState previousKeyboard;
 
         /// <summary>
-        /// This is the font.
-        /// </summary>
-        private SpriteFont font;
-
-        /// <summary>
         /// This is the queue of SkeletonStamps
         /// </summary>
         private readonly SkeletonPool skeletonPool;
         private const int SKELETON_POOL_SIZE = 100;
 
         /// <summary>
-        /// This manages the current exercise being performed
+        /// This manages the queue of exercises as well as the current exercise being performed
         /// </summary>
-        private readonly ExerciseGameComponent exerciseComponent;
+        private readonly ExerciseQueue exerciseQueue;
 
         /// <summary>
-        /// This is using the color stream for now
+        /// The exercise screen
         /// </summary>
-        private readonly ColorStreamRenderer colorStream;
+        private readonly Manager userInterfaceManager;
+
+        
+
+        /// <summary>
+        /// preloading assets
+        /// </summary>
+        static readonly string[] preloadGraphics = 
+        {
+            "gradient",
+            "blank",
+        };
+
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -90,11 +99,13 @@ namespace KinectTherapy
 
             skeletonPool = new SkeletonPool(this, SKELETON_POOL_SIZE);
             Services.AddService(typeof(SkeletonPool), skeletonPool);
+
+            exerciseQueue = new ExerciseQueue(this);
+            Services.AddService(typeof(ExerciseQueue), exerciseQueue);
             #endregion
 
             #region Components
-            exerciseComponent = new ExerciseGameComponent(this);
-            colorStream = new ColorStreamRenderer(this);
+            userInterfaceManager = new Manager(this);
             #endregion
 
         }
@@ -109,9 +120,12 @@ namespace KinectTherapy
         {
             // TODO: Add your initialization logic here
             skeletonPool.Initialize();
+            exerciseQueue.Initialize();
+            Components.Add(this.exerciseQueue);
+            Components.Add(this.userInterfaceManager);
 
-            Components.Add(this.colorStream);
-            Components.Add(this.exerciseComponent);
+            this.userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Active));
+            this.userInterfaceManager.AddScreen(new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden));
 
             base.Initialize();
         }

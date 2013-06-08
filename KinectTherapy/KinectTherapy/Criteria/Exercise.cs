@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Kinect;
 using System.Collections;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
     /// <summary>
     /// Contains the criteria for an exercise.  
@@ -14,10 +14,12 @@ namespace SWENG
     /// 
     /// Will contain a map of the joints to be tracked, what axis should be tracked and the variance allowed
     /// </summary>
-    class Criteria
+    public class Exercise
     {
-        public IDictionary<JointType, Criterion[]> startingJoints = new Dictionary<JointType,Criterion[]>();
-        public IDictionary<JointType, Criterion[]> trackedJoints = new Dictionary<JointType, Criterion[]>();
+        public string Name { get; set; }
+        public Criterion[] StartingCriteria { get; set; }
+        public Criterion[] TrackingCriteria { get; set; }
+        public int Repetitions { get; set; }
         /// <summary>
         /// Move this to an interface
         /// Check form will validate all the tracked joints based on the criteria provided by trackedJoints
@@ -29,20 +31,16 @@ namespace SWENG
         public double[] checkForm(SkeletonStamp skeletonStamp)
         {
             double[] jointAccuracy = new double[20];
-            // loop through each joint and determine if it is bad or not.
-            foreach (KeyValuePair<JointType, Criterion[]> trackedJoint in trackedJoints)
+            // loop through each joint and determine if it is bad or not
+            foreach (Criterion criterion in TrackingCriteria)
             {
                 double percentBad = 0.0;
-                
-                foreach (Criterion criterion in trackedJoint.Value)
+                if (!criterion.matchesCriterion(skeletonStamp))
                 {
-                    if (!criterion.matchesCriterion(skeletonStamp))
-                    {
-                        percentBad = 1.0;
-                    }
+                    percentBad = 1.0;
                 }
                 // store into an array indexed by joint id. 
-                jointAccuracy[(int)trackedJoint.Key] = percentBad;
+                //jointAccuracy[(int)trackedJoint.Key] = percentBad;
             }
             return jointAccuracy;
         }
@@ -54,31 +52,18 @@ namespace SWENG
         /// <returns></returns>
         internal bool matchesCriteria(SkeletonStamp skeletonStamp)
         {
-            bool matches=true;
+            bool matches = true;
             // go through each joint's criteria and verify it is true
-            foreach (Criterion[] criterion in startingJoints.Values)
+            foreach (Criterion c in StartingCriteria)
             {
-                foreach (Criterion c in criterion)
+                if (!c.matchesCriterion(skeletonStamp))
                 {
-                    if (!c.matchesCriterion(skeletonStamp))
-                    {
-                        // no need to keep checking. 
-                        return false;
-                    }
+                    // no need to keep checking. 
+                    return false;
                 }
             }
+
             return matches;
-
-        }
-
-        public void addStartingCriterion(JointType type, Criterion[] criterion)
-        {
-            startingJoints.Add(type, criterion);
-        }
-
-        public void addTrackingCriterion(JointType type, Criterion[] criterion)
-        {
-            trackedJoints.Add(type, criterion);
         }
     }
 }

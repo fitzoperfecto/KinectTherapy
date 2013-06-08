@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
 
-namespace SWENG
+namespace SWENG.Criteria
 {
-    class AlignmentCriterion : Criterion
+    public class AlignmentCriterion : Criterion
     {
         public enum Alignment { Point, Horizontal, Vertical };
 
