@@ -133,10 +133,10 @@ namespace SWENG.UserInterface
             if (this.SharedExerciseQueue.currentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
             {
                 this.repetitionSentence = string.Format(
-                    "Reps: {1}",
+                    "Reps: {1}\nStarted:{3}",
                     Title,
                     SharedExerciseQueue.Exercises[ExerciseIndex].reps,
-                    ExerciseIndex
+                    ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].repStarted
                 );
             }
             else

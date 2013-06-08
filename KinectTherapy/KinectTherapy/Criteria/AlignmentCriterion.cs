@@ -3,50 +3,72 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
+using System.Xml.Serialization;
 
 namespace SWENG.Criteria
 {
+    [Serializable()]
     public class AlignmentCriterion : Criterion
     {
-        public enum Alignment { Point, Horizontal, Vertical };
-
-        JointType[] joints;
-        JointType centerJointType;
-        Alignment alignment;
-        float minVariance;
-        float maxVariance;
-
-        public AlignmentCriterion(JointType[] joints, Alignment alignment, float variance):base(variance)
+        [XmlArray("Joints")]
+        [XmlArrayItem("Joint")]
+        public XmlJointType[] Joints;
+        [XmlElement("CenterJoint")]
+        public XmlJointType CenterJoint;
+        [XmlAttribute("Alignment")]
+        public Alignment Alignment;
+        public float MinimumAcceptedRange
         {
-            this.alignment = alignment;
-            this.joints = joints;
-            this.minVariance = 0 - variance;
-            this.maxVariance = 0 + variance;
+            get
+            {
+                return 0 - Variance;
+            }
+        }
+        public float MaximumAcceptedRange
+        {
+            get
+            {
+                return 0 + Variance;
+            }
         }
 
-        public AlignmentCriterion(JointType centerJoint, JointType[] joints, float variance)
+        /// <summary>
+        /// Empty Constructor Needed for XmlSerializer
+        /// </summary>
+        public AlignmentCriterion()
+        {
+        }
+
+        public AlignmentCriterion(XmlJointType[] joints, Alignment alignment, float variance)
             : base(variance)
         {
-            this.alignment = Alignment.Point;
-            this.centerJointType = centerJoint;
-            this.joints = joints;
+            this.Alignment = alignment;
+            this.Joints = joints;
+        }
+
+        public AlignmentCriterion(XmlJointType centerJoint, XmlJointType[] joints, float variance)
+            : base(variance)
+        {
+            this.Alignment = Alignment.Point;
+            this.CenterJoint = centerJoint;
+            this.Joints = joints;
         }
 
         public override bool matchesCriterion(SkeletonStamp skeletonStamp)
         {
             float alignmentValue = 0.0f;
-            Joint[] trackedJoints = new Joint[joints.Length];
+            Joint[] trackedJoints = new Joint[Joints.Length];
             Joint centerJoint;
             int i = 0;
             // get the joints to be aligned
-            foreach (JointType type in joints)
+            foreach (XmlJointType type in Joints)
             {
-                trackedJoints[i++] = skeletonStamp.GetTrackedSkeleton().Joints[type];
+                trackedJoints[i++] = skeletonStamp.GetTrackedSkeleton().Joints[type.GetJointType()];
             }
-            switch (alignment)
+            switch (Alignment)
             {
                 case Alignment.Point:
-                    centerJoint = skeletonStamp.GetTrackedSkeleton().Joints[centerJointType];
+                    centerJoint = skeletonStamp.GetTrackedSkeleton().Joints[CenterJoint.GetJointType()];
                     alignmentValue = JointAnalyzer.areJointsAligned(centerJoint, trackedJoints);
                     break;
                 case Alignment.Horizontal:
@@ -56,7 +78,10 @@ namespace SWENG.Criteria
                     alignmentValue = JointAnalyzer.alignedVertically(trackedJoints[0], trackedJoints[1]);
                     break;
             }
-            return alignmentValue > minVariance && alignmentValue < maxVariance;;
+            return alignmentValue > MinimumAcceptedRange && alignmentValue < MaximumAcceptedRange;;
         }
     }
+
+    [Serializable()]
+    public enum Alignment { Point, Horizontal, Vertical };
 }

@@ -111,6 +111,8 @@
     <Compile Include="Criteria\AlignmentCriterion.cs" />
     <Compile Include="Criteria\AngleCriterion.cs" />
     <Compile Include="ColorStreamRenderer.cs" />
+    <Compile Include="Criteria\Checkpoint.cs" />
+    <Compile Include="Criteria\XmlJointType.cs" />
     <Compile Include="Record\DepthStreamRecorder.cs" />
     <Compile Include="Record\ReplayColorImageFrame.cs" />
     <Compile Include="Record\ColorStreamRecorder.cs" />

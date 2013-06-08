@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
 using System.Collections;
+using System.Xml.Serialization;
 
 namespace SWENG.Criteria
 {
@@ -14,12 +15,31 @@ namespace SWENG.Criteria
     /// 
     /// Will contain a map of the joints to be tracked, what axis should be tracked and the variance allowed
     /// </summary>
+    /// 
+    [Serializable()]
     public class Exercise
     {
+        [XmlAttribute("Name")]
         public string Name { get; set; }
+        [XmlArray("StartingCriteria")]
+        [XmlArrayItem("Criterion")]
         public Criterion[] StartingCriteria { get; set; }
+        [XmlArray("TrackingCriteria")]
+        [XmlArrayItem("Criterion")]
         public Criterion[] TrackingCriteria { get; set; }
+        [XmlArray("Checkpoints")]
+        [XmlArrayItem(ElementName = "Checkpoint", NestingLevel = 0)]
+        public Checkpoint[] Checkpoints { get; set; }
+        [XmlAttribute("Repetitions")]
         public int Repetitions { get; set; }
+
+        /// <summary>
+        /// Empty Constructor Needed for XmlSerializer
+        /// </summary>
+        public Exercise()
+        {
+        }
+
         /// <summary>
         /// Move this to an interface
         /// Check form will validate all the tracked joints based on the criteria provided by trackedJoints
@@ -31,7 +51,7 @@ namespace SWENG.Criteria
         public double[] checkForm(SkeletonStamp skeletonStamp)
         {
             double[] jointAccuracy = new double[20];
-            // loop through each joint and determine if it is bad or not
+            // loop through each joint and determine if it is bad or 
             foreach (Criterion criterion in TrackingCriteria)
             {
                 double percentBad = 0.0;
@@ -50,11 +70,11 @@ namespace SWENG.Criteria
         /// </summary>
         /// <param name="skeletonStamp"></param>
         /// <returns></returns>
-        internal bool matchesCriteria(SkeletonStamp skeletonStamp)
+        internal bool matchesCriteria(SkeletonStamp skeletonStamp, Criterion[] criterion)
         {
             bool matches = true;
             // go through each joint's criteria and verify it is true
-            foreach (Criterion c in StartingCriteria)
+            foreach (Criterion c in criterion)
             {
                 if (!c.matchesCriterion(skeletonStamp))
                 {
@@ -62,8 +82,16 @@ namespace SWENG.Criteria
                     return false;
                 }
             }
-
             return matches;
         }
+    }
+
+    [Serializable()]
+    [System.Xml.Serialization.XmlRoot("Workout")]
+    public class Workout
+    {
+        [XmlArray("Exercises")]
+        [XmlArrayItem("Exercise", typeof(Exercise))]
+        public Exercise[] Exercises { get; set; }
     }
 }

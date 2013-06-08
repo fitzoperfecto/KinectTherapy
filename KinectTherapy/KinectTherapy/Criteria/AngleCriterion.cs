@@ -5,18 +5,46 @@ using System.Text;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;
+using System.Xml.Serialization;
 
 namespace SWENG.Criteria
 {
     /// <summary>
     /// Criteria for an angle between 3 joints
     /// </summary>
+    [Serializable()]
     public class AngleCriterion:Criterion
     {
-        float minAngle;
-        float maxAngle;
-        JointType vertex;
-        JointType[] otherJoints;
+        public float MinimumAngle
+        {
+            get
+            {
+                return Angle - Variance;
+            }
+        }
+                
+        public float MaximumAngle
+        {
+            get
+            {
+                return Angle + Variance;
+            }
+        }
+
+        [XmlAttribute("Angle")]
+        public float Angle {get;set;}
+        [XmlElement("Vertex")]
+        public XmlJointType Vertex { get; set; }
+        [XmlArray("AdjacentJoints")]
+        [XmlArrayItem("Joint", typeof(XmlJointType))]
+        public XmlJointType[] OtherJoints { get; set; }
+
+        /// <summary>
+        /// Empty Constructor Needed for XmlSerializer
+        /// </summary>
+        public AngleCriterion()
+        {
+        }
 
         /// <summary>
         /// Will take the first two joints of the "otherJoints" Array
@@ -24,15 +52,14 @@ namespace SWENG.Criteria
         /// <param name="angle"></param>
         /// <param name="vertex"></param>
         /// <param name="otherJoints"></param>
-        public AngleCriterion(float angle, JointType vertex, JointType[] otherJoints,float variance):base(variance)
+        public AngleCriterion(float angle, XmlJointType vertex, XmlJointType[] otherJoints,float variance):base(variance)
         {
-            this.minAngle = angle - variance;
-            this.maxAngle = angle + variance;
-            this.vertex = vertex;
-            this.otherJoints = new JointType[2];
+            this.Angle = angle;
+            this.Vertex = vertex;
+            this.OtherJoints = new XmlJointType[2];
             for(int i = 0;i<2;i++)
             {
-                this.otherJoints[i] = otherJoints[i];
+                this.OtherJoints[i] = otherJoints[i];
             }
         }
 
@@ -44,9 +71,9 @@ namespace SWENG.Criteria
         public override bool matchesCriterion(SkeletonStamp skeletonStamp)
         {
             // get the vertex and other joints off the skeleton stamp
-            Joint vertexJoint = skeletonStamp.GetTrackedSkeleton().Joints[vertex];
-            Joint joint0 = skeletonStamp.GetTrackedSkeleton().Joints[otherJoints[0]];
-            Joint joint1 = skeletonStamp.GetTrackedSkeleton().Joints[otherJoints[1]];
+            Joint vertexJoint = skeletonStamp.GetTrackedSkeleton().Joints[Vertex.GetJointType()];
+            Joint joint0 = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[0].GetJointType()];
+            Joint joint1 = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[1].GetJointType()];
             // get vector vertex -> joint0
             
             Vector3 vector0 = new Vector3(joint0.Position.X - vertexJoint.Position.X, joint0.Position.Y - vertexJoint.Position.Y, joint0.Position.Z - vertexJoint.Position.Z);
@@ -65,7 +92,8 @@ namespace SWENG.Criteria
             vector1.Normalize();
             float dotAngle = (float)Math.Acos(Vector3.Dot(vector0, vector1));
             int convertedDotAngle = Convert.ToInt32(dotAngle * (180.0 / Math.PI));
-            return convertedDotAngle > minAngle && convertedDotAngle < maxAngle;
+            Debug.WriteLine("Angle: " + convertedDotAngle);
+            return convertedDotAngle > MinimumAngle && convertedDotAngle < MaximumAngle;
         }
     }
 }
