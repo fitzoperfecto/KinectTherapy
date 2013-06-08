@@ -9,6 +9,7 @@ using Microsoft.Kinect;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using System.IO;
+using System.Reflection;
 
 namespace SWENG.Service
 {
@@ -68,7 +69,8 @@ namespace SWENG.Service
         private Exercise[] ReadExercises()
         {
             Workout workout = null;
-            string path = "C:/Users/HDomingo/Documents/GitHub/KinectTherapy/KinectTherapy/KinectTherapyContent/Exercises/ArmExtensions.xml";
+            // i know this is a terrible way to do this, but not sure a better way right now
+            string path = System.AppDomain.CurrentDomain.BaseDirectory +"../../../../KinectTherapyContent/Exercises/ArmExtensions.xml";
 
             XmlSerializer serializer = new XmlSerializer(typeof(Workout));
             StreamReader reader = new StreamReader(path);
