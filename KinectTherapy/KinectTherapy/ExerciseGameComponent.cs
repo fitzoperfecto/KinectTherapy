@@ -23,30 +23,19 @@ namespace SWENG
             }
         }
 
-        /// <summary>
-        /// Gets the SpriteBatch from the services.
-        /// </summary>
-        private SpriteBatch spriteBatch
-        {
-            get
-            {
-                return (SpriteBatch)this.Game.Services.GetService(typeof(SpriteBatch));
-            }
-        }
-
         private Exercise Exercise;
-        public Boolean repComplete { get; internal set; }
-        public Boolean repStarted { get; internal set; }
-        public int reps { get; internal set; }
+        public Boolean RepetitionComplete { get; internal set; }
+        public Boolean RepetitionStarted { get; internal set; }
+        public int Repetitions { get; internal set; }
         public string Name { get; internal set; }
         private IRepetition repetition;
 
         public ExerciseGameComponent(Game game,Exercise exercise)
             : base(game)
         {
-            this.repComplete = false;
-            this.repStarted = false;
-            this.reps = 0;
+            this.RepetitionComplete = false;
+            this.RepetitionStarted = false;
+            this.Repetitions = 0;
             this.Exercise = exercise;
             this.Name = exercise.Name;
             this.repetition = new CriteriaRepetition(exercise);
@@ -67,26 +56,26 @@ namespace SWENG
             // determine whether a rep has been started based on Exercise Start Criteria.
             if (skeletonStamp != null && skeletonStamp.GetTrackedSkeleton() != null)
             {
-                if (!repStarted)
+                if (!RepetitionStarted)
                 {
-                    repStarted = repetition.isRepStarted(skeletonStamp);
+                    RepetitionStarted = repetition.isRepStarted(skeletonStamp);
                 }
                 else
                 {
                     // this needs to be here so we do not count a rep twice by accident before the next draw occurs. 
                     // A couple updates could occur before the next draw. 
-                    if (!repComplete)
+                    if (!RepetitionComplete)
                     {
                         // if the rep has been started we need to check the form of the repetition
                         // just a stub of what needs to be done... we'll need to determine how a FormResponse should look. 
                         percentBad = repetition.checkForm(skeletonStamp);
 
                         // see if the rep has been completed
-                        if (repComplete = repetition.isRepComplete(skeletonStamp))
+                        if (RepetitionComplete = repetition.isRepComplete(skeletonStamp))
                         {
                             // increment reps completed and reset the flags
-                            reps++;
-                            repComplete = repStarted = false;
+                            Repetitions++;
+                            RepetitionComplete = RepetitionStarted = false;
                             // remove all the skeletons before this skeleton
                             skeletonPool.Remove(skeletonStamp.TimeStamp);
                         }
@@ -104,7 +93,7 @@ namespace SWENG
 
         public bool isExerciseComplete()
         {
-            return reps >= Exercise.Repetitions;
+            return Repetitions >= Exercise.Repetitions;
         }
     }
 }

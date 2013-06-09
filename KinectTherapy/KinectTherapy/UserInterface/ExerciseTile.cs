@@ -130,13 +130,13 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            if (this.SharedExerciseQueue.currentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
+            if (this.SharedExerciseQueue.CurrentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
             {
                 this.repetitionSentence = string.Format(
                     "Reps: {1}\nStarted:{3}",
                     Title,
-                    SharedExerciseQueue.Exercises[ExerciseIndex].reps,
-                    ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].repStarted
+                    SharedExerciseQueue.Exercises[ExerciseIndex].Repetitions,
+                    ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].RepetitionStarted
                 );
             }
             else

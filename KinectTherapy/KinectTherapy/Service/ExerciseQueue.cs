@@ -27,11 +27,11 @@ namespace SWENG.Service
         public ExerciseGameComponent[] Exercises { get; internal set; }
         public Queue<ExerciseGameComponent> PendingExercises { get; internal set; }
         public Queue<ExerciseGameComponent> CompletedExercises { get; internal set; }
-        public int mostRecentComlpleteIndex = 0;
-        public bool isInitialized { get; internal set; }
+        public int MostRecentComlpleteIndex = 0;
+        public bool IsInitialized { get; internal set; }
 
         // an exercies game component for the current exercise.
-        public ExerciseGameComponent currentExercise;
+        public ExerciseGameComponent CurrentExercise;
         // a list of attributes needed by the UI
 
         public ExerciseQueue(Game game)
@@ -43,7 +43,7 @@ namespace SWENG.Service
 
         public override void Initialize()
         {
-            if (!isInitialized)
+            if (!IsInitialized)
             {
                 // load the exercises. Should be done through content loader. will hardcode for now.
                 //Exercise[] GeneratedExercises = generateExercises();
@@ -58,14 +58,18 @@ namespace SWENG.Service
                     PendingExercises.Enqueue(egc);
                 }
                 // add remove the first element and make the current exercise being performed.
-                currentExercise = PendingExercises.Dequeue();
-                this.Game.Components.Add(currentExercise);
-                isInitialized = true;
+                CurrentExercise = PendingExercises.Dequeue();
+                this.Game.Components.Add(CurrentExercise);
+                IsInitialized = true;
             }
             base.Initialize();
             
         }
 
+        /// <summary>
+        /// Used to pull a workout from the filesystem and insert into the exercise queue. 
+        /// </summary>
+        /// <returns></returns>
         private Exercise[] ReadExercises()
         {
             Workout workout = null;
@@ -79,6 +83,10 @@ namespace SWENG.Service
             return workout.Exercises;
         }
 
+        /// <summary>
+        /// Used for hardcoding exercises
+        /// </summary>
+        /// <returns></returns>
         private Exercise[] generateExercises()
         {
             Exercise[] exercises = new Exercise[2];
@@ -117,19 +125,19 @@ namespace SWENG.Service
         {
             // check to see if the reps for the exercise are complete.
             // if they are, move to the next exercise. 
-            if (currentExercise.isExerciseComplete())
+            if (CurrentExercise.isExerciseComplete())
             {
                 // remove component from game components
-                this.Game.Components.Remove(currentExercise);
+                this.Game.Components.Remove(CurrentExercise);
 
                 // complete the exercise
-                CompletedExercises.Enqueue(currentExercise);
+                CompletedExercises.Enqueue(CurrentExercise);
                 // see if we're completely done
                 if (PendingExercises.Count > 0)
                 {
                     // grab the next one and add to game components
-                    currentExercise = PendingExercises.Dequeue();
-                    this.Game.Components.Add(currentExercise);
+                    CurrentExercise = PendingExercises.Dequeue();
+                    this.Game.Components.Add(CurrentExercise);
                 }
             }
             base.Update(gameTime);
