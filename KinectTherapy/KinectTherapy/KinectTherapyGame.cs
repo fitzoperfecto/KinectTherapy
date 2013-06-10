@@ -60,7 +60,7 @@ namespace KinectTherapy
         /// </summary>
         private readonly Manager userInterfaceManager;
 
-        
+        private readonly RecordingManager recordingManager;
 
         /// <summary>
         /// preloading assets
@@ -102,6 +102,9 @@ namespace KinectTherapy
 
             exerciseQueue = new ExerciseQueue(this);
             Services.AddService(typeof(ExerciseQueue), exerciseQueue);
+
+            recordingManager = new RecordingManager();
+            Services.AddService(typeof(RecordingManager), recordingManager);
             #endregion
 
             #region Components
@@ -121,6 +124,7 @@ namespace KinectTherapy
             // TODO: Add your initialization logic here
             skeletonPool.Initialize();
             exerciseQueue.Initialize();
+            recordingManager.Initialize();
             Components.Add(this.exerciseQueue);
             Components.Add(this.userInterfaceManager);
 

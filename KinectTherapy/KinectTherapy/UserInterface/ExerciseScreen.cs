@@ -12,6 +12,7 @@ using Microsoft.Kinect;
 using Microsoft.Samples.Kinect.XnaBasics;
 using System.Diagnostics;
 using SWENG.Service;
+using Kinect.Toolbox.Record;
 
 namespace SWENG.UserInterface
 {
@@ -45,6 +46,14 @@ namespace SWENG.UserInterface
         }
         private ExerciseTile[] fakeExerciseQueue;
         #endregion
+
+        private RecordingManager recordingManager
+        {
+            get
+            {
+                return (RecordingManager)this.Game.Services.GetService(typeof(RecordingManager));
+            }
+        }
 
         #region Button Variables
         private GuiButton[] buttonList;
@@ -124,7 +133,11 @@ namespace SWENG.UserInterface
             );
 
             this.buttonList = new GuiButton[] {
-                new GuiButton("The Hub", buttonSize, buttonPosition)
+                new GuiButton("The Hub", buttonSize, buttonPosition),
+                new GuiButton("StartRec", buttonSize, new Vector2(buttonPosition.X, buttonPosition.Y + buttonSize.Y + MARGIN)),
+                new GuiButton("StopRec", buttonSize, new Vector2(buttonPosition.X + buttonSize.X + MARGIN, buttonPosition.Y + buttonSize.Y + MARGIN)),
+                new GuiButton("StartRep", buttonSize, new Vector2(buttonPosition.X, buttonPosition.Y + (2 * (buttonSize.Y + MARGIN)))),
+                new GuiButton("StopRep", buttonSize, new Vector2(buttonPosition.X+ buttonSize.X + MARGIN, buttonPosition.Y + (2 * (buttonSize.Y + MARGIN)))),
             };
             #endregion
         }
@@ -189,8 +202,30 @@ namespace SWENG.UserInterface
                         if (mouseState.LeftButton == ButtonState.Pressed 
                             && mouseState.LeftButton != this.oldMouseState.LeftButton)
                         {
-                            this.Transition();
-                            this.Manager.CallOpen("The Hub");
+                            switch (button.Text)
+                            {
+                                case "The Hub":
+                                    this.Transition();
+                                    this.Manager.CallOpen("The Hub");
+                                    break;
+                                case "StartRec":
+                                    recordingManager.StartRecording(KinectRecordOptions.Skeletons);
+                                    break;
+                                // TODO: move to stats or new "exercise replay" screen
+                                // exercise replay screen should be able to traverse 
+                                // a group of related recorded excercises
+                                case "StartRep":
+                                    recordingManager.StartReplaying(
+                                        recordingManager.filesUsed.ElementAt(0).Key
+                                    );
+                                    break;
+                                case "StopRec":
+                                    recordingManager.StopRecording();
+                                    break;
+                                case "StopRep":
+                                    recordingManager.StopReplaying();
+                                    break;
+                            }
                         }
                     }
                     else

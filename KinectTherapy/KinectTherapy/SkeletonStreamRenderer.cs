@@ -4,6 +4,8 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+using Kinect.Toolbox.Record;
+
 namespace Microsoft.Samples.Kinect.XnaBasics
 {
     using System;
@@ -92,6 +94,19 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             : base(game)
         {
             this.mapMethod = map;
+            this.RecordingManager.SkeletonEventListener.Add(Replay_SkeletonFrameReady);
+        }
+
+        void Replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs args)
+        {
+            // Reallocate if necessary
+            if (null == skeletonData || skeletonData.Length != args.SkeletonFrame.Skeletons.Length)
+            {
+                skeletonData = new Skeleton[args.SkeletonFrame.Skeletons.Length];
+            }
+
+            args.SkeletonFrame.Skeletons.CopyTo(skeletonData, 0);
+            skeletonDrawn = false;
         }
 
         /// <summary>
@@ -123,6 +138,11 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                 return;
             }
 
+            if (this.RecordingManager.Status == RecordingManagerStatus.Replaying)
+            {
+                return;
+            }
+
             // If we have already drawn this skeleton, then we should retrieve a new frame
             // This prevents us from calling the next frame more than once per update
             if (skeletonDrawn)
@@ -133,6 +153,11 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                     if (null == skeletonFrame)
                     {
                         return;
+                    }
+
+                    if (this.RecordingManager.Status == RecordingManagerStatus.Recording)
+                    {
+                        this.RecordingManager.Record(skeletonFrame);
                     }
 
                     // Reallocate if necessary

@@ -4,6 +4,9 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+using Kinect.Toolbox.Record;
+using SWENG.Service;
+
 namespace Microsoft.Samples.Kinect.XnaBasics
 {
     using Microsoft.Xna.Framework;
@@ -52,6 +55,14 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             get
             {
                 return (SpriteBatch)this.Game.Services.GetService(typeof(SpriteBatch));
+            }
+        }
+
+        public RecordingManager RecordingManager
+        {
+            get
+            {
+                return (SWENG.Service.RecordingManager)this.Game.Services.GetService(typeof(SWENG.Service.RecordingManager));
             }
         }
     }
