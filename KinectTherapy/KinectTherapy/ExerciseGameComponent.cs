@@ -10,8 +10,22 @@ using SWENG.Criteria;
 
 namespace SWENG
 {
+    public delegate void ChangedEventHandler(object sender, EventArgs e);
+
     public class ExerciseGameComponent : GameComponent
     {
+        #region event stuff
+        public event ChangedEventHandler Changed;
+
+        // Invoke the Changed event; called whenever repetitions changes
+        protected virtual void OnChanged(EventArgs e)
+        {
+            if (Changed != null)
+                Changed(this, e);
+        }
+
+        private Boolean _reptitionStarted;
+        #endregion
         /// <summary>
         /// Gets the SkeletonPool from the services.
         /// </summary>
@@ -25,7 +39,25 @@ namespace SWENG
 
         private Exercise Exercise;
         public Boolean RepetitionComplete { get; internal set; }
-        public Boolean RepetitionStarted { get; internal set; }
+        
+        public Boolean RepetitionStarted 
+        {
+            get 
+            { 
+                return _reptitionStarted; 
+            }
+            internal set 
+            {
+                if (_reptitionStarted != value)
+                {
+                    OnChanged(EventArgs.Empty);
+                }
+                _reptitionStarted = value;
+                
+
+            }
+        }
+        
         public int Repetitions { get; internal set; }
         public string Name { get; internal set; }
         private IRepetition repetition;

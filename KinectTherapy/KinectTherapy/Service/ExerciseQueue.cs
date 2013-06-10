@@ -13,6 +13,8 @@ using System.Reflection;
 
 namespace SWENG.Service
 {
+    public delegate void QueueIsDoneEventHandler(object sender, EventArgs e);
+
     /// <summary>
     /// The exercise queue is the workout for a given patient. 
     /// It will contain the list of exercises which need to be done.
@@ -20,50 +22,68 @@ namespace SWENG.Service
     /// Exercises will be loaded from a local xml file. This service then can be accessed by the UI 
     /// components to display the necessary data. 
     /// </summary>
-    public class ExerciseQueue : GameComponent
+    public class ExerciseQueue : IGameComponent //GameComponent
     {
+        #region event stuff
+        public event QueueIsDoneEventHandler QueueIsDone;
+
+        // Invoke the Changed event; called whenever repetitions changes
+        protected virtual void OnQueueComplete(EventArgs e)
+        {
+            if (QueueIsDone != null)
+                QueueIsDone(this, e);
+        }
+        #endregion
         // what we need. 
         // list of exercises.
         public ExerciseGameComponent[] Exercises { get; internal set; }
         public Queue<ExerciseGameComponent> PendingExercises { get; internal set; }
         public Queue<ExerciseGameComponent> CompletedExercises { get; internal set; }
+        public List<ChangedEventHandler> RepetitionListener { get; internal set; }
         public int MostRecentComlpleteIndex = 0;
         public bool IsInitialized { get; internal set; }
+
+        private Game _game;
 
         // an exercies game component for the current exercise.
         public ExerciseGameComponent CurrentExercise;
         // a list of attributes needed by the UI
 
         public ExerciseQueue(Game game)
-            : base(game)
         {
+            _game = game;
             PendingExercises = new Queue<ExerciseGameComponent>();
             CompletedExercises = new Queue<ExerciseGameComponent>();
+            RepetitionListener = new List<ChangedEventHandler>();
+
+            RepetitionListener.Add(RepetitionIncreased);
         }
 
-        public override void Initialize()
+        public void RepetitionIncreased(object sender, EventArgs args)
+        {
+            Update();
+        }
+
+        public void Initialize()
         {
             if (!IsInitialized)
             {
                 // load the exercises. Should be done through content loader. will hardcode for now.
-                //Exercise[] GeneratedExercises = generateExercises();
                 Exercise[] GeneratedExercises = ReadExercises();
                 // create a game component for each exercise.
                 Exercises = new ExerciseGameComponent[GeneratedExercises.Length];
                 int i = 0;
                 foreach (Exercise Exercise in GeneratedExercises)
                 {
-                    ExerciseGameComponent egc = new ExerciseGameComponent(this.Game, Exercise);
+                    ExerciseGameComponent egc = new ExerciseGameComponent(_game, Exercise);
                     Exercises[i++] = egc;
                     PendingExercises.Enqueue(egc);
                 }
-                // add remove the first element and make the current exercise being performed.
-                CurrentExercise = PendingExercises.Dequeue();
-                this.Game.Components.Add(CurrentExercise);
+
+                NextExercise();
+
                 IsInitialized = true;
-            }
-            base.Initialize();
-            
+            }            
         }
 
         /// <summary>
@@ -121,28 +141,52 @@ namespace SWENG.Service
             return exercises;
         }
 
-        public override void Update(GameTime gameTime)
+        //public override void Update(GameTime gameTime)
+        private void Update()
         {
             // check to see if the reps for the exercise are complete.
             // if they are, move to the next exercise. 
             if (CurrentExercise.isExerciseComplete())
             {
                 // remove component from game components
-                this.Game.Components.Remove(CurrentExercise);
+                _game.Components.Remove(CurrentExercise);
 
                 // complete the exercise
                 CompletedExercises.Enqueue(CurrentExercise);
                 // see if we're completely done
+                // if so, call people
                 if (PendingExercises.Count > 0)
                 {
-                    // grab the next one and add to game components
-                    CurrentExercise = PendingExercises.Dequeue();
-                    this.Game.Components.Add(CurrentExercise);
+                    NextExercise();
+                }
+                else
+                {
+                    OnQueueComplete(EventArgs.Empty);
                 }
             }
-            base.Update(gameTime);
         }
 
+        private void NextExercise()
+        {
+            if (null != CurrentExercise)
+            {
+                foreach (ChangedEventHandler evt in RepetitionListener)
+                {
+                    CurrentExercise.Changed -= evt;
+                }
+            }
+
+            // grab the next (or first) one and add to game components
+            CurrentExercise = PendingExercises.Dequeue();
+
+            // be sure to add any listeners
+            foreach (ChangedEventHandler evt in RepetitionListener)
+            {
+                CurrentExercise.Changed += evt;
+            }
+
+            _game.Components.Add(CurrentExercise);
+        }
         
     }
 }

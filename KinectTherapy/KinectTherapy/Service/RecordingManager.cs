@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using Microsoft.Xna.Framework.Storage;
+using System.Xml;
 
 namespace SWENG.Service
 {
@@ -25,6 +26,8 @@ namespace SWENG.Service
 
         private FileStream recordingStream;
         private FileStream replayStream;
+
+        private XmlWriter xmlWriter;
 
         private string fileLocation;
         public Dictionary<string, string> filesUsed { get; internal set; }
@@ -60,8 +63,8 @@ namespace SWENG.Service
             string fileId = Guid.NewGuid().ToString();
             StopReplaying();
 
-            filesUsed.Add(fileId, fileLocation += fileId);
-            
+            filesUsed.Add(fileId, fileLocation + fileId);
+
             if (null != kinectRecorder && kinectRecorder.IsRecording)
             {
                 kinectRecorder.Stop();
@@ -71,6 +74,8 @@ namespace SWENG.Service
                 filesUsed[fileId], 
                 FileMode.OpenOrCreate
             );
+
+            XmlTextWriter xmlTextWriter = new XmlTextWriter(recordingStream, Encoding.ASCII);
             kinectRecorder = new KinectRecorder(options, recordingStream);
             kinectRecorder.Start();
             Status = Service.RecordingManagerStatus.Recording;
@@ -165,6 +170,16 @@ namespace SWENG.Service
             {
                 kinectRecorder.Record(frame);
             }
+        }
+
+        public void StartRecording(object sender, EventArgs args)
+        {
+            StartRecording(KinectRecordOptions.Skeletons);
+        }
+
+        public void StopRecording(object sender, EventArgs args)
+        {
+            StopRecording();
         }
     }
 }

@@ -123,8 +123,11 @@ namespace KinectTherapy
         {
             // TODO: Add your initialization logic here
             skeletonPool.Initialize();
-            exerciseQueue.Initialize();
             recordingManager.Initialize();
+            exerciseQueue.RepetitionListener.Add(new ChangedEventHandler(recordingManager.StartRecording));
+            exerciseQueue.QueueIsDone += recordingManager.StopRecording;
+            exerciseQueue.Initialize();
+
             Components.Add(this.exerciseQueue);
             Components.Add(this.userInterfaceManager);
 
