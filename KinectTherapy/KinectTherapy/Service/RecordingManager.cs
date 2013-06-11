@@ -10,6 +10,8 @@ using System.IO;
 using Microsoft.Xna.Framework.Storage;
 using System.Xml;
 
+// TODO: place enum into a new file
+// ?keep delegate and eventarg class here?
 namespace SWENG.Service
 {
     public enum RecordingManagerStatus
@@ -19,8 +21,31 @@ namespace SWENG.Service
         Standby
     }
 
+    public delegate void RecordingStatusChanged(object sender, RecordingStatusChangedEventArg e);
+
+    public class RecordingStatusChangedEventArg : EventArgs
+    {
+        public string FileId;
+
+        public RecordingStatusChangedEventArg(string fileId)
+        {
+            FileId = fileId;
+        }
+    }
+
     public class RecordingManager : IGameComponent
     {
+        #region event stuff
+        public event RecordingStatusChanged RecordingStatusChanged;
+
+        // Invoke the Changed event; called whenever repetitions changes
+        protected virtual void OnRecordingStatusChanged(RecordingStatusChangedEventArg e)
+        {
+            if (RecordingStatusChanged != null)
+                RecordingStatusChanged(this, e);
+        }
+        #endregion
+
         public KinectRecorder kinectRecorder { get; internal set; }
         public KinectReplay kinectReplay { get; internal set; }
 
@@ -62,6 +87,7 @@ namespace SWENG.Service
         {
             string fileId = Guid.NewGuid().ToString();
             StopReplaying();
+            StopRecording();
 
             filesUsed.Add(fileId, fileLocation + fileId);
 
@@ -75,10 +101,10 @@ namespace SWENG.Service
                 FileMode.OpenOrCreate
             );
 
-            XmlTextWriter xmlTextWriter = new XmlTextWriter(recordingStream, Encoding.ASCII);
             kinectRecorder = new KinectRecorder(options, recordingStream);
             kinectRecorder.Start();
             Status = Service.RecordingManagerStatus.Recording;
+            OnRecordingStatusChanged(new RecordingStatusChangedEventArg(fileId));
         }
 
         public void StopRecording()
@@ -140,8 +166,9 @@ namespace SWENG.Service
 
         public void RestartReplay()
         {
-            if (null != kinectReplay && kinectReplay.Started)
+            if (null != kinectReplay && null != replayStream)
             {
+                replayStream.Position = 0;
                 kinectReplay.Stop();
                 kinectReplay.Start();
             }
@@ -172,11 +199,21 @@ namespace SWENG.Service
             }
         }
 
+        /// <summary>
+        /// start recording
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         public void StartRecording(object sender, EventArgs args)
         {
             StartRecording(KinectRecordOptions.Skeletons);
         }
 
+        /// <summary>
+        /// stop recording
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         public void StopRecording(object sender, EventArgs args)
         {
             StopRecording();

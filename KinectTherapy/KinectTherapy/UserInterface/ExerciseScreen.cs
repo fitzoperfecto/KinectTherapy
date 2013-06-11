@@ -44,7 +44,7 @@ namespace SWENG.UserInterface
                 return (ExerciseQueue)Game.Services.GetService(typeof(ExerciseQueue));
             }
         }
-        private ExerciseTile[] fakeExerciseQueue;
+        private ExerciseTile[] _exerciseTiles;
         #endregion
 
         private RecordingManager recordingManager
@@ -68,65 +68,36 @@ namespace SWENG.UserInterface
         public ExerciseScreen(Game game, Rectangle viewableArea, ScreenState startingState)
             : base(game)
         {
-            this.ScreenState = startingState;
+            ScreenState = startingState;
             this.viewableArea = viewableArea;
-            this.colorStream = new ColorStreamRenderer(game);
-            this.Title = "Exercise";
+            colorStream = new ColorStreamRenderer(game);
+            Title = "Exercise";
 
-            // for now we'll generate hardcoded exercises....
-            // note the location of this will need to change if we load these from an external file. 
-            ExerciseGameComponent[] exercises = this.ExerciseQueue.Exercises;
-            this.fakeExerciseQueue = new ExerciseTile[exercises.Length];
-            for (int i = 0; i < exercises.Length; i++)
-            {
-                fakeExerciseQueue[i] = new ExerciseTile(game, exercises[i],i);
-            }
+            _exerciseTiles = new ExerciseTile[0];
 
             #region Laying out the positions
-            this.colorStreamPosition = new Vector2(
+            colorStreamPosition = new Vector2(
                     (float)(viewableArea.X),
                     (float)(viewableArea.Y)
                 );
 
-            this.colorStreamSize = new Vector2(
+            colorStreamSize = new Vector2(
                     (float)(0.7 * viewableArea.Width),
                     (float)(0.7 * viewableArea.Height)
                 );
 
-            Vector2 tileStartingPosition = new Vector2(
-                    (float)(this.colorStreamPosition.X + this.colorStreamSize.X + (MARGIN * 2)),
-                    (float)(this.colorStreamPosition.Y)
-                );
-
-            Vector2 tileSize = new Vector2(
-                    (float)(0.25 * viewableArea.Width),
-                    (float)(0.25 * viewableArea.Height)
-                );
-
-            foreach (ExerciseTile exerciseTile in this.fakeExerciseQueue)
-            {
-                exerciseTile.Position = tileStartingPosition;
-                exerciseTile.Size = tileSize;
-
-                // bump the next tile down by the size of the tile and a y margin
-                tileStartingPosition = new Vector2(
-                    tileStartingPosition.X,
-                    tileStartingPosition.Y + tileSize.Y + MARGIN
-                );
-            }
-
             Vector2 buttonSize = new Vector2(100, 30f);
             Vector2 buttonPosition = new Vector2(
                 (
-                    (this.colorStreamPosition.X + // get the far left position
-                    (this.colorStreamSize.X / 2)) - // add half of the width of the stream
+                    (colorStreamPosition.X + // get the far left position
+                    (colorStreamSize.X / 2)) - // add half of the width of the stream
                     (buttonSize.X / 2) // and then get rid of half the button width... now we are centered
                 ),
                 (
-                    (this.colorStreamPosition.Y + this.colorStreamSize.Y) + // get the bottom of the stream
+                    (colorStreamPosition.Y + colorStreamSize.Y) + // get the bottom of the stream
                     ((
                         (viewableArea.Height) - // get the entire viewable area 
-                        (this.colorStreamPosition.Y + this.colorStreamSize.Y) // remove what the stream has taken
+                        (colorStreamPosition.Y + colorStreamSize.Y) // remove what the stream has taken
                     ) / 2) - // get the center of the remaining space
                     (buttonSize.Y / 2) // and then get rid of half of the button height... again, centered
                 )
@@ -134,10 +105,10 @@ namespace SWENG.UserInterface
 
             this.buttonList = new GuiButton[] {
                 new GuiButton("The Hub", buttonSize, buttonPosition),
-                new GuiButton("StartRec", buttonSize, new Vector2(buttonPosition.X, buttonPosition.Y + buttonSize.Y + MARGIN)),
-                new GuiButton("StopRec", buttonSize, new Vector2(buttonPosition.X + buttonSize.X + MARGIN, buttonPosition.Y + buttonSize.Y + MARGIN)),
-                new GuiButton("StartRep", buttonSize, new Vector2(buttonPosition.X, buttonPosition.Y + (2 * (buttonSize.Y + MARGIN)))),
-                new GuiButton("StopRep", buttonSize, new Vector2(buttonPosition.X+ buttonSize.X + MARGIN, buttonPosition.Y + (2 * (buttonSize.Y + MARGIN)))),
+                //new GuiButton("StartRec", buttonSize, new Vector2(buttonPosition.X, buttonPosition.Y + buttonSize.Y + MARGIN)),
+                //new GuiButton("StopRec", buttonSize, new Vector2(buttonPosition.X + buttonSize.X + MARGIN, buttonPosition.Y + buttonSize.Y + MARGIN)),
+                //new GuiButton("StartRep", buttonSize, new Vector2(buttonPosition.X, buttonPosition.Y + (2 * (buttonSize.Y + MARGIN)))),
+                //new GuiButton("StopRep", buttonSize, new Vector2(buttonPosition.X+ buttonSize.X + MARGIN, buttonPosition.Y + (2 * (buttonSize.Y + MARGIN)))),
             };
             #endregion
         }
@@ -148,16 +119,16 @@ namespace SWENG.UserInterface
         /// </summary>
         public override void Initialize()
         {
-            this.colorStream.Position = this.colorStreamPosition;
-            this.colorStream.Size = this.colorStreamSize;
+            this.colorStream.Position = colorStreamPosition;
+            this.colorStream.Size = colorStreamSize;
             this.colorStream.Initialize();
 
-            foreach (ExerciseTile exerciseTile in this.fakeExerciseQueue)
+            foreach (ExerciseTile exerciseTile in _exerciseTiles)
             {
                 exerciseTile.Initialize();
             }
 
-            this.isInitialized = true;
+            isInitialized = true;
 
             base.Initialize();
         }
@@ -168,16 +139,13 @@ namespace SWENG.UserInterface
         /// </summary>
         public override void LoadContent()
         {
-            if (null == this.contentManager)
+            if (null == contentManager)
             {
-                this.contentManager = new ContentManager(this.Game.Services, "Content");
+                contentManager = new ContentManager(Game.Services, "Content");
             }
 
-            this.spriteFont = this.contentManager.Load<SpriteFont>("Arial16");
-            this.blankTexture = this.contentManager.Load<Texture2D>("blank");
-            
-            // load the exercise routine here
-            //Exercise[] exercises = contentManager.Load<Exercise>("ArmExtensions");
+            spriteFont = contentManager.Load<SpriteFont>("Arial16");
+            blankTexture = contentManager.Load<Texture2D>("blank");
 
             base.LoadContent();
         }
@@ -205,15 +173,16 @@ namespace SWENG.UserInterface
                             switch (button.Text)
                             {
                                 case "The Hub":
-                                    this.Transition();
-                                    this.Manager.CallOpen("The Hub");
+                                    Transition();
+                                    Manager.CallOpen("The Hub");
                                     break;
+                                    /*
+                                     * Was moved to summary screen
+                                     */
+                                    /*
                                 case "StartRec":
                                     recordingManager.StartRecording(KinectRecordOptions.Skeletons);
                                     break;
-                                // TODO: move to stats or new "exercise replay" screen
-                                // exercise replay screen should be able to traverse 
-                                // a group of related recorded excercises
                                 case "StartRep":
                                     recordingManager.StartReplaying(
                                         recordingManager.filesUsed.ElementAt(0).Key
@@ -225,6 +194,7 @@ namespace SWENG.UserInterface
                                 case "StopRep":
                                     recordingManager.StopReplaying();
                                     break;
+                                     */
                             }
                         }
                     }
@@ -234,10 +204,10 @@ namespace SWENG.UserInterface
                     }
                 }
 
-                this.oldMouseState = mouseState;
+                oldMouseState = mouseState;
 
-                this.colorStream.Update(gameTime);
-                foreach (ExerciseTile exerciseTile in this.fakeExerciseQueue)
+                colorStream.Update(gameTime);
+                foreach (ExerciseTile exerciseTile in _exerciseTiles)
                 {
                     exerciseTile.Update(gameTime);
                 }
@@ -254,45 +224,91 @@ namespace SWENG.UserInterface
         {
             if (this.isInitialized)
             {
-                this.GraphicsDevice.Clear(Color.White);
-                this.SharedSpriteBatch.Begin();
+                GraphicsDevice.Clear(Color.White);
+                SharedSpriteBatch.Begin();
 
                 foreach (GuiButton button in buttonList)
                 {
                     if (!button.Hovered)
                     {
-                        this.SharedSpriteBatch.Draw(
-                            this.blankTexture,
+                        SharedSpriteBatch.Draw(
+                            blankTexture,
                             button.Rectangle,
                             Color.Magenta
                         );
                     }
                     else
                     {
-                        this.SharedSpriteBatch.Draw(
-                            this.blankTexture,
+                        SharedSpriteBatch.Draw(
+                            blankTexture,
                             button.Rectangle,
                             Color.DarkMagenta
                         );
                     }
 
-                    this.SharedSpriteBatch.DrawString(
-                        this.spriteFont,
+                    SharedSpriteBatch.DrawString(
+                        spriteFont,
                         button.Text,
                         button.Position,
                         Color.White
                     );
                 }
 
-                this.SharedSpriteBatch.End();
-                this.colorStream.Draw(gameTime);
-                foreach (ExerciseTile exerciseTile in this.fakeExerciseQueue)
+                SharedSpriteBatch.End();
+                colorStream.Draw(gameTime);
+                
+                foreach (ExerciseTile exerciseTile in _exerciseTiles)
                 {
                     exerciseTile.Draw(gameTime);
                 }
             }
 
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// The method to use when the exercise screen
+        /// should be triggered to close when an event occurs
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        public void QueueIsDone(object sender, EventArgs args)
+        {
+            base.Transition();
+        }
+
+        public override void OpenScreen()
+        {
+            Vector2 tileStartingPosition = new Vector2(
+                (float)(this.colorStreamPosition.X + this.colorStreamSize.X + (MARGIN * 2)),
+                (float)(this.colorStreamPosition.Y)
+            );
+
+            Vector2 tileSize = new Vector2(
+                    (float)(0.25 * viewableArea.Width),
+                    (float)(0.25 * viewableArea.Height)
+                );
+
+            // for now we'll generate hardcoded exercises....
+            // note the location of this will need to change if we load these from an external file. 
+            ExerciseGameComponent[] exercises = ExerciseQueue.Exercises;
+            _exerciseTiles = new ExerciseTile[exercises.Length];
+            
+            for (int i = 0; i < exercises.Length; i++)
+            {
+                _exerciseTiles[i] = new ExerciseTile(Game, exercises[i], i);
+                _exerciseTiles[i].Position = tileStartingPosition;
+                _exerciseTiles[i].Size = tileSize;
+                _exerciseTiles[i].Initialize();
+
+                // bump the next tile down by the size of the tile and a y margin
+                tileStartingPosition = new Vector2(
+                    tileStartingPosition.X,
+                    tileStartingPosition.Y + tileSize.Y + MARGIN
+                );
+            }
+
+            base.Transition();
         }
     }
 }

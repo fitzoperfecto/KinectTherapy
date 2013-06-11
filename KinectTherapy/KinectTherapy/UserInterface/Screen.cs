@@ -87,6 +87,16 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
+        /// This will call the transition.
+        /// Meant for moments when the screen has special
+        /// opening logic
+        /// </summary>
+        public virtual void OpenScreen() 
+        {
+            Transition();
+        }
+
+        /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>

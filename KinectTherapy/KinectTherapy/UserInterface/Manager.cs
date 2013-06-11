@@ -148,7 +148,7 @@ namespace SWENG.UserInterface
             {
                 if (screen.Title == title)
                 {
-                    screen.Transition();
+                    screen.OpenScreen();
                 }
             }
         }

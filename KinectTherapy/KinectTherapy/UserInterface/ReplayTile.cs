@@ -5,13 +5,12 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SWENG.Service;
 
-// TODO: refactor similar functionality within ReplayTile to a "tile" drawablegamecomponent
 namespace SWENG.UserInterface
 {
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class ExerciseTile : DrawableGameComponent
+    public class ReplayTile : DrawableGameComponent
     {
         /// <summary>
         /// Gets the SpriteBatch from the services.
@@ -35,53 +34,58 @@ namespace SWENG.UserInterface
             }
         }
 
-        private Vector2 position;
+        private Vector2 _position;
         public Vector2 Position
         {
-            get { return position; }
+            get { return _position; }
             set
             {
-                position = value;
-                if (null != size)
+                _position = value;
+                if (null != _size)
                 {
+                    UpdateSizes();
                     Rectangle = new Rectangle(
-                        (int)position.X,
-                        (int)position.Y,
-                        (int)size.X,
-                        (int)size.Y
+                        (int)_position.X,
+                        (int)_position.Y,
+                        (int)_size.X,
+                        (int)_size.Y
                     );
                 }
             }
         }
 
-        private Vector2 size;
+        public Vector2 ToPosition { get; set; }
+
+        private Vector2 _size;
         public Vector2 Size
         {
-            get { return size; }
+            get { return _size; }
             set
             {
-                size = value;
-                if (null != position)
+                _size = value;
+                if (null != _position)
                 {
+                    UpdateSizes();
                     Rectangle = new Rectangle(
-                        (int)position.X,
-                        (int)position.Y,
-                        (int)size.X,
-                        (int)size.Y
+                        (int)_position.X,
+                        (int)_position.Y,
+                        (int)_size.X,
+                        (int)_size.Y
                     );
                 }
             }
         }
 
-        private Rectangle rectangle;
+        private Rectangle _rectangle;
         public Rectangle Rectangle
         {
-            get { return rectangle; }
+            get { return _rectangle; }
             set
             {
-                rectangle = value;
-                position = new Vector2(value.X, value.Y);
-                size = new Vector2(value.Width, value.Height);
+                _rectangle = value;
+                _position = new Vector2(value.X, value.Y);
+                _size = new Vector2(value.Width, value.Height);
+                UpdateSizes();
             }
         }
 
@@ -106,8 +110,11 @@ namespace SWENG.UserInterface
         public int ExerciseIndex { get; internal set; }
 
         private string repetitionSentence;
+        private int _repetitionNumber;
 
-        public ExerciseTile(Game game, string title)
+        public string FileId { get; private set; }
+
+        public ReplayTile(Game game, string title)
             : base(game)
         {
             this.Title = title;
@@ -115,11 +122,19 @@ namespace SWENG.UserInterface
 
         // TODO: With a reference to the exerciseIndex and the ExerciseQueue passing in 
         // the ExerciseGameComponent may be redundant.  Need to check performance measures
-        public ExerciseTile(Game game, ExerciseGameComponent exercise, int exerciseIndex)
+        public ReplayTile(Game game, string fileId, string exerciseName, int repetitionNumber)
             : base(game)
         {
-            this.Title = exercise.Name;
-            this.ExerciseIndex = exerciseIndex;
+            Title = string.Format("{0}: {1}",
+                repetitionNumber,
+                exerciseName
+            );
+            FileId = fileId;
+            _repetitionNumber = repetitionNumber;
+            this.repetitionSentence = string.Format(
+                "Rep: {0}",
+                _repetitionNumber
+            );
         }
 
         /// <summary>
@@ -149,28 +164,7 @@ namespace SWENG.UserInterface
             this.TitleSize = drawableTitle.Length();
             this.drawableSection = Vector2.Zero;
 
-            this.header = new Rectangle(
-                (int)this.Position.X, 
-                (int)this.Position.Y, 
-                (int)this.Size.X, 
-                (int)(0.2 * this.Size.Y)
-            );
-
-            this.border = new Rectangle(
-                (int)this.Position.X,
-                (int)this.Position.Y + this.header.Height,
-                (int)this.Size.X,
-                (int)(0.8 * this.Size.Y)
-            );
-
-            this.body = new Rectangle(
-                this.border.X + MARGIN,
-                this.border.Y + MARGIN,
-                this.border.Width - (2 * MARGIN),
-                this.border.Height - (2 * MARGIN)
-            );
-
-            this.renderTarget2d = new RenderTarget2D(Game.GraphicsDevice, this.header.Width, this.header.Height);
+            UpdateSizes();
 
             base.LoadContent();
         }
@@ -181,20 +175,6 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            if (this.SharedExerciseQueue.CurrentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
-            {
-                this.repetitionSentence = string.Format(
-                    "Reps: {1}\nStarted:{3}",
-                    Title,
-                    SharedExerciseQueue.Exercises[ExerciseIndex].Repetitions,
-                    ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].RepetitionStarted
-                );
-            }
-            else
-            {
-                this.repetitionSentence = null;
-            }
-
             if (this.TitleSize > this.Size.X - (2 * MARGIN))
             {
                 this.drawableSection.X = this.drawableSection.X + SCROLL_RATE;
@@ -236,19 +216,16 @@ namespace SWENG.UserInterface
                 Color.White
             );
 
-            if (!string.IsNullOrEmpty(repetitionSentence))
-            {
-                this.SharedSpriteBatch.DrawString(
-                    this.spriteFont, 
-                    this.repetitionSentence,
-                    // stupid quick way of centering this for the meeting
-                    new Vector2(
-                        this.body.X + (this.body.Width / 4), 
-                        this.body.Y + (this.body.Height / 2) - 12 
-                    ), 
-                    Color.Blue
-                );
-            }
+            this.SharedSpriteBatch.DrawString(
+                this.spriteFont, 
+                this.repetitionSentence,
+                // stupid quick way of centering this for the meeting
+                new Vector2(
+                    this.body.X + (this.body.Width / 4), 
+                    this.body.Y + (this.body.Height / 2) - 12 
+                ), 
+                Color.Blue
+            );
 
             this.SharedSpriteBatch.End();
 
@@ -287,6 +264,33 @@ namespace SWENG.UserInterface
             Game.GraphicsDevice.SetRenderTarget(null);
 
             return (Texture2D)renderTarget2d;
+        }
+
+        private void UpdateSizes()
+        {
+            header = new Rectangle(
+                (int)Position.X,
+                (int)Position.Y,
+                (int)Size.X,
+                (int)(0.2 * Size.Y)
+            );
+
+            border = new Rectangle(
+                (int)Position.X,
+                (int)Position.Y + header.Height,
+                (int)Size.X,
+                (int)(0.8 * Size.Y)
+            );
+
+            body = new Rectangle(
+                border.X + MARGIN,
+                border.Y + MARGIN,
+                border.Width - (2 * MARGIN),
+                border.Height - (2 * MARGIN)
+            );
+
+            if (header.Width != 0 && header.Height != 0)
+                renderTarget2d = new RenderTarget2D(Game.GraphicsDevice, header.Width, header.Height);
         }
     }
 }

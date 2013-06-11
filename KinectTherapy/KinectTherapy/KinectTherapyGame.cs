@@ -62,6 +62,9 @@ namespace KinectTherapy
 
         private readonly RecordingManager recordingManager;
 
+        private readonly SummaryScreen _summaryScreen;
+        private readonly ExerciseScreen _exerciseScreen;
+
         /// <summary>
         /// preloading assets
         /// </summary>
@@ -111,6 +114,11 @@ namespace KinectTherapy
             userInterfaceManager = new Manager(this);
             #endregion
 
+            #region Screens
+            _summaryScreen = new SummaryScreen(this, viewPortRectangle, ScreenState.Hidden);
+            _exerciseScreen = new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden);
+            #endregion
+
         }
 
         /// <summary>
@@ -121,18 +129,33 @@ namespace KinectTherapy
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            #region Attaching Events/Adding to Event Lists
+            exerciseQueue.RepetitionStartedListener.Add(new StartedRepetitionEventHandler(recordingManager.StartRecording));
+            exerciseQueue.QueueIsDone += recordingManager.StopRecording;
+
+            recordingManager.RecordingStatusChanged += exerciseQueue.AssociateFiles;
+
+            exerciseQueue.QueueIsDone += _exerciseScreen.QueueIsDone;
+            exerciseQueue.QueueIsDone += _summaryScreen.QueueIsDone;
+            #endregion
+
+            #region Adding Screens
+            userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Active));
+            userInterfaceManager.AddScreen(_exerciseScreen);
+            userInterfaceManager.AddScreen(_summaryScreen);
+            #endregion
+
+            #region Manual Initialization
             skeletonPool.Initialize();
             recordingManager.Initialize();
-            exerciseQueue.RepetitionListener.Add(new ChangedEventHandler(recordingManager.StartRecording));
-            exerciseQueue.QueueIsDone += recordingManager.StopRecording;
             exerciseQueue.Initialize();
+            #endregion
 
-            Components.Add(this.exerciseQueue);
-            Components.Add(this.userInterfaceManager);
-
-            this.userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Active));
-            this.userInterfaceManager.AddScreen(new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden));
+            // the game no longer needs to update this portion
+            //Components.Add(exerciseQueue);
+            #region Adding Components
+            Components.Add(userInterfaceManager);
+            #endregion
 
             base.Initialize();
         }

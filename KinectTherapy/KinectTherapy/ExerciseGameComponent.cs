@@ -10,12 +10,13 @@ using SWENG.Criteria;
 
 namespace SWENG
 {
-    public delegate void ChangedEventHandler(object sender, EventArgs e);
+    // used for repetition starting
+    public delegate void StartedRepetitionEventHandler(object sender, EventArgs e);
 
     public class ExerciseGameComponent : GameComponent
     {
         #region event stuff
-        public event ChangedEventHandler Changed;
+        public event StartedRepetitionEventHandler Changed;
 
         // Invoke the Changed event; called whenever repetitions changes
         protected virtual void OnChanged(EventArgs e)
@@ -62,6 +63,8 @@ namespace SWENG
         public string Name { get; internal set; }
         private IRepetition repetition;
 
+        public List<string> RepetitionToFileId { get; internal set; }
+
         public ExerciseGameComponent(Game game,Exercise exercise)
             : base(game)
         {
@@ -71,6 +74,7 @@ namespace SWENG
             this.Exercise = exercise;
             this.Name = exercise.Name;
             this.repetition = new CriteriaRepetition(exercise);
+            RepetitionToFileId = new List<string>();
         }
 
         public override void Initialize()

@@ -14,7 +14,6 @@ using System.Reflection;
 namespace SWENG.Service
 {
     public delegate void QueueIsDoneEventHandler(object sender, EventArgs e);
-
     /// <summary>
     /// The exercise queue is the workout for a given patient. 
     /// It will contain the list of exercises which need to be done.
@@ -39,7 +38,7 @@ namespace SWENG.Service
         public ExerciseGameComponent[] Exercises { get; internal set; }
         public Queue<ExerciseGameComponent> PendingExercises { get; internal set; }
         public Queue<ExerciseGameComponent> CompletedExercises { get; internal set; }
-        public List<ChangedEventHandler> RepetitionListener { get; internal set; }
+        public List<StartedRepetitionEventHandler> RepetitionStartedListener { get; internal set; }
         public int MostRecentComlpleteIndex = 0;
         public bool IsInitialized { get; internal set; }
 
@@ -54,9 +53,16 @@ namespace SWENG.Service
             _game = game;
             PendingExercises = new Queue<ExerciseGameComponent>();
             CompletedExercises = new Queue<ExerciseGameComponent>();
-            RepetitionListener = new List<ChangedEventHandler>();
+            RepetitionStartedListener = new List<StartedRepetitionEventHandler>();
 
-            RepetitionListener.Add(RepetitionIncreased);
+            // The queue will require fewer updates if it responds to the event
+            // and will not 
+            RepetitionStartedListener.Add(RepetitionIncreased);
+        }
+
+        public void AssociateFiles(object sender, RecordingStatusChangedEventArg args)
+        {
+            CurrentExercise.RepetitionToFileId.Add(args.FileId);
         }
 
         public void RepetitionIncreased(object sender, EventArgs args)
@@ -170,7 +176,7 @@ namespace SWENG.Service
         {
             if (null != CurrentExercise)
             {
-                foreach (ChangedEventHandler evt in RepetitionListener)
+                foreach (StartedRepetitionEventHandler evt in RepetitionStartedListener)
                 {
                     CurrentExercise.Changed -= evt;
                 }
@@ -180,7 +186,7 @@ namespace SWENG.Service
             CurrentExercise = PendingExercises.Dequeue();
 
             // be sure to add any listeners
-            foreach (ChangedEventHandler evt in RepetitionListener)
+            foreach (StartedRepetitionEventHandler evt in RepetitionStartedListener)
             {
                 CurrentExercise.Changed += evt;
             }
