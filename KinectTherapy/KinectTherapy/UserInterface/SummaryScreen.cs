@@ -28,6 +28,8 @@ namespace SWENG.UserInterface
         private bool _isInitialized = false;
         private const int _MARGIN = 10;
         private MouseState _oldMouseState;
+        private string _fileId;
+        private const float _ANIMATION_RATE = 0.25f;
         #endregion
 
         #region ColorStreamRenderer Variables
@@ -62,6 +64,8 @@ namespace SWENG.UserInterface
 
         #region Button Variables
         private GuiButton[] _buttonList;
+        private Vector2 _startingPosition;
+        private Vector2 _endingPosition;
         #endregion
 
         /// <summary>
@@ -191,7 +195,7 @@ namespace SWENG.UserInterface
                     replayTile.Position = Vector2.SmoothStep(
                             replayTile.Position,
                             replayTile.ToPosition,
-                            0.1f
+                            _ANIMATION_RATE
                         );
 
                     replayTile.Update(gameTime);
@@ -199,10 +203,16 @@ namespace SWENG.UserInterface
 
                 _oldMouseState = mouseState;
 
+                if (Math.Ceiling(_colorStream.Size.X) == _colorStreamSize.X && !string.IsNullOrEmpty(_fileId))
+                {
+                    _recordingManager.StartReplaying(_fileId);
+                    _fileId = string.Empty;
+                }
+
                 _colorStream.Size = Vector2.SmoothStep(
                     _colorStream.Size,
                     _colorStreamSize,
-                    0.1f
+                    _ANIMATION_RATE
                 );
                 
                 _colorStream.Update(gameTime);
@@ -229,9 +239,15 @@ namespace SWENG.UserInterface
                 foreach (ReplayTile replayTile in _replayTiles)
                 {
                     replayTile.ToPosition = new Vector2(
-                        replayTile.Position.X + _colorStreamMaxSize.X + (2 * _MARGIN),
+                        _endingPosition.X,
                         replayTile.Position.Y
-                    );                    
+                    );
+                    /*
+                    replayTile.ToPosition = new Vector2(
+                        replayTile.Position.X + _colorStreamMaxSize.X + _MARGIN,
+                        replayTile.Position.Y
+                    );
+                    */
                 }
 
                 Vector2 buttonSize = new Vector2(100, 30f);
@@ -258,7 +274,7 @@ namespace SWENG.UserInterface
                 };
             }
 
-            _recordingManager.StartReplaying(fileId);
+            _fileId = fileId;
         }
 
         /// <summary>
@@ -266,6 +282,7 @@ namespace SWENG.UserInterface
         /// </summary>
         private void closeReplay()
         {
+            _fileId = string.Empty;
             _recordingManager.StopReplaying();
             _colorStreamSize = Vector2.Zero;
 
@@ -273,9 +290,15 @@ namespace SWENG.UserInterface
             foreach (ReplayTile replayTile in _replayTiles)
             {
                 replayTile.ToPosition = new Vector2(
+                    _startingPosition.X,
+                    replayTile.Position.Y
+                );
+                /*
+                replayTile.ToPosition = new Vector2(
                     replayTile.Position.X - (_colorStreamMaxSize.X + _MARGIN),
                     replayTile.Position.Y
                 );
+                */
             }
 
             _buttonList = new GuiButton[0];
@@ -338,8 +361,19 @@ namespace SWENG.UserInterface
         /// <param name="args"></param>
         public void QueueIsDone(object sender, EventArgs args)
         {
+            _startingPosition = new Vector2(
+                (float)(_colorStreamPosition.X),
+                (float)(_colorStreamPosition.Y)
+            );
+
+            _endingPosition = new Vector2(
+                (float)(_colorStreamPosition.X + _colorStreamMaxSize.X + _MARGIN),
+                (float)(_colorStreamPosition.Y)
+            );
+
             Vector2 tileStartingPosition = new Vector2(
-                (float)(_colorStreamPosition.X + _colorStreamSize.X + (_MARGIN * 2)),
+                (float)_colorStreamPosition.X,
+                //(float)(_colorStreamPosition.X + _colorStreamSize.X + (_MARGIN * 2)),
                 (float)(_colorStreamPosition.Y)
             );
 
