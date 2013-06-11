@@ -1,19 +1,17 @@
-using System.Threading;
-using Microsoft.Samples.Kinect.XnaBasics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-
 using SWENG.Sensor;
+
 
 namespace SWENG.UserInterface
 {
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class HomeScreen : Screen
+    public class CatalogScreen : Screen
     {
         private ContentManager _contentManager;
         private Texture2D _blankTexture;
@@ -29,112 +27,96 @@ namespace SWENG.UserInterface
         private readonly GuiLabel _separator;
 
         #region ColorStreamRenderer Variables
-        private readonly ColorStreamRenderer _colorStream;
-        private readonly Vector2 _colorStreamPosition;
-        private readonly Vector2 _colorStreamSize;
+        //private readonly ColorStreamRenderer _colorStream;
+        private readonly Vector2 _catalogViewPosition;
+        private readonly Vector2 _catalogViewSize;
         #endregion
 
-        #region Sensor Control Variables
-        private readonly SensorTile[] _sensorControls;
-
+        #region Catalog Control Variables
+        private readonly SensorTile[] _catalogControls;
+        private SensorTile _catalogViewArea;
         private KinectSensorController _kinectSensorController;
-
-        private const int StepAngleUp = 2;
-        private const int StepAngleDown = -2;
-        private const float Brighter = 0.1f;
-        private const float Darker = -0.1f;
         #endregion
 
 
-        public HomeScreen(Game game, Rectangle viewableArea, ScreenState startingState) : base(game)
+        public CatalogScreen(Game game, Rectangle viewableArea, ScreenState startingState) : base(game)
         {
             ScreenState = startingState;
 
             _viewableArea = viewableArea;
-            _colorStream = new ColorStreamRenderer(game);
+            //_colorStream = new ColorStreamRenderer(game);
 
-            Title = "The Hub";
+            Title = "Catalog";
 
-            _sensorControls = new[] {
-                new SensorTile(game, "Sensor"),
-                new SensorTile(game, "Brightness")
+            _catalogControls = new[] {
+                new SensorTile(game, "Catalog")
             };
+
+            _catalogViewArea = new SensorTile(game, "Exercises");
 
             #region Laying out the positions
             var bannerSize = new Vector2(_viewableArea.Width, 110f);
             var bannerStartingPosition = new Vector2(0, 50);
             _banner = new GuiLabel("Session Setup", bannerSize, bannerStartingPosition);
 
-            _colorStreamPosition = new Vector2(
+            _catalogViewPosition = new Vector2(
                     viewableArea.X, viewableArea.Y + bannerSize.Y
                 );
 
-            _colorStreamSize = new Vector2(
+            _catalogViewSize = new Vector2(
                     (float)(0.7 * viewableArea.Width),
                     (float)(0.7 * viewableArea.Height)
                 );
+            _catalogViewArea.Position = _catalogViewPosition;
+            _catalogViewArea.Size = _catalogViewSize;
 
-            var sensorTileStartingPosition = new Vector2(
-                    _colorStreamPosition.X + _colorStreamSize.X + (MARGIN * 2),
-                   _colorStreamPosition.Y
+            var catalogTileStartingPosition = new Vector2(
+                    _catalogViewPosition.X + _catalogViewSize.X + (MARGIN * 2),
+                   _catalogViewPosition.Y
                 );
 
-            var sensorTileSize = new Vector2(
+            var catalogTileSize = new Vector2(
                     (float)(0.25 * viewableArea.Width),
                     (float)(0.16 * viewableArea.Height)
                 );
 
-                // Construct region for sensor control buttons
-            foreach (var sensorTile in _sensorControls)
+            // Construct region for catalog control buttons
+            foreach (var catalogTile in _catalogControls)
             {
-                sensorTile.Position = sensorTileStartingPosition;
-                sensorTile.Size = sensorTileSize;
+                catalogTile.Position = catalogTileStartingPosition;
+                catalogTile.Size = catalogTileSize;
 
-                // bump the next tile down by the size of the tile and a y margin
-                sensorTileStartingPosition = new Vector2(
-                    sensorTileStartingPosition.X,
-                    sensorTileStartingPosition.Y + sensorTileSize.Y + MARGIN
-                );
             }
 
-            var separatorSize = new Vector2(195, 10f);
-            var separatorStartingPosition = new Vector2(sensorTileStartingPosition.X, sensorTileStartingPosition.Y + sensorTileSize.Y - (MARGIN * 6));
+            // Construct Buttons
+            var catalogButtonSize = new Vector2(189, 30f);
+
+            var catalogAddButtonPosition = new Vector2(
+                    _catalogViewPosition.X + _catalogViewSize.X + 23,
+                    _catalogViewPosition.Y + 21
+                );
+
+            var catalogRemoveButtonPosition = new Vector2(
+                    _catalogViewPosition.X + _catalogViewSize.X + 23,
+                    catalogAddButtonPosition.Y + 41
+                );
+
+            var separatorSize = new Vector2(190, 10f);
+            var separatorStartingPosition = new Vector2(catalogRemoveButtonPosition.X, catalogRemoveButtonPosition.Y + (MARGIN * 7));
             _separator = new GuiLabel("", separatorSize, separatorStartingPosition);
 
-            // Construct Buttons
-            var sensorButtonSize = new Vector2(189, 30f);
 
-            var sensorAngleUpButtonPosition = new Vector2(
-                    _colorStreamPosition.X + _colorStreamSize.X + 23,
-                    _colorStreamPosition.Y + 21
-                );
+            var sensorButtonSize = new Vector2(195, 30f);
 
-            var sensorAngleDownButtonPosition = new Vector2(
-                    _colorStreamPosition.X + _colorStreamSize.X + 23,
-                    sensorAngleUpButtonPosition.Y + 41
-                );
-
-            var sensorBrightnessUpButtonPosition = new Vector2(
-                    _colorStreamPosition.X + _colorStreamSize.X + 23,
-                    sensorAngleDownButtonPosition.Y + 65
-                );
-
-            var sensorBrightnessDownButtonPosition = new Vector2(
-                    _colorStreamPosition.X + _colorStreamSize.X + 23,
-                    sensorBrightnessUpButtonPosition.Y + 40
-                );
-
-            var catalogButtonSize = new Vector2(195, 30f);
-
-            var catalogButtonStartingPosition = new Vector2(
-                _colorStreamPosition.X + _colorStreamSize.X + (MARGIN * 2),
-                sensorTileStartingPosition.Y + sensorTileSize.Y
-            );
-
+            var sensorButtonStartingPosition = new Vector2(
+                _catalogViewPosition.X + _catalogViewSize.X + 23,
+                catalogRemoveButtonPosition.Y + catalogTileSize.Y + 41
+            ); 
+            
             var exerciseButtonSize = new Vector2(100, 30f);
             var exerciseButtonPosition = new Vector2(
                 (
-                    (_colorStreamPosition.X + (_colorStreamSize.X * .7f)) - (exerciseButtonSize.X / 2)
+                    (_catalogViewPosition.X + (_catalogViewSize.X * .7f)) - (exerciseButtonSize.X / 2)
                 ),
                 (
                     _viewableArea.Height + 50
@@ -144,7 +126,7 @@ namespace SWENG.UserInterface
             var exitButtonSize = new Vector2(100, 30f);
             var exitButtonPosition = new Vector2(
                 (
-                    (_colorStreamPosition.X + (_colorStreamSize.X / 3)) - (exitButtonSize.X / 2) 
+                    (_catalogViewPosition.X + (_catalogViewSize.X / 3)) - (exitButtonSize.X / 2) 
                 ),
                 (
                     _viewableArea.Height + 50
@@ -152,14 +134,11 @@ namespace SWENG.UserInterface
             );
 
             _buttonList = new[]{
-                //new GuiButton("Exercise", exerciseButtonSize, exerciseButtonPosition),
+                new GuiButton("Start", exerciseButtonSize, exerciseButtonPosition),
                 new GuiButton("Exit", exitButtonSize, exitButtonPosition), 
-                new GuiButton("Up", sensorButtonSize, sensorAngleUpButtonPosition),
-                new GuiButton("Down", sensorButtonSize, sensorAngleDownButtonPosition),
-                new GuiButton("Brighter", sensorButtonSize, sensorBrightnessUpButtonPosition),
-                new GuiButton("Darker", sensorButtonSize, sensorBrightnessDownButtonPosition),
-                new GuiButton("Catalog", catalogButtonSize, catalogButtonStartingPosition), 
-
+                new GuiButton("Add", catalogButtonSize, catalogAddButtonPosition),
+                new GuiButton("Remove", catalogButtonSize, catalogRemoveButtonPosition),
+                new GuiButton("Sensor Control", sensorButtonSize, sensorButtonStartingPosition)
             };
             #endregion
 
@@ -174,14 +153,16 @@ namespace SWENG.UserInterface
         {
             _kinectSensorController = new KinectSensorController();
 
-            _colorStream.Position = _colorStreamPosition;
-            _colorStream.Size = _colorStreamSize;
-            _colorStream.Initialize();
+            //_colorStream.Position = _colorStreamPosition;
+            //_colorStream.Size = _catalogViewSize;
+            //_colorStream.Initialize();
 
-            foreach (var sensorTile in _sensorControls)
+            foreach (var catalogTile in _catalogControls)
             {
-                sensorTile.Initialize();
+                catalogTile.Initialize();
             }
+
+            _catalogViewArea.Initialize();
 
             _isInitialized = true;
 
@@ -225,14 +206,14 @@ namespace SWENG.UserInterface
                     {
                         switch (button.Text)
                         {
-                            case "Exercise":
+                            case "Start":
                                 Transition();
                                 Manager.CallOpen("Exercise");
                                 break;
 
-                            case "Catalog":
+                            case "Sensor Control":
                                 Transition();
-                                Manager.CallOpen("Catalog");
+                                Manager.CallOpen("The Hub");
                                 break;
 
                             case "Exit":
@@ -240,25 +221,11 @@ namespace SWENG.UserInterface
                                 Game.Exit();
                                 break;
 
-                            case "Up":
-                                _kinectSensorController.KinectSensorElevationControl(StepAngleUp);
-                                button.Hovered = false;
-                                Thread.Sleep(1350);
-                                break;
-
-                            case "Down":
-                                _kinectSensorController.KinectSensorElevationControl(StepAngleDown);
-                                Thread.Sleep(1350);
+                            case "Add":
                                 button.Hovered = false;
                                 break;
 
-                            case "Brighter":
-                                _kinectSensorController.KinectSensorBrightnessLevel(Brighter);
-                                button.Hovered = false;
-                                break;
-
-                            case "Darker":
-                                _kinectSensorController.KinectSensorBrightnessLevel(Darker);
+                            case "Remove":
                                 button.Hovered = false;
                                 break;
                         }
@@ -272,12 +239,14 @@ namespace SWENG.UserInterface
 
             _oldMouseState = mouseState;
 
-            _colorStream.Update(gameTime);
+            //_colorStream.Update(gameTime);
 
-            foreach (var sensorTile in _sensorControls)
+            foreach (var catalogTile in _catalogControls)
             {
-                sensorTile.Update(gameTime);
+                catalogTile.Update(gameTime);
             }
+
+            _catalogViewArea.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -288,10 +257,12 @@ namespace SWENG.UserInterface
             {
                 GraphicsDevice.Clear(Color.White);
 
-                foreach (var sensorTile in _sensorControls)
+                foreach (var catalogTile in _catalogControls)
                 {
-                    sensorTile.Draw(gameTime);
+                    catalogTile.Draw(gameTime);
                 }
+
+                _catalogViewArea.Draw(gameTime);
 
                 SharedSpriteBatch.Begin();
 
@@ -320,7 +291,7 @@ namespace SWENG.UserInterface
                 SharedSpriteBatch.DrawString(
                     _spriteFont,
                     _banner.Text,
-                    new Vector2(x: (_viewableArea.Width - _colorStreamSize.Length()) * 3, y: 100),
+                    new Vector2(x: (_viewableArea.Width - _catalogViewSize.Length()) * 3, y: 100),
                     Color.White
                 );
 
@@ -331,7 +302,7 @@ namespace SWENG.UserInterface
                     );
 
                 SharedSpriteBatch.End();
-                _colorStream.Draw(gameTime);
+                //_colorStream.Draw(gameTime);
             }
             base.Draw(gameTime);
         }

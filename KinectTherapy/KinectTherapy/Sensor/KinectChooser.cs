@@ -11,8 +11,9 @@ namespace Microsoft.Samples.Kinect.XnaBasics
     using System.IO;
     using System.Linq;
     using Microsoft.Kinect;
-    using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Graphics;
+    using Xna.Framework;
+    using Xna.Framework.Graphics;
+
 
     /// <summary>
     /// This class will pick a kinect sensor if available.
@@ -58,21 +59,21 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         public KinectChooser(Game game, ColorImageFormat colorFormat, DepthImageFormat depthFormat)
             : base(game)
         {
-            this.colorImageFormat = colorFormat;
-            this.depthImageFormat = depthFormat;
+            colorImageFormat = colorFormat;
+            depthImageFormat = depthFormat;
 
-            KinectSensor.KinectSensors.StatusChanged += this.KinectSensors_StatusChanged;
-            this.DiscoverSensor();
+            KinectSensor.KinectSensors.StatusChanged += KinectSensors_StatusChanged;
+            DiscoverSensor();
 
-            this.statusMap.Add(KinectStatus.Connected, string.Empty);
-            this.statusMap.Add(KinectStatus.DeviceNotGenuine, "Device Not Genuine");
-            this.statusMap.Add(KinectStatus.DeviceNotSupported, "Device Not Supported");
-            this.statusMap.Add(KinectStatus.Disconnected, "Required");
-            this.statusMap.Add(KinectStatus.Error, "Error");
-            this.statusMap.Add(KinectStatus.Initializing, "Initializing...");
-            this.statusMap.Add(KinectStatus.InsufficientBandwidth, "Insufficient Bandwidth");
-            this.statusMap.Add(KinectStatus.NotPowered, "Not Powered");
-            this.statusMap.Add(KinectStatus.NotReady, "Not Ready");
+            statusMap.Add(KinectStatus.Connected, string.Empty);
+            statusMap.Add(KinectStatus.DeviceNotGenuine, "Device Not Genuine");
+            statusMap.Add(KinectStatus.DeviceNotSupported, "Device Not Supported");
+            statusMap.Add(KinectStatus.Disconnected, "Required");
+            statusMap.Add(KinectStatus.Error, "Error");
+            statusMap.Add(KinectStatus.Initializing, "Initializing...");
+            statusMap.Add(KinectStatus.InsufficientBandwidth, "Insufficient Bandwidth");
+            statusMap.Add(KinectStatus.NotPowered, "Not Powered");
+            statusMap.Add(KinectStatus.NotReady, "Not Ready");
         }
 
         /// <summary>
@@ -92,7 +93,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         {
             base.Initialize();
 
-            this.spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+            spriteBatch = new SpriteBatch(Game.GraphicsDevice);
         }
 
         /// <summary>
@@ -102,50 +103,50 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         public override void Draw(GameTime gameTime)
         {
             // If the spritebatch is null, call initialize
-            if (this.spriteBatch == null)
+            if (spriteBatch == null)
             {
-                this.Initialize();
+                Initialize();
             }
 
             // If the background is not loaded, load it now
-            if (this.chooserBackground == null)
+            if (chooserBackground == null)
             {
-                this.LoadContent();
+                LoadContent();
             }
 
             // If we don't have a sensor, or the sensor we have is not connected
             // then we will display the information text
-            if (this.Sensor == null || this.LastStatus != KinectStatus.Connected)
+            if (Sensor == null || LastStatus != KinectStatus.Connected)
             {
-                this.spriteBatch.Begin();
+                spriteBatch.Begin();
 
                 // Render the background
-                this.spriteBatch.Draw(
-                    this.chooserBackground,
+                spriteBatch.Draw(
+                    chooserBackground,
                     new Vector2(Game.GraphicsDevice.Viewport.Width / 2, Game.GraphicsDevice.Viewport.Height / 2),
                     null,
                     Color.White,
                     0,
-                    new Vector2(this.chooserBackground.Width / 2, this.chooserBackground.Height / 2),
+                    new Vector2(chooserBackground.Width / 2, chooserBackground.Height / 2),
                     1,
                     SpriteEffects.None,
                     0);
 
                 // Determine the text
                 string txt = "Required";
-                if (this.Sensor != null)
+                if (Sensor != null)
                 {
-                    txt = this.statusMap[this.LastStatus];
+                    txt = statusMap[LastStatus];
                 }
 
                 // Render the text
-                Vector2 size = this.font.MeasureString(txt);
-                this.spriteBatch.DrawString(
-                    this.font,
+                Vector2 size = font.MeasureString(txt);
+                spriteBatch.DrawString(
+                    font,
                     txt,
                     new Vector2((Game.GraphicsDevice.Viewport.Width - size.X) / 2, (Game.GraphicsDevice.Viewport.Height / 2) + size.Y),
                     Color.White);
-                this.spriteBatch.End();
+                spriteBatch.End();
             }
 
             base.Draw(gameTime);
@@ -158,8 +159,8 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         {
             base.LoadContent();
 
-            this.chooserBackground = Game.Content.Load<Texture2D>("ChooserBackground");
-            this.font = Game.Content.Load<SpriteFont>("Segoe16");
+            chooserBackground = Game.Content.Load<Texture2D>("ChooserBackground");
+            font = Game.Content.Load<SpriteFont>("Segoe16");
         }
 
         /// <summary>
@@ -170,9 +171,9 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             base.UnloadContent();
 
             // Always stop the sensor when closing down
-            if (this.Sensor != null)
+            if (Sensor != null)
             {
-                this.Sensor.Stop();
+                Sensor.Stop();
             }
         }
 
@@ -184,30 +185,30 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         private void DiscoverSensor()
         {
             // Grab any available sensor
-            this.Sensor = KinectSensor.KinectSensors.FirstOrDefault();
+            Sensor = KinectSensor.KinectSensors.FirstOrDefault();
 
-            if (this.Sensor != null)
+            if (Sensor != null)
             {
-                this.LastStatus = this.Sensor.Status;
+                LastStatus = Sensor.Status;
 
                 // If this sensor is connected, then enable it
-                if (this.LastStatus == KinectStatus.Connected)
+                if (LastStatus == KinectStatus.Connected)
                 {
                     try
                     {
-                        this.Sensor.SkeletonStream.Enable();
-                        this.Sensor.ColorStream.Enable(this.colorImageFormat);
-                        this.Sensor.DepthStream.Enable(this.depthImageFormat);
+                        Sensor.SkeletonStream.Enable();
+                        Sensor.ColorStream.Enable(colorImageFormat);
+                        Sensor.DepthStream.Enable(depthImageFormat);
 
                         try
                         {
-                            this.Sensor.Start();
+                            Sensor.Start();
                         }
                         catch (IOException)
                         {
                             // sensor is in use by another application
                             // will treat as disconnected for display purposes
-                            this.Sensor = null;
+                            Sensor = null;
                         }
                     }
                     catch (InvalidOperationException)
@@ -215,13 +216,13 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                         // KinectSensor might enter an invalid state while
                         // enabling/disabling streams or stream features.
                         // E.g.: sensor might be abruptly unplugged.
-                        this.Sensor = null;
+                        Sensor = null;
                     }
                 }
             }
             else
             {
-                this.LastStatus = KinectStatus.Disconnected;
+                LastStatus = KinectStatus.Disconnected;
             }
         }
 
@@ -240,8 +241,8 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                 e.Sensor.Stop();
             }
 
-            this.LastStatus = e.Status;
-            this.DiscoverSensor();
+            LastStatus = e.Status;
+            DiscoverSensor();
         }
     }
 }

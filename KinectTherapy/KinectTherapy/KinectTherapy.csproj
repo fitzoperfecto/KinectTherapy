@@ -61,7 +61,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Kinect.Toolbox">
-      <HintPath>..\..\..\..\..\Desktop\KinectTherapy\KinectTherapy\KinectTherapy\bin\x86\Debug\Kinect.Toolbox.dll</HintPath>
+      <HintPath>..\..\..\..\Kinect XNA\Kinect Toolkit\kinect.toolbox\Kinect.Toolbox.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
@@ -116,6 +116,21 @@
     <Compile Include="ColorStreamRenderer.cs" />
     <Compile Include="Criteria\Checkpoint.cs" />
     <Compile Include="Criteria\XmlJointType.cs" />
+    <Compile Include="Record\DepthStreamRecorder.cs" />
+    <Compile Include="Record\ReplayColorImageFrame.cs" />
+    <Compile Include="Record\ColorStreamRecorder.cs" />
+    <Compile Include="Record\enum.cs" />
+    <Compile Include="Record\ReplayDepthImageFrame.cs" />
+    <Compile Include="Record\ReplayDepthImageFrameReadyEvent.cs" />
+    <Compile Include="Record\ReplayFrame.cs" />
+    <Compile Include="Record\ReplaySkeletonFrame.cs" />
+    <Compile Include="Record\ReplaySkeletonFrameReadyEventArgs.cs" />
+    <Compile Include="Record\SkeletonStreamRecorder.cs" />
+    <Compile Include="Record\KinectStreamRecorder.cs" />
+    <Compile Include="Record\KinectReplay.cs" />
+    <Compile Include="Record\ReplaySystem.cs" />
+    <Compile Include="Record\ReplayColorImageFrameReadyEventArgs.cs" />
+    <Compile Include="Sensor\KinectSensorController.cs" />
     <Compile Include="Service\ExerciseQueue.cs" />
     <Compile Include="Criteria\CriteriaRepetition.cs" />
     <Compile Include="Criteria\Criterion.cs" />
@@ -124,7 +139,7 @@
     <Compile Include="FormResult.cs" />
     <Compile Include="IRepetition.cs" />
     <Compile Include="Criteria\JointAnalyzer.cs" />
-    <Compile Include="KinectChooser.cs" />
+    <Compile Include="Sensor\KinectChooser.cs" />
     <Compile Include="Object2D.cs" />
     <Compile Include="Criteria\PointCriterion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -137,6 +152,7 @@
     <Compile Include="TimerRepetition.cs" />
     <Compile Include="UserInterface\ReplayTile.cs" />
     <Compile Include="UserInterface\SummaryScreen.cs" />
+    <Compile Include="UserInterface\CatalogScreen.cs" />
     <Compile Include="UserInterface\GuiButton.cs" />
     <Compile Include="UserInterface\ExerciseTile.cs" />
     <Compile Include="UserInterface\GuiLabel.cs" />
@@ -154,8 +170,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KinectTherapyContent\KinectTherapyContent.contentproj">
-      <Name>KinectTherapyContent</Name>
+      <Name>KinectTherapyContent %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
+      <Project>{9968B732-9EDE-43E9-AAD2-3C00199DCA0C}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -185,7 +202,6 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

@@ -30,6 +30,7 @@ namespace SWENG.UserInterface
         private Vector2 _drawableTitle;
         private Vector2 _drawableSection;
         private const float ScrollRate = -1f;
+
         private Rectangle _header;
         private Rectangle _body;
         private Rectangle _border;
@@ -38,11 +39,11 @@ namespace SWENG.UserInterface
         private RenderTarget2D _renderTarget2D;
 
         public string Title { get; internal set; }
+
         public Vector2 Position { get; set; }
         public Vector2 Size { get; set; }
 
-        public SensorTile(Game game, string title)
-            : base(game)
+        public SensorTile(Game game, string title) : base(game)
         {
             Title = title;
         }
@@ -161,7 +162,7 @@ namespace SWENG.UserInterface
             SharedSpriteBatch.Draw(
                 _blankTexture,
                 _body,
-                Color.White
+                Color.PowderBlue
             );
 
             SharedSpriteBatch.End();
