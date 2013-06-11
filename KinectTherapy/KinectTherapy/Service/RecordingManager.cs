@@ -83,12 +83,12 @@ namespace SWENG.Service
             kinectReplay = new KinectReplay(replayStream);
         }
 
-        public void StartRecording(KinectRecordOptions options)
+        private void StartRecording(KinectRecordOptions options)
         {
-            string fileId = Guid.NewGuid().ToString();
             StopReplaying();
             StopRecording();
 
+            string fileId = Guid.NewGuid().ToString();
             filesUsed.Add(fileId, fileLocation + fileId);
 
             if (null != kinectRecorder && kinectRecorder.IsRecording)
@@ -116,6 +116,7 @@ namespace SWENG.Service
 
             if (null != recordingStream)
             {
+                
                 recordingStream.Close();
                 recordingStream.Dispose();
                 recordingStream = null;

@@ -49,7 +49,7 @@ namespace SWENG
             }
             internal set 
             {
-                if (_reptitionStarted != value)
+                if (_reptitionStarted != value && value == true)
                 {
                     OnChanged(EventArgs.Empty);
                 }
