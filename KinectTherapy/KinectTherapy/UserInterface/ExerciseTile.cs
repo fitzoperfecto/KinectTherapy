@@ -222,23 +222,31 @@ namespace SWENG.UserInterface
         {
             this.SharedSpriteBatch.Begin();
 
-            this.SharedSpriteBatch.Draw(
-                this.titleTexture,
-                this.header,
-                Color.White
-            );
+            if (titleTexture != null)
+            {
+                this.SharedSpriteBatch.Draw(
+                    this.titleTexture,
+                    this.header,
+                    Color.White
+                );
+            }
 
-            this.SharedSpriteBatch.Draw(
-                this.blankTexture,
-                this.border,
-                Color.DarkMagenta
-            );
+            if (blankTexture != null)
+            {
+                this.SharedSpriteBatch.Draw(
+                    this.blankTexture,
+                    this.border,
+                    Color.DarkMagenta
+                );
 
-            this.SharedSpriteBatch.Draw(
+                this.SharedSpriteBatch.Draw(
                 this.blankTexture,
                 this.body,
                 Color.White
-            );
+                );
+            }
+
+            
 
             if (!string.IsNullOrEmpty(repetitionSentence))
             {
