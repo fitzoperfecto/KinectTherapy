@@ -145,28 +145,30 @@ namespace SWENG.UserInterface
 
         public override void Draw(GameTime gameTime)
         {
-            SharedSpriteBatch.Begin();
+            if (null != _titleTexture)
+            {
+                SharedSpriteBatch.Begin();
 
-            SharedSpriteBatch.Draw(
-                _titleTexture,
-                _header,
-                Color.White
-            );
+                SharedSpriteBatch.Draw(
+                    _titleTexture,
+                    _header,
+                    Color.White
+                );
 
-            SharedSpriteBatch.Draw(
-                _blankTexture,
-                _border,
-                Color.DarkBlue
-            );
+                SharedSpriteBatch.Draw(
+                    _blankTexture,
+                    _border,
+                    Color.DarkBlue
+                );
 
-            SharedSpriteBatch.Draw(
-                _blankTexture,
-                _body,
-                Color.PowderBlue
-            );
+                SharedSpriteBatch.Draw(
+                    _blankTexture,
+                    _body,
+                    Color.PowderBlue
+                );
 
-            SharedSpriteBatch.End();
-
+                SharedSpriteBatch.End();
+            }
             base.Draw(gameTime);
         }
     }
