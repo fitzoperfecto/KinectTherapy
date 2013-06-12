@@ -1,4 +1,5 @@
 ﻿using Microsoft.Kinect;
+using System;
 
 namespace SWENG.Sensor
 {
@@ -19,8 +20,15 @@ namespace SWENG.Sensor
 
             if (!_kinectSensor.IsRunning) _kinectSensor.Start();
 
-            _colorCameraSettings = _kinectSensor.ColorStream.CameraSettings;
-            _colorCameraSettings.AutoExposure = true;
+            try
+            {
+                _colorCameraSettings = _kinectSensor.ColorStream.CameraSettings;
+                _colorCameraSettings.AutoExposure = true;
+            }
+            catch (InvalidOperationException ioe)
+            {
+                // do nothing this is OK just means you have a Kinect for XBox not a Kinect for Windows
+            }
         }
 
         public void KinectSensorTerminate()
@@ -40,8 +48,12 @@ namespace SWENG.Sensor
         {
             if (!CameraStatus(_kinectSensor)) return;
 
-            if (_colorCameraSettings.Brightness >= -0.9 && _colorCameraSettings.Brightness <= 0.9)
+            // if this is null it means I'm connected to a Kinect for XBox.
+            if (_colorCameraSettings != null)
+            {
+                if (_colorCameraSettings.Brightness >= -0.9 && _colorCameraSettings.Brightness <= 0.9)
                     _colorCameraSettings.Brightness += brightnessLevel;
+            }
         }
 
         ///<summary>
