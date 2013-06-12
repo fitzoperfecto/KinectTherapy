@@ -61,7 +61,7 @@ namespace SWENG
         
         public int Repetitions { get; internal set; }
         public string Name { get; internal set; }
-        private IRepetition repetition;
+        public CriteriaRepetition repetition;
 
         public List<string> RepetitionToFileId { get; internal set; }
 
@@ -80,6 +80,8 @@ namespace SWENG
         public override void Initialize()
         {
             base.Initialize();
+            // initialize the checkpoint to the 0 based checkpoint. 
+            repetition.Checkpoint = 0;
         }
 
         public override void Update(GameTime gameTime)

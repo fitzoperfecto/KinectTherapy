@@ -11,21 +11,60 @@ namespace SWENG.Criteria
     /// This class expects a criteria for the start/stop position to be provided 
     /// and the criteria will ensure the skeleton will match the criteria position.
     /// 
-    /// This class expects the start and stop to be the same position. But will expect that the rep 
-    /// must take more than 2 seconds to complete. 
     /// </summary>
-    class CriteriaRepetition:IRepetition
+    // publisher
+    public delegate void CheckpointChangedEventHandler(object sender, CheckpointChangedEventArgs e);
+
+    public class CheckpointChangedEventArgs : EventArgs
     {
+        public string FileId;
+
+        public CheckpointChangedEventArgs(string fileId)
+        {
+            FileId = fileId;
+        }
+    }
+    public class CriteriaRepetition:IRepetition
+    {
+
+        #region event stuff
+        public event CheckpointChangedEventHandler CheckpointChanged;
+
+        // Invoke the Changed event; called whenever checkpoint changes
+        protected virtual void OnChanged(CheckpointChangedEventArgs e)
+        {
+            if (CheckpointChanged != null)
+                CheckpointChanged(this, e);
+        }
+
+        #endregion
+
         private Exercise Exercise;
         private DateTime startTime;
         private DateTime endTime;
         private int _checkpoint;
 
+        public int Checkpoint
+        {
+            get
+            {
+                return 
+                    _checkpoint;
+            }
+            internal set
+            {
+                if (_checkpoint != value)
+                {
+                    OnChanged(new CheckpointChangedEventArgs(Exercise.Id + value));
+                }
+                _checkpoint = value;
+            }
+        }
+
         //***********************************
         public CriteriaRepetition(Exercise criteria)
         {
             this.Exercise = criteria;
-            this._checkpoint = 0;
         }
 
         /// <summary>
@@ -59,12 +98,12 @@ namespace SWENG.Criteria
             if (matches)
             {
                 // increment the checkpoint
-                _checkpoint++;
+                Checkpoint++;
 
-                if (_checkpoint >= Exercise.Checkpoints.Length)
+                if (Checkpoint >= Exercise.Checkpoints.Length)
                 {
                     // we have now completed a repetition reset our counter
-                    _checkpoint = 0;
+                    Checkpoint = 0;
                     return true;
                 }
             }

@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SWENG.Service;
+using SWENG.Criteria;
+using System.Collections.Generic;
 
 // TODO: refactor similar functionality within ReplayTile to a "tile" drawablegamecomponent
 namespace SWENG.UserInterface
@@ -104,6 +106,7 @@ namespace SWENG.UserInterface
 
         public string Title { get; internal set; }
         public int ExerciseIndex { get; internal set; }
+        public string CheckpointId { get; internal set; }
 
         private string repetitionSentence;
 
@@ -120,6 +123,7 @@ namespace SWENG.UserInterface
         {
             this.Title = exercise.Name;
             this.ExerciseIndex = exerciseIndex;
+            exercise.repetition.CheckpointChanged += HandleCheckpointChange;
         }
 
         /// <summary>
@@ -184,10 +188,10 @@ namespace SWENG.UserInterface
             if (this.SharedExerciseQueue.CurrentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
             {
                 this.repetitionSentence = string.Format(
-                    "Reps: {1}\nStarted:{3}",
+                    "Reps: {1}\nStarted:{3}\nFileId:{4}",
                     Title,
                     SharedExerciseQueue.Exercises[ExerciseIndex].Repetitions,
-                    ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].RepetitionStarted
+                    ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].RepetitionStarted,CheckpointId
                 );
             }
             else
@@ -287,6 +291,12 @@ namespace SWENG.UserInterface
             Game.GraphicsDevice.SetRenderTarget(null);
 
             return (Texture2D)renderTarget2d;
+        }
+
+        public void HandleCheckpointChange(object sender, CheckpointChangedEventArgs args)
+        {
+            // display the file. 
+            CheckpointId = args.FileId;
         }
     }
 }

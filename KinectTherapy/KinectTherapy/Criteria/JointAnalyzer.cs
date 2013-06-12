@@ -65,25 +65,70 @@ namespace SWENG.Criteria
             return aligningJoint.Position.X - jointToBeAlignedTo.Position.X;
         }
 
+        /// <summary>
+        /// Determines if the aligningJoint is to the left of the jointToBeAlignedTo
+        /// </summary>
+        /// <param name="aligningJoint"></param>
+        /// <param name="jointToBeAlignedTo"></param>
+        /// <returns></returns>
         public static bool isLeftOf(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return alignedVertically(aligningJoint,jointToBeAlignedTo) < 0;
         }
 
+        /// <summary>
+        /// Determines if the aligningJoint is to the right of the jointToBeAlignedTo
+        /// </summary>
+        /// <param name="aligningJoint"></param>
+        /// <param name="jointToBeAlignedTo"></param>
+        /// <returns></returns>
         public static bool isRightOf(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return alignedVertically(aligningJoint, jointToBeAlignedTo) > 0;
         }
 
+        /// <summary>
+        /// Determines if the aligningJoint is above the jointToBeAlignedTo
+        /// </summary>
+        /// <param name="aligningJoint"></param>
+        /// <param name="jointToBeAlignedTo"></param>
+        /// <returns></returns>
         public static bool isAbove(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return alignedHorizontally(aligningJoint, jointToBeAlignedTo) > 0;
         }
 
+        /// <summary>
+        /// Determines if the aligningJoint is below the jointToBeAlignedTo
+        /// </summary>
+        /// <param name="aligningJoint"></param>
+        /// <param name="jointToBeAlignedTo"></param>
+        /// <returns></returns>
         public static bool isBelow(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return alignedHorizontally(aligningJoint, jointToBeAlignedTo) < 0;
         }
 
+        /// <summary>
+        /// Determines if the aligningJoint is in front of the jointToBeAlignedTo
+        /// </summary>
+        /// <param name="aligningJoint"></param>
+        /// <param name="jointToBeAlignedTo"></param>
+        /// <returns></returns>
+        public static bool isAhead(Joint aligningJoint, Joint jointToBeAlignedTo)
+        {
+            return alignedHorizontally(aligningJoint, jointToBeAlignedTo) < 0;
+        }
+
+        /// <summary>
+        /// Determines if the aligningJoint is behind the jointToBeAlignedTo
+        /// </summary>
+        /// <param name="aligningJoint"></param>
+        /// <param name="jointToBeAlignedTo"></param>
+        /// <returns></returns>
+        public static bool isBehind(Joint aligningJoint, Joint jointToBeAlignedTo)
+        {
+            return alignedHorizontally(aligningJoint, jointToBeAlignedTo) < 0;
+        }
     }
 }

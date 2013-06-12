@@ -19,6 +19,8 @@ namespace SWENG.Criteria
     [Serializable()]
     public class Exercise
     {
+        [XmlAttribute("Id")]
+        public string Id { get; set; }
         [XmlAttribute("Name")]
         public string Name { get; set; }
         [XmlArray("StartingCriteria")]
