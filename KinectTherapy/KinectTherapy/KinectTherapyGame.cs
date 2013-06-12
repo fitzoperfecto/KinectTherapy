@@ -140,7 +140,10 @@ namespace KinectTherapy
             #endregion
 
             #region Adding Screens
-            userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Active));
+            //TODO: This needs to be refitted as the actual home screen.
+            userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Hidden));
+            userInterfaceManager.AddScreen(new LogInScreen(this, viewPortRectangle, ScreenState.Active));
+            userInterfaceManager.AddScreen(new CatalogScreen(this, viewPortRectangle, ScreenState.Hidden));
             userInterfaceManager.AddScreen(_exerciseScreen);
             userInterfaceManager.AddScreen(_summaryScreen);
             #endregion
@@ -157,12 +160,6 @@ namespace KinectTherapy
             #region Adding Components
             Components.Add(userInterfaceManager);
             #endregion
-
-            this.userInterfaceManager.AddScreen(new LogInScreen(this, viewPortRectangle, ScreenState.Active));
-            this.userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Hidden));
-            this.userInterfaceManager.AddScreen(new CatalogScreen(this, viewPortRectangle, ScreenState.Hidden));
-            this.userInterfaceManager.AddScreen(new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden));
-
 
             base.Initialize();
         }
