@@ -189,7 +189,7 @@ namespace SWENG.UserInterface
             if (this.SharedExerciseQueue.CurrentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
             {
                 this.repetitionSentence = string.Format(
-                    "Reps: {1}\nStarted:{3}",
+                    "Reps: {1}",
                     Title,
                     SharedExerciseQueue.Exercises[ExerciseIndex].Repetitions,
                     ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].RepetitionStarted,CheckpointId
@@ -257,7 +257,7 @@ namespace SWENG.UserInterface
                     // stupid quick way of centering this for the meeting
                     new Vector2(
                         this.body.X + (this.body.Width / 4),
-                        this.body.Y + (this.body.Height / 2) - 40
+                        this.body.Y + (this.body.Height / 2) - 58
                     ),
                     Color.Blue
                 );
@@ -270,7 +270,7 @@ namespace SWENG.UserInterface
                this.checkpointTexture,
                new Vector2(
                         this.body.X + (this.body.Width / 4),
-                        this.body.Y + (this.body.Height / 2) - 12
+                        this.body.Y + (this.body.Height / 2) - 36
                     ),
                     Color.White
                );
