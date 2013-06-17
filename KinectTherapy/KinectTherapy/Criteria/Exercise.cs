@@ -17,6 +17,7 @@ namespace SWENG.Criteria
     /// </summary>
     /// 
     [Serializable()]
+    [System.Xml.Serialization.XmlRoot("Exercise")]
     public class Exercise
     {
         [XmlAttribute("Id")]

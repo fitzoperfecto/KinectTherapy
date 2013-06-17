@@ -198,35 +198,44 @@ namespace SWENG.UserInterface
         {
             this.SharedSpriteBatch.Begin();
 
-            this.SharedSpriteBatch.Draw(
-                this.titleTexture,
-                this.header,
-                Color.White
-            );
+            if (titleTexture != null)
+            {
+                this.SharedSpriteBatch.Draw(
+                    this.titleTexture,
+                    this.header,
+                    Color.White
+                );
+            }
 
-            this.SharedSpriteBatch.Draw(
-                this.blankTexture,
-                this.border,
-                Color.DarkMagenta
-            );
+            if (blankTexture != null)
+            {
+                this.SharedSpriteBatch.Draw(
+                    this.blankTexture,
+                    this.border,
+                    Color.DarkMagenta
+                );
 
-            this.SharedSpriteBatch.Draw(
-                this.blankTexture,
-                this.body,
-                Color.White
-            );
+                this.SharedSpriteBatch.Draw(
+                    this.blankTexture,
+                    this.body,
+                    Color.White
+                );
+            }
 
-            this.SharedSpriteBatch.DrawString(
-                this.spriteFont, 
-                this.repetitionSentence,
-                // stupid quick way of centering this for the meeting
-                new Vector2(
-                    this.body.X + (this.body.Width / 4), 
-                    this.body.Y + (this.body.Height / 2) - 12 
-                ), 
-                Color.Blue
-            );
+            if (spriteFont != null)
+            {
+                this.SharedSpriteBatch.DrawString(
+                    this.spriteFont,
+                    this.repetitionSentence,
+                    // stupid quick way of centering this for the meeting
+                    new Vector2(
+                        this.body.X + (this.body.Width / 4),
+                        this.body.Y + (this.body.Height / 2) - 12
+                    ),
+                    Color.Blue
+                );
 
+            }
             this.SharedSpriteBatch.End();
 
             base.Draw(gameTime);
@@ -242,24 +251,29 @@ namespace SWENG.UserInterface
             Game.GraphicsDevice.Clear(ClearOptions.Target, Color.DarkMagenta, 0, 0);
             this.SharedSpriteBatch.Begin();
 
-            this.SharedSpriteBatch.Draw(
-                this.blankTexture,
-                new Rectangle(
-                    MARGIN,
-                    MARGIN,
-                    this.header.Width - (2 * MARGIN),
-                    this.header.Height - (2 * MARGIN)
-                ),
-                Color.DarkMagenta
-            );
+            if (blankTexture != null)
+            {
+                this.SharedSpriteBatch.Draw(
+                    this.blankTexture,
+                    new Rectangle(
+                        MARGIN,
+                        MARGIN,
+                        this.header.Width - (2 * MARGIN),
+                        this.header.Height - (2 * MARGIN)
+                    ),
+                    Color.DarkMagenta
+                );
+            }
 
-            this.SharedSpriteBatch.DrawString(
-                this.spriteFont,
-                this.Title,
-                this.drawableSection,
-                Color.White
-            );
-
+            if (spriteFont != null)
+            {
+                this.SharedSpriteBatch.DrawString(
+                    this.spriteFont,
+                    this.Title,
+                    this.drawableSection,
+                    Color.White
+                );
+            }
             this.SharedSpriteBatch.End();
             Game.GraphicsDevice.SetRenderTarget(null);
 

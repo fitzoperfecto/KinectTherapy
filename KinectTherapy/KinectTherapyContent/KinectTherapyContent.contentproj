@@ -143,7 +143,14 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Exercises\RightArmExtensions.xml">
+      <SubType>Designer</SubType>
+      <Name>RightArmExtensions</Name>
+      <Importer>XmlImporter</Importer>
+      <Processor>PassThroughProcessor</Processor>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Exercises\EXERAE0.png">
       <Name>EXERAE0</Name>
@@ -159,6 +166,31 @@
   <ItemGroup>
     <Compile Include="Exercises\EXERAE2.png">
       <Name>EXERAE2</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Exercises\LeftArmExtensions.xml">
+      <SubType>Designer</SubType>
+      <Name>LeftArmExtensions</Name>
+      <Importer>XmlImporter</Importer>
+      <Processor>PassThroughProcessor</Processor>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Exercises\EXELAE0.png">
+      <Name>EXELAE0</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Exercises\EXELAE1.png">
+      <Name>EXELAE1</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Exercises\EXELAE2.png">
+      <Name>EXELAE2</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
