@@ -52,6 +52,7 @@ namespace SWENG
                 if (_reptitionStarted != value && value == true)
                 {
                     OnChanged(EventArgs.Empty);
+                    repetition.Checkpoint = 0;
                 }
                 _reptitionStarted = value;
                 
@@ -80,8 +81,6 @@ namespace SWENG
         public override void Initialize()
         {
             base.Initialize();
-            // initialize the checkpoint to the 0 based checkpoint. 
-            repetition.Checkpoint = 0;
         }
 
         public override void Update(GameTime gameTime)
@@ -96,6 +95,8 @@ namespace SWENG
             {
                 if (!RepetitionStarted)
                 {
+                    // initialize the checkpoint to the 0 based checkpoint. 
+                    repetition.Checkpoint = Exercise.Checkpoints.Length;
                     RepetitionStarted = repetition.isRepStarted(skeletonStamp);
                 }
                 else

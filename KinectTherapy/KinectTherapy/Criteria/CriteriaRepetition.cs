@@ -65,6 +65,7 @@ namespace SWENG.Criteria
         public CriteriaRepetition(Exercise criteria)
         {
             this.Exercise = criteria;
+            this.Checkpoint = 0;
         }
 
         /// <summary>

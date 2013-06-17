@@ -103,6 +103,7 @@ namespace SWENG.UserInterface
 
         private Texture2D titleTexture;
         private RenderTarget2D renderTarget2d;
+        private Texture2D checkpointTexture;
 
         public string Title { get; internal set; }
         public int ExerciseIndex { get; internal set; }
@@ -188,7 +189,7 @@ namespace SWENG.UserInterface
             if (this.SharedExerciseQueue.CurrentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
             {
                 this.repetitionSentence = string.Format(
-                    "Reps: {1}\nStarted:{3}\nFileId:{4}",
+                    "Reps: {1}\nStarted:{3}",
                     Title,
                     SharedExerciseQueue.Exercises[ExerciseIndex].Repetitions,
                     ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].RepetitionStarted,CheckpointId
@@ -246,20 +247,33 @@ namespace SWENG.UserInterface
                 );
             }
 
-            
+
 
             if (!string.IsNullOrEmpty(repetitionSentence))
             {
                 this.SharedSpriteBatch.DrawString(
-                    this.spriteFont, 
+                    this.spriteFont,
                     this.repetitionSentence,
                     // stupid quick way of centering this for the meeting
                     new Vector2(
-                        this.body.X + (this.body.Width / 4), 
-                        this.body.Y + (this.body.Height / 2) - 12 
-                    ), 
+                        this.body.X + (this.body.Width / 4),
+                        this.body.Y + (this.body.Height / 2) - 40
+                    ),
                     Color.Blue
                 );
+            }
+
+            if (checkpointTexture != null)
+            {
+
+                this.SharedSpriteBatch.Draw(
+               this.checkpointTexture,
+               new Vector2(
+                        this.body.X + (this.body.Width / 4),
+                        this.body.Y + (this.body.Height / 2) - 12
+                    ),
+                    Color.White
+               );
             }
 
             this.SharedSpriteBatch.End();
@@ -304,7 +318,7 @@ namespace SWENG.UserInterface
         public void HandleCheckpointChange(object sender, CheckpointChangedEventArgs args)
         {
             // display the file. 
-            CheckpointId = args.FileId;
+            this.checkpointTexture = contentManager.Load<Texture2D>("Exercises/"+args.FileId);
         }
     }
 }

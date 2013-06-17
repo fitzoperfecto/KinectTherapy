@@ -16,6 +16,16 @@
             </Joint>
           </AdjacentJoints>
         </Criterion>
+        <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+          <Joints>
+            <Joint>
+              <Name>ShoulderRight</Name>
+            </Joint>
+            <Joint>
+              <Name>ElbowRight</Name>
+            </Joint>
+          </Joints>
+        </Criterion>
       </StartingCriteria>
       <TrackingCriteria>
         <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
@@ -45,6 +55,16 @@
                 </Joint>
               </AdjacentJoints>
             </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+              <Joints>
+                <Joint>
+                  <Name>ShoulderRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>ElbowRight</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
           </Criteria>
         </Checkpoint>
         <Checkpoint>
@@ -61,6 +81,16 @@
                   <Name>WristRight</Name>
                 </Joint>
               </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+              <Joints>
+                <Joint>
+                  <Name>ShoulderRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>ElbowRight</Name>
+                </Joint>
+              </Joints>
             </Criterion>
           </Criteria>
         </Checkpoint>
