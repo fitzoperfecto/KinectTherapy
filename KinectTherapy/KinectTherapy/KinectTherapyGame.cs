@@ -61,9 +61,11 @@ namespace KinectTherapy
         private readonly Manager userInterfaceManager;
 
         private readonly RecordingManager recordingManager;
+        private readonly CatalogManager catalogManager;
 
         private readonly SummaryScreen _summaryScreen;
         private readonly ExerciseScreen _exerciseScreen;
+        private readonly CatalogScreen _catalogScreen;
 
         /// <summary>
         /// preloading assets
@@ -108,6 +110,9 @@ namespace KinectTherapy
 
             recordingManager = new RecordingManager();
             Services.AddService(typeof(RecordingManager), recordingManager);
+
+            catalogManager = new CatalogManager();
+            Services.AddService(typeof(CatalogManager), catalogManager);
             #endregion
 
             #region Components
@@ -117,6 +122,7 @@ namespace KinectTherapy
             #region Screens
             _summaryScreen = new SummaryScreen(this, viewPortRectangle, ScreenState.Hidden);
             _exerciseScreen = new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden);
+            _catalogScreen = new CatalogScreen(this, viewPortRectangle, ScreenState.Hidden);
             #endregion
 
         }
@@ -133,7 +139,10 @@ namespace KinectTherapy
             exerciseQueue.RepetitionStartedListener.Add(new StartedRepetitionEventHandler(recordingManager.StartRecording));
             exerciseQueue.QueueIsDone += recordingManager.StopRecording;
 
+            exerciseQueue.SelectionIsDone += catalogManager.SelectionStop;
+
             recordingManager.RecordingStatusChanged += exerciseQueue.AssociateFiles;
+            catalogManager.CatalogSelectionStatusChanged += exerciseQueue.AssociateExercises;
 
             exerciseQueue.QueueIsDone += _exerciseScreen.QueueIsDone;
             exerciseQueue.QueueIsDone += _summaryScreen.QueueIsDone;
@@ -143,7 +152,7 @@ namespace KinectTherapy
             //TODO: This needs to be refitted as the actual home screen.
             userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Hidden));
             userInterfaceManager.AddScreen(new LogInScreen(this, viewPortRectangle, ScreenState.Active));
-            userInterfaceManager.AddScreen(new CatalogScreen(this, viewPortRectangle, ScreenState.Hidden));
+            userInterfaceManager.AddScreen(_catalogScreen);
             userInterfaceManager.AddScreen(_exerciseScreen);
             userInterfaceManager.AddScreen(_summaryScreen);
             #endregion
@@ -152,6 +161,7 @@ namespace KinectTherapy
             skeletonPool.Initialize();
             recordingManager.Initialize();
             exerciseQueue.Initialize();
+            catalogManager.Initialize();
             #endregion
 
 

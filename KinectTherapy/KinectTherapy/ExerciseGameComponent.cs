@@ -65,6 +65,7 @@ namespace SWENG
         public CriteriaRepetition repetition;
 
         public List<string> RepetitionToFileId { get; internal set; }
+        public List<string> ExerciseToCatalogId { get; internal set; }
 
         public ExerciseGameComponent(Game game,Exercise exercise)
             : base(game)

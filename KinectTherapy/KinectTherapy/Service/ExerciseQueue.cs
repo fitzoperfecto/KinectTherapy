@@ -16,6 +16,9 @@ namespace SWENG.Service
     public delegate void LoadIsStartedEventHandler(object sender, EventArgs e);
     public delegate void LoadIsDoneEventHandler(object sender, EventArgs e);
     public delegate void QueueIsDoneEventHandler(object sender, EventArgs e);
+
+    public delegate void CatalogSelectionIsDoneEventHandler(object sender, EventArgs e);
+
     /// <summary>
     /// The exercise queue is the workout for a given patient. 
     /// It will contain the list of exercises which need to be done.
@@ -35,6 +38,7 @@ namespace SWENG.Service
                 QueueIsDone(this, e);
         }
 
+<<<<<<< HEAD
         public event LoadIsStartedEventHandler LoadIsStarted;
         protected virtual void OnLoadStarted(EventArgs e)
         {
@@ -49,7 +53,18 @@ namespace SWENG.Service
                 LoadIsDone(this, e);
         }
 
+=======
+        public event CatalogSelectionIsDoneEventHandler SelectionIsDone;
+
+        // ... or when catalog selection is complete
+        protected virtual void OnSelectionComplete(EventArgs e)
+        {
+            if (SelectionIsDone != null)
+                SelectionIsDone(this, e);
+        }
+>>>>>>> Added Catalog Manager and event handling
         #endregion
+
         // what we need. 
         // list of exercises.
         public ExerciseGameComponent[] Exercises { get; internal set; }
@@ -63,6 +78,10 @@ namespace SWENG.Service
 
         // an exercies game component for the current exercise.
         public ExerciseGameComponent CurrentExercise;
+
+        // an exercise game component for the current exercise catalog session
+        public ExerciseGameComponent CurrentCatalog;
+
         // a list of attributes needed by the UI
 
         public ExerciseQueue(Game game)
@@ -80,6 +99,11 @@ namespace SWENG.Service
         public void AssociateFiles(object sender, RecordingStatusChangedEventArg args)
         {
             CurrentExercise.RepetitionToFileId.Add(args.FileId);
+        }
+
+        public void AssociateExercises(object sender, CatalogSelectionChangedEventArg args)
+        {
+            CurrentCatalog.ExerciseToCatalogId.Add(args.ExerciseId);
         }
 
         public void RepetitionIncreased(object sender, EventArgs args)
