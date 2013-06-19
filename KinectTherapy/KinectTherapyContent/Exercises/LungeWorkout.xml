@@ -102,16 +102,6 @@
                 </Joint>
               </AdjacentJoints>
             </Criterion>
-            <Criterion xsi:type="AlignmentCriterion" Variance=".2" Alignment="Horizontal">
-              <Joints>
-                <Joint>
-                  <Name>KneeLeft</Name>
-                </Joint>
-                <Joint>
-                  <Name>AnkleLeft</Name>
-                </Joint>
-              </Joints>
-            </Criterion>
           </Criteria>
         </Checkpoint>
         <Checkpoint>
@@ -179,16 +169,6 @@
                   <Name>AnkleRight</Name>
                 </Joint>
               </AdjacentJoints>
-            </Criterion>
-            <Criterion xsi:type="AlignmentCriterion" Variance=".2" Alignment="Horizontal">
-              <Joints>
-                <Joint>
-                  <Name>AnkleRight</Name>
-                </Joint>
-                <Joint>
-                  <Name>KneeRight</Name>
-                </Joint>
-              </Joints>
             </Criterion>
             <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
               <Vertex>

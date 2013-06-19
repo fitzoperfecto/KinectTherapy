@@ -77,7 +77,7 @@
                 </Joint>
               </AdjacentJoints>
             </Criterion>
-            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+            <Criterion xsi:type="AlignmentCriterion" Variance=".2" Alignment="Horizontal">
               <Joints>
                 <Joint>
                   <Name>HipRight</Name>
@@ -87,7 +87,7 @@
                 </Joint>
               </Joints>
             </Criterion>
-            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
+            <Criterion xsi:type="AngleCriterion" Variance="20" Angle="130">
               <Vertex>
                 <Name>KneeLeft</Name>
               </Vertex>
@@ -99,16 +99,6 @@
                   <Name>AnkleLeft</Name>
                 </Joint>
               </AdjacentJoints>
-            </Criterion>
-            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
-              <Joints>
-                <Joint>
-                  <Name>KneeLeft</Name>
-                </Joint>
-                <Joint>
-                  <Name>AnkleLeft</Name>
-                </Joint>
-              </Joints>
             </Criterion>
           </Criteria>
         </Checkpoint>
@@ -165,7 +155,7 @@
         <!-- Left foot lunge and back to center -->
         <Checkpoint>
           <Criteria>
-            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
+            <Criterion xsi:type="AngleCriterion" Variance="20" Angle="130">
               <Vertex>
                 <Name>KneeRight</Name>
               </Vertex>
@@ -177,16 +167,6 @@
                   <Name>AnkleRight</Name>
                 </Joint>
               </AdjacentJoints>
-            </Criterion>
-            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
-              <Joints>
-                <Joint>
-                  <Name>AnkleRight</Name>
-                </Joint>
-                <Joint>
-                  <Name>KneeRight</Name>
-                </Joint>
-              </Joints>
             </Criterion>
             <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
               <Vertex>
@@ -201,7 +181,7 @@
                 </Joint>
               </AdjacentJoints>
             </Criterion>
-            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+            <Criterion xsi:type="AlignmentCriterion" Variance=".2" Alignment="Horizontal">
               <Joints>
                 <Joint>
                   <Name>KneeLeft</Name>
