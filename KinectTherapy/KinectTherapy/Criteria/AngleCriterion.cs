@@ -77,7 +77,7 @@ namespace SWENG.Criteria
             adjacentJoints[1] = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[1].GetJointType()];
            
             int convertedDotAngle = JointAnalyzer.findAngle(vertexJoint,adjacentJoints);
-            Debug.WriteLine("Angle: " + convertedDotAngle);
+            Debug.WriteLine("Vertex: " + vertexJoint.JointType.ToString() + " Angle: " + convertedDotAngle + " Min: " + MinimumAngle + " Max: " + MaximumAngle);
             return convertedDotAngle > MinimumAngle && convertedDotAngle < MaximumAngle;
         }
     }

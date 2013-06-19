@@ -1,0 +1,267 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+    <Exercise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Id="EXELUNGE" Name="Lunge" Repetitions="5">
+      <StartingCriteria>
+        <Criterion xsi:type="AngleCriterion" Variance="10" Angle="180">
+          <Vertex>
+            <Name>KneeRight</Name>
+          </Vertex>
+          <AdjacentJoints>
+            <Joint>
+              <Name>HipRight</Name>
+            </Joint>
+            <Joint>
+              <Name>AnkleRight</Name>
+            </Joint>
+          </AdjacentJoints>
+        </Criterion>
+        <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Vertical">
+          <Joints>
+            <Joint>
+              <Name>HipRight</Name>
+            </Joint>
+            <Joint>
+              <Name>AnkleRight</Name>
+            </Joint>
+          </Joints>
+        </Criterion>
+        <Criterion xsi:type="AngleCriterion" Variance="10" Angle="180">
+          <Vertex>
+            <Name>KneeLeft</Name>
+          </Vertex>
+          <AdjacentJoints>
+            <Joint>
+              <Name>HipLeft</Name>
+            </Joint>
+            <Joint>
+              <Name>AnkleLeft</Name>
+            </Joint>
+          </AdjacentJoints>
+        </Criterion>
+        <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Vertical">
+          <Joints>
+            <Joint>
+              <Name>HipLeft</Name>
+            </Joint>
+            <Joint>
+              <Name>AnkleLeft</Name>
+            </Joint>
+          </Joints>
+        </Criterion>
+      </StartingCriteria>
+      <TrackingCriteria>
+        <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+          <Joints>
+            <Joint>
+              <Name>HipLeft</Name>
+            </Joint>
+            <Joint>
+              <Name>HipLeft</Name>
+            </Joint>
+          </Joints>
+        </Criterion>
+      </TrackingCriteria>
+      <Checkpoints>
+        <!-- Right foot lunge and back to center -->
+        <Checkpoint>
+          <Criteria>
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
+              <Vertex>
+                <Name>KneeRight</Name>
+              </Vertex>
+              <AdjacentJoints>
+                <Joint>
+                  <Name>HipRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleRight</Name>
+                </Joint>
+              </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+              <Joints>
+                <Joint>
+                  <Name>HipRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>KneeRight</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
+              <Vertex>
+                <Name>KneeLeft</Name>
+              </Vertex>
+              <AdjacentJoints>
+                <Joint>
+                  <Name>HipLeft</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleLeft</Name>
+                </Joint>
+              </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+              <Joints>
+                <Joint>
+                  <Name>KneeLeft</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleLeft</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
+          </Criteria>
+        </Checkpoint>
+        <Checkpoint>
+          <Criteria>
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="180">
+              <Vertex>
+                <Name>KneeRight</Name>
+              </Vertex>
+              <AdjacentJoints>
+                <Joint>
+                  <Name>HipRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleRight</Name>
+                </Joint>
+              </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Vertical">
+              <Joints>
+                <Joint>
+                  <Name>HipRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleRight</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="180">
+              <Vertex>
+                <Name>KneeLeft</Name>
+              </Vertex>
+              <AdjacentJoints>
+                <Joint>
+                  <Name>HipLeft</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleLeft</Name>
+                </Joint>
+              </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Vertical">
+              <Joints>
+                <Joint>
+                  <Name>HipLeft</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleLeft</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
+          </Criteria>
+        </Checkpoint>
+        <!-- Left foot lunge and back to center -->
+        <Checkpoint>
+          <Criteria>
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
+              <Vertex>
+                <Name>KneeRight</Name>
+              </Vertex>
+              <AdjacentJoints>
+                <Joint>
+                  <Name>HipRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleRight</Name>
+                </Joint>
+              </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+              <Joints>
+                <Joint>
+                  <Name>AnkleRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>KneeRight</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
+              <Vertex>
+                <Name>KneeLeft</Name>
+              </Vertex>
+              <AdjacentJoints>
+                <Joint>
+                  <Name>HipLeft</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleLeft</Name>
+                </Joint>
+              </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+              <Joints>
+                <Joint>
+                  <Name>KneeLeft</Name>
+                </Joint>
+                <Joint>
+                  <Name>HipLeft</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
+          </Criteria>
+        </Checkpoint>
+        <Checkpoint>
+          <Criteria>
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="180">
+              <Vertex>
+                <Name>KneeRight</Name>
+              </Vertex>
+              <AdjacentJoints>
+                <Joint>
+                  <Name>HipRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleRight</Name>
+                </Joint>
+              </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Vertical">
+              <Joints>
+                <Joint>
+                  <Name>HipRight</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleRight</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="180">
+              <Vertex>
+                <Name>KneeLeft</Name>
+              </Vertex>
+              <AdjacentJoints>
+                <Joint>
+                  <Name>HipLeft</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleLeft</Name>
+                </Joint>
+              </AdjacentJoints>
+            </Criterion>
+            <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Vertical">
+              <Joints>
+                <Joint>
+                  <Name>HipLeft</Name>
+                </Joint>
+                <Joint>
+                  <Name>AnkleLeft</Name>
+                </Joint>
+              </Joints>
+            </Criterion>
+          </Criteria>
+        </Checkpoint>
+      </Checkpoints>
+    </Exercise>
