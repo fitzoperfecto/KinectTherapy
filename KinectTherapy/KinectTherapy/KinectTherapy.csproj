@@ -94,6 +94,10 @@
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
+    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\NUnit 2.6.2\bin\framework\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
@@ -135,6 +139,7 @@
     <Compile Include="Service\SkeletonPool.cs" />
     <Compile Include="SkeletonStamp.cs" />
     <Compile Include="SkeletonStreamRenderer.cs" />
+    <Compile Include="Test\JointAnalyzerTest.cs" />
     <Compile Include="TimerRepetition.cs" />
     <Compile Include="UserInterface\ReplayTile.cs" />
     <Compile Include="UserInterface\SummaryScreen.cs" />
