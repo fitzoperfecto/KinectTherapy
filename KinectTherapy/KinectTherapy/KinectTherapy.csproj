@@ -139,7 +139,6 @@
     <Compile Include="Service\SkeletonPool.cs" />
     <Compile Include="SkeletonStamp.cs" />
     <Compile Include="SkeletonStreamRenderer.cs" />
-    <Compile Include="Test\JointAnalyzerTest.cs" />
     <Compile Include="TimerRepetition.cs" />
     <Compile Include="UserInterface\ReplayTile.cs" />
     <Compile Include="UserInterface\SummaryScreen.cs" />

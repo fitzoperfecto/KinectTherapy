@@ -144,9 +144,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Exercises\RightArmExtensions.xml">
+    <None Include="Exercises\EXERAE.xml">
       <SubType>Designer</SubType>
-      <Name>RightArmExtensions</Name>
+      <Name>EXERAE</Name>
       <Importer>XmlImporter</Importer>
       <Processor>PassThroughProcessor</Processor>
     </None>
@@ -171,9 +171,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Exercises\LeftArmExtensions.xml">
+    <None Include="Exercises\EXELAE.xml">
       <SubType>Designer</SubType>
-      <Name>LeftArmExtensions</Name>
+      <Name>EXELAE</Name>
       <Importer>XmlImporter</Importer>
       <Processor>PassThroughProcessor</Processor>
     </None>
@@ -196,9 +196,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Exercises\Lunges.xml">
+    <None Include="Exercises\EXELUNGE.xml">
       <SubType>Designer</SubType>
-      <Name>Lunges</Name>
+      <Name>EXELUNGE</Name>
       <Importer>XmlImporter</Importer>
       <Processor>PassThroughProcessor</Processor>
     </None>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-    <Exercise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Id="EXELAE" Name="Left Arm Extension" Repetitions="3">
+    <Exercise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Id="EXELAE" Name="Left Arm Extension" Repetitions="3" Description="Move left arm from upright to fully extended" Category="Arms">
       <StartingCriteria>
         <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90">
           <Vertex>

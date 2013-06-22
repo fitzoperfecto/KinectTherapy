@@ -13,6 +13,8 @@ using System.Reflection;
 
 namespace SWENG.Service
 {
+    public delegate void LoadIsStartedEventHandler(object sender, EventArgs e);
+    public delegate void LoadIsDoneEventHandler(object sender, EventArgs e);
     public delegate void QueueIsDoneEventHandler(object sender, EventArgs e);
     /// <summary>
     /// The exercise queue is the workout for a given patient. 
@@ -32,6 +34,21 @@ namespace SWENG.Service
             if (QueueIsDone != null)
                 QueueIsDone(this, e);
         }
+
+        public event LoadIsStartedEventHandler LoadIsStarted;
+        protected virtual void OnLoadStarted(EventArgs e)
+        {
+            if (LoadIsStarted != null)
+                LoadIsStarted(this, e);
+        }
+
+        public event LoadIsDoneEventHandler LoadIsDone;
+        protected virtual void OnLoadComplete(EventArgs e)
+        {
+            if (LoadIsDone != null)
+                LoadIsDone(this, e);
+        }
+
         #endregion
         // what we need. 
         // list of exercises.
@@ -75,7 +92,7 @@ namespace SWENG.Service
             if (!IsInitialized)
             {
                 // load the exercises. Should be done through content loader. will hardcode for now.
-                Exercise[] GeneratedExercises = ReadExercises();
+                Exercise[] GeneratedExercises = LoadExercises();
                 // create a game component for each exercise.
                 Exercises = new ExerciseGameComponent[GeneratedExercises.Length];
                 int i = 0;
@@ -96,8 +113,9 @@ namespace SWENG.Service
         /// Used to pull a workout from the filesystem and insert into the exercise queue. 
         /// </summary>
         /// <returns></returns>
-        private Exercise[] ReadExercises()
+        private Exercise[] LoadExercises()
         {
+            OnLoadStarted(EventArgs.Empty);
             Workout workout = null;
             // i know this is a terrible way to do this, but not sure a better way right now so sleepy
             string path = System.AppDomain.CurrentDomain.BaseDirectory +"../../../../KinectTherapyContent/Exercises/ArmExtensions.xml";
@@ -106,6 +124,7 @@ namespace SWENG.Service
             StreamReader reader = new StreamReader(path);
             workout = (Workout)serializer.Deserialize(reader);
             reader.Close();
+            OnLoadComplete(EventArgs.Empty);
             return workout.Exercises;
         }
 

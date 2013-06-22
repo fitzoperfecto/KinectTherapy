@@ -35,6 +35,10 @@ namespace SWENG.Criteria
         public Checkpoint[] Checkpoints { get; set; }
         [XmlAttribute("Repetitions")]
         public int Repetitions { get; set; }
+        [XmlAttribute("Description")]
+        public string Description { get; set; }
+        [XmlAttribute("Category")]
+        public string Category { get; set; }
 
         /// <summary>
         /// Empty Constructor Needed for XmlSerializer
