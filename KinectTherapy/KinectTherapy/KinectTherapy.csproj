@@ -121,6 +121,7 @@
     <Compile Include="Criteria\Checkpoint.cs" />
     <Compile Include="Criteria\XmlJointType.cs" />
     <Compile Include="Sensor\KinectSensorController.cs" />
+    <Compile Include="Service\CatalogManager.cs" />
     <Compile Include="Service\ExerciseQueue.cs" />
     <Compile Include="Criteria\CriteriaRepetition.cs" />
     <Compile Include="Criteria\Criterion.cs" />

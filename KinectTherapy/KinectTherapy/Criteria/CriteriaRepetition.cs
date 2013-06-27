@@ -55,6 +55,7 @@ namespace SWENG.Criteria
             {
                 if (_checkpoint != value)
                 {
+                    // if the checkpoint value changes send a new event.
                     OnChanged(new CheckpointChangedEventArgs(Exercise.Id + value));
                 }
                 _checkpoint = value;
