@@ -95,8 +95,9 @@ namespace SWENG.Criteria
         public bool isRepComplete(SkeletonStamp skeletonStamp)
         {
             bool matches = false;
-
+            // see if we completed the current checkpoint.
             matches = Exercise.matchesCriteria(skeletonStamp,Exercise.Checkpoints[_checkpoint].Criteria);
+            // if we completed the current checkpoint increment and update the checkpoint picture.
             if (matches)
             {
                 // increment the checkpoint
@@ -109,7 +110,16 @@ namespace SWENG.Criteria
                     return true;
                 }
             }
-            
+
+            // Issue #11 fix:
+            // I don't like this but for now it will do. If the timer has gone off you have gone back to starting position consider rep complete.
+            matches = Exercise.matchesCriteria(skeletonStamp,Exercise.StartingCriteria);
+            if (matches && endTime < DateTime.Now)
+            {
+                // short circuit (Man Johnny Five is Alive)
+                Checkpoint = 0;
+                return true;
+            }
             return false;
         }
 
