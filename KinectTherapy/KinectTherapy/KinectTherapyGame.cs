@@ -139,7 +139,7 @@ namespace KinectTherapy
             exerciseQueue.RepetitionStartedListener.Add(new StartedRepetitionEventHandler(recordingManager.StartRecording));
             exerciseQueue.QueueIsDone += recordingManager.StopRecording;
 
-            exerciseQueue.SelectionIsDone += catalogManager.SelectionStop;
+            catalogManager.CatalogCompleteEventHandler += exerciseQueue.LoadExercises;
 
             recordingManager.RecordingStatusChanged += exerciseQueue.AssociateFiles;
 

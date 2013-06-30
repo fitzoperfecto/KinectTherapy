@@ -113,32 +113,21 @@ namespace SWENG.Service
         /// 
         /// </summary>
         /// <returns></returns>
-        public void LoadExercises(object sender, EventArgs e)
+        public void LoadExercises(object sender, CatalogCompleteEventArg e)
         {
             OnLoadStarted(EventArgs.Empty);
-            Workout workout = null;
-            // i know this is a terrible way to do this, but not sure a better way right now so sleepy
-            string path = System.AppDomain.CurrentDomain.BaseDirectory + "../../../../KinectTherapyContent/Exercises/ArmExtensions.xml";
-
-            XmlSerializer serializer = new XmlSerializer(typeof(Workout));
-            StreamReader reader = new StreamReader(path);
-            workout = (Workout)serializer.Deserialize(reader);
-            reader.Close();
-
-            //Exercise[] workout = new Exercise[e.Exercises.Length];
-            //string path = System.AppDomain.CurrentDomain.BaseDirectory + "../../../../KinectTherapyContent/Exercises/";
-            // loop through the exercises in the CurrentCatalog and turn them into Exercise objects. 
-            //for (int i = 0; i < workout.Length; i++)
-            for (int i = 0; i < workout.Exercises.Length; i++)
+            Exercise[] workout = new Exercise[e.Exercises.Length];
+            string path = System.AppDomain.CurrentDomain.BaseDirectory + "../../../../KinectTherapyContent/Exercises/";
+             //loop through the exercises in the CurrentCatalog and turn them into Exercise objects. 
+            for (int i = 0; i < workout.Length; i++)
             {
-                //XmlSerializer serializer = new XmlSerializer(typeof(Exercise));
-                //StreamReader reader = new StreamReader(path + e.Exercises[i].Id + ".xml");
-                //// deserialize the xml and create an Exercise
-                //ExerciseGameComponent egc = new ExerciseGameComponent(_game, (Exercise)serializer.Deserialize(reader));
-                //reader.Close();
-                //Exercises[i] = egc;
-                ////Queue up for a workout
-                ExerciseGameComponent egc = new ExerciseGameComponent(_game, workout.Exercises[i]);
+                XmlSerializer serializer = new XmlSerializer(typeof(Exercise));
+                StreamReader reader = new StreamReader(path + e.Exercises[i].Id + ".xml");
+                // deserialize the xml and create an Exercise
+                ExerciseGameComponent egc = new ExerciseGameComponent(_game, (Exercise)serializer.Deserialize(reader));
+                reader.Close();
+                Exercises[i] = egc;
+                //Queue up for a workout
                 PendingExercises.Enqueue(egc);
             }
             // once they're all queued start the first exercise. 
