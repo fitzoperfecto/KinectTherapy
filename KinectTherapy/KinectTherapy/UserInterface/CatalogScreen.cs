@@ -16,7 +16,13 @@ namespace SWENG.UserInterface
     /// </summary>
     public class CatalogScreen : Screen
     {
-        private CatalogManager _catalogManager;
+        private CatalogManager _catalogManager
+        {
+            get
+            {
+                return (CatalogManager)Game.Services.GetService(typeof(CatalogManager));
+            }
+        }
 
         private ContentManager _contentManager;
         private Texture2D _blankTexture;
@@ -76,7 +82,6 @@ namespace SWENG.UserInterface
             //_catalogFile = applicationDirectory + @"\Catalog\ExerciseCatalog.xml";
 
             //if (!File.Exists(_catalogFile)) return;
-            _catalogManager = new CatalogManager();
 
             //_catalogList = ReadXPathCatalogWorkouts(_catalogManager.CatalogFile);
 
@@ -105,10 +110,10 @@ namespace SWENG.UserInterface
             var workoutButtonPos = new Vector2(workoutButtonX, workoutButtonY);
 
             var i = 0;
-            _workoutButtonList = new GuiButton[_catalogList.Count];
-            WorkoutTitle = new string[_catalogList.Count];
+            _workoutButtonList = new GuiButton[_catalogManager.GetExercisesByType("Arms").Count];
+            WorkoutTitle = new string[_catalogManager.GetExercisesByType("Arms").Count];
 
-            foreach (var listitem in _catalogList)
+            foreach (var listitem in _catalogManager.GetExercisesByType("Arms"))
             {
                 WorkoutTitle[i] = listitem;
                 _workoutButtonList[i] = new GuiButton(listitem, workoutButtonSize, workoutButtonPos);
@@ -196,9 +201,9 @@ namespace SWENG.UserInterface
                         {
                             case "Start":
                                 // Set Catalog Selection status to start
-                                _catalogManager.Status = CatalogManagerStatus.Start;
+                                _catalogManager.Status = CatalogManagerStatus.Complete;
                                 Transition();
-                                Manager.CallOpen("Exercise");
+                               // Manager.CallOpen("Exercise");
                                 break;
 
                             case "Home":

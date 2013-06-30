@@ -81,7 +81,12 @@ namespace SWENG.Service
         private string _catalogFile;
         public string CatalogFile { get; set; }
 
-        private List<string> _workoutList;
+        /// <summary>
+        /// The current list of workouts selected. Generated into exercise objects once completed.
+        /// This is what the UI would be populating/depopulating when assigning exercises to the workout.
+        /// Maybe this should be bound to in the UI?
+        /// </summary>
+        public List<string> WorkoutList { get; set; }
 
         private CatalogManagerStatus _status;
         public CatalogManagerStatus Status
@@ -101,6 +106,7 @@ namespace SWENG.Service
                             }
                         case CatalogManagerStatus.Start:
                             {
+                                // do start case
                                 break;
                             }
                         case CatalogManagerStatus.Complete:
@@ -110,6 +116,7 @@ namespace SWENG.Service
                             }
                     }
                 }
+                _status = value;
             }
         }
 
@@ -118,45 +125,33 @@ namespace SWENG.Service
 
         private string _exerciseGroup { get; set; }
 
-        /// <summary>
-        /// The current list of workouts selected. Generated into exercise objects once completed.
+        /// <summary>   
+        /// The master list of exercises
         /// </summary>
-        public List<string> WorkoutList { get; set; }
-
-        /// <summary>
-        /// Should be used by the UI to retreive the list of exercises per category.
-        /// 
-        /// Grabbed by DataTable.Select("Category = '" + exerciseGroup + "'");
-        /// </summary>
-        public DataTable DataTable { get; set; }
+        public DataTable DataTable { get; internal set; }
 
         public CatalogManager()
         {
-
+            _status = CatalogManagerStatus.Start;
             // Initialize catalog variables 
             var applicationDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             _catalogFile = applicationDirectory +  "../../../../KinectTherapyContent/Exercises/MasterCatalog.xml";
-
             CatalogFile = _catalogFile;
+            WorkoutList = new List<string>();
+            // load the datatable. 
             CatalogXmlLinqData();
-
         }
 
         public void Initialize()
         {
         }
 
-        public void SelectionStart()
-        {
-            Status = CatalogManagerStatus.Start;
-        }
-
-        public void SelectionStop(object sender, EventArgs e)
-        {
-            Status = CatalogManagerStatus.Complete;
-        }
-
-        public DataTable CatalogXmlLinqData()
+        /// <summary>
+        /// Pulls the xml from the MasterCatalog and adds to a DataTable object.
+        /// 
+        /// The DataTable will contain the master list of exercises.
+        /// </summary>
+        public void CatalogXmlLinqData()
         {
             var catalogList =
                 from c in XDocument.Load(CatalogDirectory + @"MasterCatalog.xml").Descendants("Exercise")
@@ -172,7 +167,7 @@ namespace SWENG.Service
             DataTable = new DataTable("ExerciseCatalog");
 
             DataTable.Columns.Add("Id");
-            DataTable.Columns.Add("Catagory");
+            DataTable.Columns.Add("Category");
             DataTable.Columns.Add("Name");
             DataTable.Columns.Add("Description");
 
@@ -198,10 +193,12 @@ namespace SWENG.Service
                     DataTable.Rows.Add(s.Id, s.Category, s.Name, s.Description);
                 }
             }
-
-            return DataTable;
         }
 
+        /// <summary>
+        /// Generates the string list of exercises into Exercise objects.
+        /// </summary>
+        /// <returns></returns>
         public Exercise[] ListWorkoutExercises()
         {
             Exercise[] workout = new Exercise[WorkoutList.Count()];
@@ -216,37 +213,6 @@ namespace SWENG.Service
             return workout;
         }
 
-        public XmlDocument ListWorkoutExerciseObjects(IEnumerable<string> exerciseList)
-        {
-            var fileContents = String.Empty;
-            var startPos = 0;
-
-            foreach (var sr in exerciseList.Select(item => new FileStream(CatalogDirectory + item + @".xml", FileMode.Open, FileAccess.Read)).Select(fs => new StreamReader(fs)))
-            {
-                fileContents = fileContents.Insert(startPos, sr.ReadToEnd());
-
-                startPos = fileContents.Length;
-            }
-
-            // Remove all occurences of Xml Header that was inserted due to processing multiple files
-            fileContents = fileContents.Replace(XmlHeader, "");
-
-            // Put header back in for proper xml formatting
-            fileContents = fileContents.Insert(0, XmlHeader);
-
-            // Add root node
-            fileContents = fileContents.Insert(XmlHeader.Length, "<Exercises>");
-            fileContents = fileContents + "</Exercises>";
-
-            var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(fileContents);
-
-            // Notify the system that exercise selection is complete
-            Status = CatalogManagerStatus.Complete;
-
-            return xmlDocument;
-        }
-
         /// <summary>
         /// This will generate the Exercise objects which will be overlayed on the default Exercises loaded in the ExerciseQueue
         /// Used by the OnCatalogComplete event
@@ -254,9 +220,37 @@ namespace SWENG.Service
         /// <returns></returns>
         public CatalogCompleteEventArg GetCurrentWorkout()
         {
+            // ************* take this out, hardcoding workout for now **************
+            WorkoutList.Add("EXELAE");
+            // **********************************************************************
             var exerciseList = ListWorkoutExercises();
             var eventArgs = new CatalogCompleteEventArg(exerciseList);
             return eventArgs;
+        }
+
+        /// <summary>
+        /// Retrieves the Exercises by Exercise Group it should probably return more than just the ids, 
+        /// but it will work for now.
+        /// </summary>
+        /// <param name="exerciseGroup"></param>
+        /// <returns></returns>
+        public List<string> GetExercisesByType(string exerciseGroup)
+        {
+            var _workoutList = new List<string>();
+            try
+            {
+                var dataRow = DataTable.Select("Category = '" + exerciseGroup + "'");
+                foreach (var row in dataRow)
+                {
+                    _workoutList.Add(row["Id"].ToString());
+                }
+            }
+            catch (Exception)
+            {
+                _workoutList = null;
+                throw;
+            }
+            return _workoutList;
         }
     }
 }

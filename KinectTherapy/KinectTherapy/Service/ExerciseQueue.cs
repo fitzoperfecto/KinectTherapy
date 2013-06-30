@@ -17,8 +17,6 @@ namespace SWENG.Service
     public delegate void LoadIsDoneEventHandler(object sender, EventArgs e);
     public delegate void QueueIsDoneEventHandler(object sender, EventArgs e);
 
-    public delegate void CatalogSelectionIsDoneEventHandler(object sender, EventArgs e);
-
     /// <summary>
     /// The exercise queue is the workout for a given patient. 
     /// It will contain the list of exercises which need to be done.
@@ -38,6 +36,7 @@ namespace SWENG.Service
                 QueueIsDone(this, e);
         }
 
+        // Called whenever the exercise queue starts loading exercises.
         public event LoadIsStartedEventHandler LoadIsStarted;
         protected virtual void OnLoadStarted(EventArgs e)
         {
@@ -45,26 +44,15 @@ namespace SWENG.Service
                 LoadIsStarted(this, e);
         }
 
+        // called whenever the exercise queue is finished loading exercises.
         public event LoadIsDoneEventHandler LoadIsDone;
         protected virtual void OnLoadComplete(EventArgs e)
         {
             if (LoadIsDone != null)
                 LoadIsDone(this, e);
         }
-
-        public event CatalogSelectionIsDoneEventHandler SelectionIsDone;
-
-        // ... or when catalog selection is complete
-        protected virtual void OnSelectionComplete(EventArgs e)
-        {
-            if (SelectionIsDone != null)
-                SelectionIsDone(this, e);
-        }
-
         #endregion
 
-        // what we need. 
-        // list of exercises.
         public ExerciseGameComponent[] Exercises { get; internal set; }
         public Queue<ExerciseGameComponent> PendingExercises { get; internal set; }
         public Queue<ExerciseGameComponent> CompletedExercises { get; internal set; }
@@ -74,10 +62,8 @@ namespace SWENG.Service
 
         private Game _game;
 
-        // an exercies game component for the current exercise.
+        // an exercise game component for the current exercise.
         public ExerciseGameComponent CurrentExercise;
-
-        // a list of attributes needed by the UI
 
         public ExerciseQueue(Game game)
         {
@@ -116,17 +102,15 @@ namespace SWENG.Service
         public void LoadExercises(object sender, CatalogCompleteEventArg e)
         {
             OnLoadStarted(EventArgs.Empty);
-            Exercise[] workout = new Exercise[e.Exercises.Length];
             string path = System.AppDomain.CurrentDomain.BaseDirectory + "../../../../KinectTherapyContent/Exercises/";
              //loop through the exercises in the CurrentCatalog and turn them into Exercise objects. 
-            for (int i = 0; i < workout.Length; i++)
+            for (int i = 0; i < e.Exercises.Length; i++)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(Exercise));
                 StreamReader reader = new StreamReader(path + e.Exercises[i].Id + ".xml");
                 // deserialize the xml and create an Exercise
                 ExerciseGameComponent egc = new ExerciseGameComponent(_game, (Exercise)serializer.Deserialize(reader));
                 reader.Close();
-                Exercises[i] = egc;
                 //Queue up for a workout
                 PendingExercises.Enqueue(egc);
             }
@@ -159,6 +143,7 @@ namespace SWENG.Service
             }
         }
 
+        // moves the shifts the workout to the next exercise
         private void NextExercise()
         {
             if (null != CurrentExercise)
