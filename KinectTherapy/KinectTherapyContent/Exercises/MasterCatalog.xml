@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Catalog  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Group Id="G01" Name="Abdomen" />
+  <Group Id="G02" Name="Arms">
+    <Exercises Id="EXEA" Name="Arm Extensions">
+      <Exercise Id="EXERAE" Name="Right Arm Extensions" Description="Move right arm from upright to fully extended"></Exercise>
+      <Exercise Id="EXELAE" Name="Left Arm Extensions" Description="Move Left arm from upright to fully extended"></Exercise>
+    </Exercises>
+  </Group>
+  <Group Id="G03" Name="Back" />
+  <Group Id="G04" Name="Buttocks" />
+  <Group Id="G05" Name="Calves" />
+  <Group Id="G06" Name="Chest" />
+  <Group Id="G07" Name="Shoulders" />
+  <Group Id="G08" Name="Thighs">
+    <Exercise Id="EXELUNGE" Name="Lunge" Description="Lunge"></Exercise>
+  </Group>
+</Catalog>

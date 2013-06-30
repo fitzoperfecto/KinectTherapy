@@ -78,7 +78,7 @@ namespace SWENG.UserInterface
             //if (!File.Exists(_catalogFile)) return;
             _catalogManager = new CatalogManager();
 
-            _catalogList = ReadXPathCatalogWorkouts(_catalogManager.CatalogFile);
+            //_catalogList = ReadXPathCatalogWorkouts(_catalogManager.CatalogFile);
 
             #region Laying out the positions
             var bannerSize = new Vector2(_viewableArea.Width, 110f);
@@ -195,8 +195,8 @@ namespace SWENG.UserInterface
                         switch (button.Text)
                         {
                             case "Start":
-                                // Set Catalog Selection status to stopped
-                                _catalogManager.Status = CatalogManagerStatus.SelectStop;
+                                // Set Catalog Selection status to start
+                                _catalogManager.Status = CatalogManagerStatus.Start;
                                 Transition();
                                 Manager.CallOpen("Exercise");
                                 break;
@@ -355,65 +355,27 @@ namespace SWENG.UserInterface
         private void LoadCatalog(string workoutTitle)
         {
             // Set Catalog Selection status to Started
-            _catalogManager.Status = CatalogManagerStatus.SelectStart;
+            _catalogManager.Status = CatalogManagerStatus.Start;
 
             var i = 0;
 
             var workoutViewPosY = 300;
-            var exercises = ReadXPathWorkoutExercises(workoutTitle);
-            _exerciseButtonList = new GuiButton[exercises.Count];
+            //var exercises = ReadXPathWorkoutExercises(workoutTitle);
+            //_exerciseButtonList = new GuiButton[exercises.Count];
 
-            foreach (var exercise in exercises)
-            {
-                var stringSize = _spriteFont.MeasureString(exercise);
+            //foreach (var exercise in exercises)
+            //{
+            //    var stringSize = _spriteFont.MeasureString(exercise);
 
-                var workoutViewSize = stringSize;
-                var workoutViewPos = new Vector2(20, workoutViewPosY + MARGIN);
+            //    var workoutViewSize = stringSize;
+            //    var workoutViewPos = new Vector2(20, workoutViewPosY + MARGIN);
 
-                _exerciseButtonList[i] = new GuiButton(exercise, workoutViewSize, workoutViewPos);
-                workoutViewPosY += (MARGIN * 5);
-                i++;
-            }
+            //    _exerciseButtonList[i] = new GuiButton(exercise, workoutViewSize, workoutViewPos);
+            //    workoutViewPosY += (MARGIN * 5);
+            //    i++;
+            //}
         }
 
-        private List<string> ReadXPathWorkoutExercises(string xmlNode)
-        {
-            _workoutList = new List<string>();
-
-            var xPathNavigator = _catalogXml.CreateNavigator();
-            var xPathCatalogIterator = xPathNavigator.Select("//Workout[@Name='" + xmlNode + "']/Exercise");
-
-            while (xPathCatalogIterator.MoveNext())
-            {
-                var xPathIdAttrib = xPathCatalogIterator.Current.GetAttribute("ID", "");
-                var xPathNameAttrib = xPathCatalogIterator.Current.GetAttribute("NAME", "");
-                var xPathDescAttrib = xPathCatalogIterator.Current.GetAttribute("DESCRIPTION", "");
-
-                _workoutList.Add(xPathNameAttrib + " - " + xPathDescAttrib + "(" + xPathIdAttrib + ")");
-            }
-
-            return _workoutList;
-        }
-
-        private List<string> ReadXPathCatalogWorkouts(string xmlFile)
-        {
-            _catalogXml = new XPathDocument(xmlFile);
-            var xPathNavigator = _catalogXml.CreateNavigator();
-            var xPathIterator = xPathNavigator.Select("//Catalog/Workout");
-
-            _catalogList = new List<string>();
-
-            if (xPathIterator.Count > 0)
-            {
-                while (xPathIterator.MoveNext())
-                {
-                    var xPathAttrib = xPathIterator.Current.GetAttribute("Name", "");
-                    _catalogList.Add(xPathAttrib);
-                }
-            }
-
-            return _catalogList;
-        }
 
         public string WorkoutName { get; set; }
 

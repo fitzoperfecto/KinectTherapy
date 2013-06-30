@@ -142,7 +142,6 @@ namespace KinectTherapy
             exerciseQueue.SelectionIsDone += catalogManager.SelectionStop;
 
             recordingManager.RecordingStatusChanged += exerciseQueue.AssociateFiles;
-            catalogManager.CatalogSelectionStatusChanged += exerciseQueue.AssociateExercises;
 
             exerciseQueue.QueueIsDone += _exerciseScreen.QueueIsDone;
             exerciseQueue.QueueIsDone += _summaryScreen.QueueIsDone;
