@@ -64,6 +64,22 @@ namespace SWENG.Service
             Name = name;
             Description = description;
         }
+
+        public override bool Equals(System.Object obj)
+        {
+            // If parameter is null return false.
+            if (obj == null)
+            {
+                return false;
+            }
+            CatalogItem ci = obj as CatalogItem;
+            return (this.ID == ci.ID);// && this.Name == ci.Name && this.Description == ci.Description);
+        }
+
+        public override string ToString()
+        {
+            return "ID: " + ID + " NAME: " + Name + " DESC: " + Description;
+        }
     }
 
     public class CatalogManager : IGameComponent
