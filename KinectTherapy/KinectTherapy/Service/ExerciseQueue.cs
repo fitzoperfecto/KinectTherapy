@@ -103,12 +103,12 @@ namespace SWENG.Service
              //loop through the exercises in the CurrentCatalog and turn them into Exercise objects. 
             for (int i = 0; i < e.Exercises.Length; i++)
             {
-                int repetitions = e.Exercises[i].Repetitions;
                 XmlSerializer serializer = new XmlSerializer(typeof(Exercise));
                 StreamReader reader = new StreamReader(path + e.Exercises[i].Id + ".xml");
                 // deserialize the xml and create an Exercise
-                Exercises[i] = new ExerciseGameComponent(_game, (Exercise)serializer.Deserialize(reader));
-                Exercises[i].Repetitions = repetitions;
+                Exercise temp = (Exercise)serializer.Deserialize(reader);
+                temp.Repetitions = e.Exercises[i].Repetitions;
+                Exercises[i] = new ExerciseGameComponent(_game, temp);
                 reader.Close();
 
                 //Queue up for a workout
