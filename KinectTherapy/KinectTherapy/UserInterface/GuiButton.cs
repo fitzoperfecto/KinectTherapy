@@ -1,74 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
-
 
 namespace SWENG.UserInterface
 {
-    class GuiButton
+    public delegate void GuiButtonClicked(object sender, GuiButtonClickedArgs e);
+
+    public class GuiButtonClickedArgs : EventArgs
     {
-        private Vector2 position;
-        public Vector2 Position 
+        public string ClickedOn;
+
+        public GuiButtonClickedArgs(string clickedOn)
         {
-            get { return position; } 
-            set 
-            { 
-                position = value;
-                if (null != size)
-                {
-                    Rectangle = new Rectangle(
-                        (int)position.X,
-                        (int)position.Y,
-                        (int)size.X,
-                        (int)size.Y
-                    );
-                }
-            } 
+            ClickedOn = clickedOn;
         }
+    }
 
-        private Vector2 size;
-        public Vector2 Size
+    public class GuiButton : GuiDrawable
+    {
+        #region event stuff
+        public event GuiButtonClicked ClickEvent;
+
+        // Invoke the Changed event; called whenever repetitions changes
+        protected virtual void OnClick(GuiButtonClickedArgs e)
         {
-            get { return size; }
-            set
-            {
-                size = value;
-                if (null != position)
-                {
-                    Rectangle = new Rectangle(
-                        (int)position.X,
-                        (int)position.Y,
-                        (int)size.X,
-                        (int)size.Y
-                    );
-                }
-            }
+            if (ClickEvent != null)
+                ClickEvent(this, e);
         }
-
-        private Rectangle rectangle;
-        public Rectangle Rectangle
-        {
-            get { return rectangle; }
-            set
-            {
-                rectangle = value;
-                position = new Vector2(value.X, value.Y);
-                size = new Vector2(value.Width, value.Height);
-            }
-        }
-
-        public string Text { get; set; }
-
-        public bool Hovered { get; set; }
+        #endregion
 
         public GuiButton(string text, Vector2 size, Vector2 position)
+            : base(text, size, position) { }
+
+        public void Click()
         {
-            this.Text = text;
-            this.Size = size;
-            this.Position = position;
-            this.Hovered = false;
+            OnClick(new GuiButtonClickedArgs(Text));
         }
     }
 }

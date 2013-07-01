@@ -9,7 +9,6 @@ namespace SWENG.UserInterface
         /// A list of the screens added to the Manager
         /// </summary>
         private List<Screen> ScreenList;
-        
         /// <summary>
         /// There is a chance that the class has not been properly
         /// initialized first.  If it is not initialized before calling
@@ -28,7 +27,7 @@ namespace SWENG.UserInterface
         public Manager(Game game)
             : base(game)
         {
-            this.ScreenList = new List<Screen>();
+            ScreenList = new List<Screen>();
         }
 
         /// <summary>
@@ -39,7 +38,83 @@ namespace SWENG.UserInterface
         {
             isInitialized = true;
 
+            foreach (Screen screen in ScreenList)
+            {
+                screen.TransitionEvent -= TransitionEventManager;
+
+                screen.TransitionEvent += TransitionEventManager;
+            }
+
             base.Initialize();
+        }
+
+        /// <summary>
+        /// Acts as the router for transition events of the screens
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TransitionEventManager(object sender, TransitionEventArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "Exit Program":
+                    UnloadContent();
+                    Game.Exit();
+                    break;
+                case "Finished":
+                    if (e.ScreenName == "Summary")
+                    {
+                        CallOpen("Catalog");
+                    }
+                    break;
+                case "Menu":
+                    if (e.ScreenName == "Exercise")
+                    {
+                        CallOpen("Home");
+                    }
+                    break;
+                case "Log In":
+                    if (e.ScreenName == "Home")
+                    {
+                        //CallOpen("Log In");
+                        CallOpen("Catalog");
+                    }
+                    break;
+                case "Submit":
+                    if (e.ScreenName == "Log In")
+                    {
+                        CallOpen("Catalog");
+                    }
+                    break;
+                case "Start":
+                    if (e.ScreenName == "Catalog")
+                    {
+                        CallOpen("Loading");
+                    }
+                    break;
+                case "CatalogTileEdit":
+                    CallOpenEdit(e.ScreenName);
+                    break;
+                case "LoadingIsDone":
+                    if (e.ScreenName == "Loading")
+                    {
+                        CallOpen("Exercise");
+                    }
+                    break;
+                case "Sensor Setup":
+                    CallOpenModal(e.ClickedOn);
+                    break;
+                case "Return":
+                    foreach (Screen screen in ScreenList)
+                    {
+                        if ((screen.ScreenState & ScreenState.Active) == ScreenState.Active
+                            && (screen.ScreenState & ScreenState.NonInteractive) == ScreenState.NonInteractive)
+                        {
+                            screen.ScreenState = ScreenState.Active;
+                        }
+                    }
+                    break;
+            }
         }
 
         /// <summary>
@@ -78,7 +153,7 @@ namespace SWENG.UserInterface
         {
             foreach (Screen screen in ScreenList)
             {
-                if (screen.ScreenState == ScreenState.Active)
+                if ((screen.ScreenState & ScreenState.Active) != 0)
                 {
                     screen.Update(gameTime);
                 }
@@ -95,7 +170,7 @@ namespace SWENG.UserInterface
         {
             foreach (Screen screen in ScreenList)
             {
-                if (screen.ScreenState == ScreenState.Active)
+                if ((screen.ScreenState & ScreenState.Active) != 0)
                 {
                     screen.Draw(gameTime);
                 }
@@ -112,14 +187,12 @@ namespace SWENG.UserInterface
         {
             screen.Manager = this;
 
-            /* 
-             * Make sure that the content needed is loaded since 
-             * initialization is only called once.
-             */
+            /** Make sure that the content needed is loaded since initialization is only called once. */
             screen.Initialize();
-            screen.LoadContent();
+            screen.TransitionEvent -= TransitionEventManager;
+            screen.TransitionEvent += TransitionEventManager;
 
-            this.ScreenList.Add(screen);
+            ScreenList.Add(screen);
         }
 
         /// <summary>
@@ -128,14 +201,14 @@ namespace SWENG.UserInterface
         /// <param name="screen">A class that inheritted the screen class</param>
         public void RemoveScreen(Screen screen)
         {
-            if (this.isInitialized)
+            if (isInitialized)
             {
                 screen.UnloadContent();
+                screen.TransitionEvent -= TransitionEventManager;
             }
 
-            this.ScreenList.Remove(screen);
+            ScreenList.Remove(screen);
         }
-
 
         /// <summary>
         /// This will fire the Transition method on
@@ -148,6 +221,39 @@ namespace SWENG.UserInterface
             {
                 if (screen.Title == title)
                 {
+                    screen.ScreenState = ScreenState.Active;
+                    screen.OpenScreen();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">The Id of the catalog item.</param>
+        private void CallOpenEdit(string id)
+        {
+            foreach (Screen screen in ScreenList)
+            {
+                if (screen.Title == "CatalogTileEdit")
+                {
+                    screen.ScreenState = ScreenState.Active;
+                    ((CatalogTileEditScreen)screen).OpenScreen(id);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modalId"></param>
+        private void CallOpenModal(string modalId)
+        {
+            foreach (Screen screen in ScreenList)
+            {
+                if (screen.Title == modalId)
+                {
+                    screen.ScreenState = ScreenState.Active;
                     screen.OpenScreen();
                 }
             }

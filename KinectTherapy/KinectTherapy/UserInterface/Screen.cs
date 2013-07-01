@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Samples.Kinect.XnaBasics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -5,18 +6,43 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace SWENG.UserInterface
 {
+    public delegate void TransitionEvent(object sender, TransitionEventArgs e);
+
+    public class TransitionEventArgs : EventArgs
+    {
+        public string ScreenName;
+        public string ClickedOn;
+
+        public TransitionEventArgs(string name, string clickedOn)
+        {
+            ScreenName = name;
+            ClickedOn = clickedOn;
+        }
+    }
+
     public enum ScreenState
     {
-        Active,
-        Hidden,
+        Active = 1,
+        Hidden = 2,
+        NonInteractive = 4,
     }
 
     /// <summary>
-    /// Required abstract class if the UserInterface screen
-    /// wants to be managed.
+    /// Required abstract class if the UserInterface screen wants to be managed.
     /// </summary>
     public abstract class Screen : DrawableGameComponent
     {
+        #region event stuff
+        public event TransitionEvent TransitionEvent;
+
+        // Invoke the Changed event; called whenever repetitions changes
+        protected virtual void OnTransition(TransitionEventArgs e)
+        {
+            if (TransitionEvent != null)
+                TransitionEvent(this, e);
+        }
+        #endregion
+
         /// <summary>
         /// Gets the KinectChooser from the services.
         /// </summary>
@@ -42,7 +68,7 @@ namespace SWENG.UserInterface
         /// <summary>
         /// Get the ScreenState
         /// </summary>
-        public ScreenState ScreenState { get; protected set; }
+        public ScreenState ScreenState { get; set; }
 
         /// <summary>
         /// Get the UserInterface.Manager
@@ -65,17 +91,7 @@ namespace SWENG.UserInterface
         /// <summary>
         /// This will just switch between active and hidden
         /// </summary>
-        public virtual void Transition()
-        {
-            if (this.ScreenState == UserInterface.ScreenState.Active)
-            {
-                this.ScreenState = UserInterface.ScreenState.Hidden;
-            }
-            else
-            {
-                this.ScreenState = UserInterface.ScreenState.Active;
-            }
-        }
+        public virtual void Transition() { }
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
@@ -91,16 +107,13 @@ namespace SWENG.UserInterface
         /// Meant for moments when the screen has special
         /// opening logic
         /// </summary>
-        public virtual void OpenScreen() 
-        {
-            Transition();
-        }
+        public virtual void OpenScreen() { }
 
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime)//, MouseState currentMouse, MouseState oldMouse)
         {
             base.Update(gameTime);
         }

@@ -1,20 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Kinect;
+using Microsoft.Samples.Kinect.XnaBasics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-
-using Microsoft.Samples.Kinect.XnaBasics;
-
 using SWENG;
-using SWENG.UserInterface;
-using Microsoft.Kinect;
 using SWENG.Service;
+using SWENG.UserInterface;
 
 namespace KinectTherapy
 {
@@ -26,7 +17,7 @@ namespace KinectTherapy
         /// <summary>
         /// This is used to adjust the window size.
         /// </summary>
-        private const int WIDTH = 800;
+        private const int WIDTH = 1024;
 
         /// <summary>
         /// From XnaBasics; This control selects a sensor, and displays a notice if one is
@@ -66,6 +57,11 @@ namespace KinectTherapy
         private readonly SummaryScreen _summaryScreen;
         private readonly ExerciseScreen _exerciseScreen;
         private readonly CatalogScreen _catalogScreen;
+        private readonly LogInScreen _logInScreen;
+        private readonly HomeScreen _homeScreen;
+        private readonly CatalogTileEditScreen _catalogTileEditScreen;
+        private readonly LoadingScreen _loadingScreen;
+        private readonly SensorTileEditScreen _sensorTileEditScreen;
 
         /// <summary>
         /// preloading assets
@@ -88,13 +84,11 @@ namespace KinectTherapy
 
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferWidth = WIDTH;
-            // keep the 110 header for now.
-            // exercise stuff is being written here.
-            graphics.PreferredBackBufferHeight = ((WIDTH / 4) * 3) + 110;
+            graphics.PreferredBackBufferHeight = (WIDTH / 4) * 3;
             graphics.PreparingDeviceSettings += this.GraphicsDevicePreparingDeviceSettings;
             graphics.SynchronizeWithVerticalRetrace = true;
             // this will give the viewport a border
-            viewPortRectangle = new Rectangle(10, 80, WIDTH - 20, ((WIDTH - 2) / 4) * 3);
+            viewPortRectangle = new Rectangle(10, 80, WIDTH - 20, ((WIDTH / 4) * 3) - 90);
 
             Content.RootDirectory = "Content";
 
@@ -120,9 +114,42 @@ namespace KinectTherapy
             #endregion
 
             #region Screens
+            _homeScreen = new HomeScreen(this, viewPortRectangle, ScreenState.Active);
             _summaryScreen = new SummaryScreen(this, viewPortRectangle, ScreenState.Hidden);
             _exerciseScreen = new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden);
             _catalogScreen = new CatalogScreen(this, viewPortRectangle, ScreenState.Hidden);
+            _logInScreen = new LogInScreen(this, viewPortRectangle, ScreenState.Hidden);
+            _catalogTileEditScreen = new CatalogTileEditScreen(
+                this, 
+                new Rectangle(
+                    0, 
+                    0, 
+                    graphics.PreferredBackBufferWidth, 
+                    graphics.PreferredBackBufferHeight
+                ), 
+                ScreenState.Hidden
+            );
+            _loadingScreen = new LoadingScreen(
+                this,
+                new Rectangle(
+                    0,
+                    0,
+                    graphics.PreferredBackBufferWidth,
+                    graphics.PreferredBackBufferHeight
+                ),
+                ScreenState.Hidden
+            );
+            _sensorTileEditScreen = new SensorTileEditScreen(
+                this,
+                new Rectangle(
+                    0,
+                    0,
+                    graphics.PreferredBackBufferWidth,
+                    graphics.PreferredBackBufferHeight
+                ),
+                ScreenState.Hidden
+            );
+
             #endregion
 
         }
@@ -140,6 +167,7 @@ namespace KinectTherapy
             exerciseQueue.QueueIsDone += recordingManager.StopRecording;
 
             catalogManager.CatalogCompleteEventHandler += exerciseQueue.LoadExercises;
+            exerciseQueue.LoadIsDone += _loadingScreen.CloseScreen;
 
             recordingManager.RecordingStatusChanged += exerciseQueue.AssociateFiles;
 
@@ -149,11 +177,15 @@ namespace KinectTherapy
 
             #region Adding Screens
             //TODO: This needs to be refitted as the actual home screen.
-            userInterfaceManager.AddScreen(new HomeScreen(this, viewPortRectangle, ScreenState.Hidden));
-            userInterfaceManager.AddScreen(new LogInScreen(this, viewPortRectangle, ScreenState.Active));
-            userInterfaceManager.AddScreen(_catalogScreen);
+            userInterfaceManager.AddScreen(_homeScreen);
+            userInterfaceManager.AddScreen(_logInScreen);
             userInterfaceManager.AddScreen(_exerciseScreen);
             userInterfaceManager.AddScreen(_summaryScreen);
+            userInterfaceManager.AddScreen(_catalogScreen);
+            userInterfaceManager.AddScreen(_catalogTileEditScreen);
+            userInterfaceManager.AddScreen(_loadingScreen);
+            userInterfaceManager.AddScreen(_sensorTileEditScreen);
+
             #endregion
 
             #region Manual Initialization
@@ -163,9 +195,6 @@ namespace KinectTherapy
             catalogManager.Initialize();
             #endregion
 
-
-            // the game no longer needs to update this portion
-            //Components.Add(exerciseQueue);
             #region Adding Components
             Components.Add(userInterfaceManager);
             #endregion

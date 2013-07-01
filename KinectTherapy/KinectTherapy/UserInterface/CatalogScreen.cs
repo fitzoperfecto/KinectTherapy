@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Xml.XPath;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,7 +6,6 @@ using SWENG.Service;
 
 namespace SWENG.UserInterface
 {
-
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
@@ -24,122 +19,75 @@ namespace SWENG.UserInterface
             }
         }
 
-        private ContentManager _contentManager;
-        private Texture2D _blankTexture;
-        private SpriteFont _spriteFont;
-
-        private bool _isInitialized;
-
-        private MouseState _oldMouseState;
-        private const int MARGIN = 10;
-
         private readonly Rectangle _viewableArea;
+        private readonly GuiButtonCollection _buttonList;
+        private readonly GuiHeader _header;
+        private readonly GuiSensorStatus _sensorStatus;
+        private readonly GuiCatalogTileCollection _catalogList;
 
-        private readonly GuiButton[] _buttonList;
-        private readonly GuiButton[] _workoutButtonList;
+        private const float MARGIN = 10f;
+        private bool _isInitialized;
+        private MouseState _oldMouseState;
 
-        private readonly GuiLabel _banner;
+        /** Needed to send to the GuiCatalogTiles */
+        private Game _game;
 
-        #region Catalog Control Variables
-
-        private readonly Vector2 _catalogViewPosition;
-        private readonly Vector2 _catalogViewSize;
-        private readonly SensorTile _catalogViewArea;
-
-        private XPathDocument  _catalogXml;
-        private List<string> _catalogList;
-
-        private readonly string _catalogFile;
-
-        #endregion
-
-        #region Workout Exercise Control Variables
-
-        private bool _isExerciseClicked;
-        private bool _isWorkoutClicked;
-
-        private GuiButton[] _exerciseButtonList;
-        private List<string> _workoutList;
-        private string[] _exercisesSelected;
-
-        private ExerciseQueue _exerciseQueue;
-        #endregion
-    
-        
-        public CatalogScreen(Game game, Rectangle viewableArea, ScreenState startingState) : base(game)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="viewableArea"></param>
+        /// <param name="startingState"></param>
+        public CatalogScreen(Game game, Rectangle viewableArea, ScreenState startingState) 
+            : base(game)
         {
+            _game = game;
             ScreenState = startingState;
-
             _viewableArea = viewableArea;
-            var buttonSize = new Vector2(100, 30f);
+            _buttonList = new GuiButtonCollection();
 
             Title = "Catalog";
 
-            _catalogViewArea = new SensorTile(game, "Exercise Catalog");
-
-            // Load exercise catalog first
-            //var applicationDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            //_catalogFile = applicationDirectory + @"\Catalog\ExerciseCatalog.xml";
-
-            //if (!File.Exists(_catalogFile)) return;
-
-            //_catalogList = ReadXPathCatalogWorkouts(_catalogManager.CatalogFile);
+            Vector2 buttonSize = new Vector2(240f, 60f);
+            Vector2 buttonBottom = new Vector2(
+                _viewableArea.Right - buttonSize.X + MARGIN,
+                _viewableArea.Bottom - buttonSize.Y);
+            Rectangle catalogArea = new Rectangle(
+                    _viewableArea.Left - (int)MARGIN,
+                    _viewableArea.Top + 100,
+                    _viewableArea.Width - (int)buttonSize.X - (int)MARGIN,
+                    _viewableArea.Height + 100
+                );
 
             #region Laying out the positions
-            var bannerSize = new Vector2(_viewableArea.Width, 110f);
-            var bannerStartingPosition = new Vector2(0, 50);
-            _banner = new GuiLabel("Session Setup", bannerSize, bannerStartingPosition);
+            _catalogList = new GuiCatalogTileCollection(catalogArea);
 
-            _catalogViewPosition = new Vector2(
-                    viewableArea.X, viewableArea.Y + bannerSize.Y
-                );
+            _buttonList.Collection.Add(
+                new GuiButton("Start", buttonSize,
+                    buttonBottom
+                    - (new Vector2(0f, 2 * MARGIN))
+                    - (new Vector2(0f, 2 * buttonSize.Y))
+                ));
+            _buttonList.Collection.Add(new GuiButton("Sensor Setup", buttonSize,
+                    buttonBottom
+                    - new Vector2(0f, MARGIN)
+                    - new Vector2(0f, buttonSize.Y)
+                ));
+            _buttonList.Collection.Add(new GuiButton("Exit Program", buttonSize, buttonBottom));
 
-            _catalogViewSize = new Vector2(
-                    (viewableArea.Width),
-                    400
-                );
+            _sensorStatus = new GuiSensorStatus("Sensor Status",
+                new Vector2(99f, 32f),
+                new Vector2(
+                (_viewableArea.Right / 2) - (99f / 2),
+                _viewableArea.Bottom - 32f
+            ));
 
-            _catalogViewArea.Position = _catalogViewPosition;
-            _catalogViewArea.Size = _catalogViewSize;
-
-            // Construct Workout Selection Buttons
-            var workoutButtonSize = new Vector2(170, 30f);
-
-            var workoutButtonX = _catalogViewPosition.X + (MARGIN * 2);
-            var workoutButtonY = _catalogViewPosition.Y + (MARGIN * 3);
-            var workoutButtonPos = new Vector2(workoutButtonX, workoutButtonY);
-
-            var i = 0;
-            _workoutButtonList = new GuiButton[_catalogManager.GetExercisesByType("Arms").Count];
-            WorkoutTitle = new string[_catalogManager.GetExercisesByType("Arms").Count];
-
-            foreach (var listitem in _catalogManager.GetExercisesByType("Arms"))
-            {
-                WorkoutTitle[i] = listitem;
-                _workoutButtonList[i] = new GuiButton(listitem, workoutButtonSize, workoutButtonPos);
-                workoutButtonPos.X = workoutButtonPos.X + workoutButtonSize.Length() + (MARGIN * 10);
-                i++;
-            }
-
-            // Construct Page Navigation Buttons
-            var exerciseButtonPosition = new Vector2(
-                (
-                    (_catalogViewPosition.X + (_catalogViewSize.X * .5f)) - (buttonSize.X / 2)
-                ),
-                (
-                    _viewableArea.Height + 50
-                )
-            );
-
-            var homeButtonPosition = new Vector2(
-                    exerciseButtonPosition.Length() / 4,
-                    exerciseButtonPosition.Y
-                );
-
-            _buttonList = new[]{
-                new GuiButton("Start", buttonSize, exerciseButtonPosition),
-                new GuiButton("Home", buttonSize, homeButtonPosition)
-            };
+            _header = new GuiHeader("Kinect Therapy: Catalog Screen",
+                new Vector2(326f, 52f),
+                new Vector2(
+                _viewableArea.Left,
+                _viewableArea.Top - MARGIN - 52f
+            ));
             #endregion
 
             _isInitialized = false;
@@ -151,31 +99,82 @@ namespace SWENG.UserInterface
         /// </summary>
         public override void Initialize()
         {
-
-            _catalogViewArea.Initialize();
-
             _isInitialized = true;
+
+            foreach (GuiButton button in _buttonList.Collection)
+            {
+                button.ClickEvent += GuiButtonWasClicked;
+            }
+
+            _catalogList.Initialize();
 
             base.Initialize();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "Start":
+                    ScreenState = UserInterface.ScreenState.Hidden;
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    _catalogManager.Status = CatalogManagerStatus.Complete;
+                    break;
+                case "Sensor Setup":
+                    ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                case "Exit Program":
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GuiCatalogTileButtonWasClicked(object sender, EditCatalogSettingsArgs e)
+        {
+            ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
+            OnTransition(new TransitionEventArgs(e.ID, "CatalogTileEdit"));
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
         public override void LoadContent()
         {
-            if (null == _contentManager)
+            if (null == contentManager)
             {
-                _contentManager = new ContentManager(Game.Services, "Content");
+                contentManager = new ContentManager(Game.Services, "Content");
             }
 
+            _buttonList.Collection[0].Texture2D = contentManager.Load<Texture2D>(@"UI\Start");
+            _buttonList.Collection[1].Texture2D = contentManager.Load<Texture2D>(@"UI\SensorSetup");
+            _buttonList.Collection[2].Texture2D = contentManager.Load<Texture2D>(@"UI\ExitProgram");
 
-            _spriteFont = _contentManager.Load<SpriteFont>("Arial16");
-            _blankTexture = _contentManager.Load<Texture2D>("blank");
+            _sensorStatus.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectSensorGood");
+
+            _header.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectTherapy");
+
+            _catalogList.LoadContent(contentManager);
 
             base.LoadContent();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public override void UnloadContent()
         {
-            _contentManager.Unload();
+            contentManager.Unload();
         }
 
         /// <summary>
@@ -184,209 +183,74 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            var i = 0;
-
-            var mouseState = Mouse.GetState();
-            var mouseBoundingBox = new Rectangle(mouseState.X, mouseState.Y, 1, 1);
-
-            foreach (var button in _buttonList)
+            if (_isInitialized
+                && (ScreenState & UserInterface.ScreenState.NonInteractive) == 0)
             {
-                if (mouseBoundingBox.Intersects(button.Rectangle))
-                {
-                    button.Hovered = true;
+                MouseState currentState = Mouse.GetState();
+                _buttonList.Update(currentState, _oldMouseState);
+                _catalogList.Update(currentState, _oldMouseState);
 
-                    if (mouseState.LeftButton == ButtonState.Pressed && mouseState.LeftButton != _oldMouseState.LeftButton)
-                    {
-                        switch (button.Text)
-                        {
-                            case "Start":
-                                // Set Catalog Selection status to start
-                                _catalogManager.Status = CatalogManagerStatus.Complete;
-                                Transition();
-                               // Manager.CallOpen("Exercise");
-                                break;
-
-                            case "Home":
-                                Transition();
-                                Manager.CallOpen("The Hub");
-                                break;
-                        }
-                    }
-                }
-                else
-                {
-                    button.Hovered = false;
-                }
+                _oldMouseState = currentState;
             }
-
-            foreach (var workoutButton in _workoutButtonList)
-            {
-                if (mouseBoundingBox.Intersects(workoutButton.Rectangle))
-                {
-                    workoutButton.Hovered = true;
-
-                    if (mouseState.LeftButton == ButtonState.Pressed && mouseState.LeftButton != _oldMouseState.LeftButton)
-                    {
-                        _isWorkoutClicked = true;
-
-                        LoadCatalog(_workoutButtonList[i].Text);
-                        Draw(gameTime);
-                    }
-                }
-                else
-                {
-                    workoutButton.Hovered = false;
-                }
-            }
-
-            if (_isWorkoutClicked)
-            {
-                foreach (var exerciseButton in _exerciseButtonList)
-                {
-                    if (mouseBoundingBox.Intersects(exerciseButton.Rectangle))
-                    {
-                        exerciseButton.Hovered = true;
-
-                        if (mouseState.LeftButton == ButtonState.Pressed && mouseState.LeftButton != _oldMouseState.LeftButton)
-                        {
-                            _isExerciseClicked = true;
-                            _exercisesSelected = new string[_exerciseButtonList.Length];
-                            WorkoutExercises = new string[_exerciseButtonList.Length];
-
-                            var idxPosStart = exerciseButton.Text.IndexOf("(", StringComparison.Ordinal);
-                            var idxPosStop = exerciseButton.Text.IndexOf(")", StringComparison.Ordinal);
-                            var length = (idxPosStop - idxPosStart) - 1;
-
-                            _exercisesSelected[i] = exerciseButton.Text.Substring(idxPosStart + 1, length);
-                        }
-                    }
-                    else
-                    {
-                        exerciseButton.Hovered = false;
-                    }
-                }
-            }
-            
-            _oldMouseState = mouseState;
-
-            _catalogViewArea.Update(gameTime);
 
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
             if (_isInitialized)
             {
-                GraphicsDevice.Clear(Color.White);
+                GraphicsDevice.Clear(Color.WhiteSmoke);
+                var spriteBatch = SharedSpriteBatch;
 
-                _catalogViewArea.Draw(gameTime);
+                spriteBatch.Begin();
 
-                SharedSpriteBatch.Begin();
+                _buttonList.Draw(spriteBatch);
+                _catalogList.Draw(spriteBatch);
+                _header.Draw(spriteBatch);
+                _sensorStatus.Draw(spriteBatch);
 
-                foreach (var button in _workoutButtonList)
-                {
-                    SharedSpriteBatch.Draw(
-                        _blankTexture,
-                        button.Rectangle,
-                        !button.Hovered ? Color.DarkGray : Color.Gray
-                        );
-
-                    SharedSpriteBatch.DrawString(
-                        _spriteFont,
-                        button.Text,
-                        button.Position,
-                        Color.White
-                    );
-                }
-
-                SharedSpriteBatch.Draw(
-                        _blankTexture,
-                        _banner.Rectangle,
-                        Color.DarkBlue
-                    );
-
-                SharedSpriteBatch.DrawString(
-                    _spriteFont,
-                    _banner.Text,
-                    new Vector2(300, 100),
-                    Color.White
-                );
-
-                foreach (var button in _buttonList)
-                {
-                    SharedSpriteBatch.Draw(
-                        _blankTexture,
-                        button.Rectangle,
-                        !button.Hovered ? Color.DarkGray : Color.Gray
-                        );
-
-                    SharedSpriteBatch.DrawString(
-                        _spriteFont,
-                        button.Text,
-                        button.Position,
-                        Color.White
-                    );
-                }
-
-
-                if (_isWorkoutClicked)
-                {
-                    foreach (var button in _exerciseButtonList)
-                    {
-                        SharedSpriteBatch.Draw(
-                            _blankTexture,
-                            button.Rectangle,
-                            !button.Hovered ? Color.DarkGray : Color.Gray
-                            );
-
-                        SharedSpriteBatch.DrawString(
-                            _spriteFont,
-                            button.Text,
-                            button.Position,
-                            Color.White
-                        );
-                    }
-
-                }
-
-                SharedSpriteBatch.End();
+                spriteBatch.End();
             }
-
-
+            else
+            {
+                Initialize();
+                LoadContent();
+            }
             base.Draw(gameTime);
         }
 
-        private void LoadCatalog(string workoutTitle)
+        public void SwitchCategories(string category)
         {
-            // Set Catalog Selection status to Started
-            _catalogManager.Status = CatalogManagerStatus.Start;
+            foreach (GuiCatalogTile catalogTile in _catalogList.Collection)
+            {
+                catalogTile.ClickEditSettingsEvent -= GuiCatalogTileButtonWasClicked;
+            }
+            _catalogList.Collection.Clear();
 
-            var i = 0;
+            foreach (var catalogItem in _catalogManager.GetExercisesByType(category))
+            {
+                _catalogList.AddCatalogItem(_game, catalogItem.ID, catalogItem.Name, catalogItem.Description);
+            }
 
-            var workoutViewPosY = 300;
-            //var exercises = ReadXPathWorkoutExercises(workoutTitle);
-            //_exerciseButtonList = new GuiButton[exercises.Count];
+            _catalogList.Initialize();
+            _catalogList.LoadContent(contentManager);
 
-            //foreach (var exercise in exercises)
-            //{
-            //    var stringSize = _spriteFont.MeasureString(exercise);
-
-            //    var workoutViewSize = stringSize;
-            //    var workoutViewPos = new Vector2(20, workoutViewPosY + MARGIN);
-
-            //    _exerciseButtonList[i] = new GuiButton(exercise, workoutViewSize, workoutViewPos);
-            //    workoutViewPosY += (MARGIN * 5);
-            //    i++;
-            //}
+            foreach (GuiCatalogTile catalogTile in _catalogList.Collection)
+            {
+                catalogTile.ClickEditSettingsEvent += GuiCatalogTileButtonWasClicked;
+            }
         }
 
+        public override void OpenScreen()
+        {
+            SwitchCategories("Arms");
 
-        public string WorkoutName { get; set; }
-
-        public string[] WorkoutTitle { get; set; }
-
-        public string[] WorkoutExercises { get; set; }
-
+            base.OpenScreen();
+        }
     }
 }

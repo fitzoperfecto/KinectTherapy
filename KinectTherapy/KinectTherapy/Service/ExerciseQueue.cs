@@ -1,15 +1,9 @@
 ﻿﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using SWENG.Criteria;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Kinect;
-using System.Diagnostics;
-using System.Xml.Serialization;
-using System.IO;
-using System.Reflection;
 
 namespace SWENG.Service
 {
@@ -103,16 +97,22 @@ namespace SWENG.Service
         {
             OnLoadStarted(EventArgs.Empty);
             string path = System.AppDomain.CurrentDomain.BaseDirectory + "../../../../KinectTherapyContent/Exercises/";
+
+            Exercises = new ExerciseGameComponent[e.Exercises.Length];
+
              //loop through the exercises in the CurrentCatalog and turn them into Exercise objects. 
             for (int i = 0; i < e.Exercises.Length; i++)
             {
+                int repetitions = e.Exercises[i].Repetitions;
                 XmlSerializer serializer = new XmlSerializer(typeof(Exercise));
                 StreamReader reader = new StreamReader(path + e.Exercises[i].Id + ".xml");
                 // deserialize the xml and create an Exercise
-                ExerciseGameComponent egc = new ExerciseGameComponent(_game, (Exercise)serializer.Deserialize(reader));
+                Exercises[i] = new ExerciseGameComponent(_game, (Exercise)serializer.Deserialize(reader));
+                Exercises[i].Repetitions = repetitions;
                 reader.Close();
+
                 //Queue up for a workout
-                PendingExercises.Enqueue(egc);
+                PendingExercises.Enqueue(Exercises[i]);
             }
             // once they're all queued start the first exercise. 
             NextExercise();

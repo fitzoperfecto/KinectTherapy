@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -20,17 +19,6 @@ namespace SWENG.UserInterface
             get
             {
                 return (SpriteBatch)this.Game.Services.GetService(typeof(SpriteBatch));
-            }
-        }
-
-        /// <summary>
-        /// Gets the ExerciseQueue from the services.
-        /// </summary>
-        private ExerciseQueue SharedExerciseQueue
-        {
-            get
-            {
-                return (ExerciseQueue)Game.Services.GetService(typeof(ExerciseQueue));
             }
         }
 

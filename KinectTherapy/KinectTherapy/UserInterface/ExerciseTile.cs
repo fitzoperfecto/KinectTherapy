@@ -1,11 +1,9 @@
 using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using SWENG.Service;
 using SWENG.Criteria;
-using System.Collections.Generic;
+using SWENG.Service;
 
 // TODO: refactor similar functionality within ReplayTile to a "tile" drawablegamecomponent
 namespace SWENG.UserInterface

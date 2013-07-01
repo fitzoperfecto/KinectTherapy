@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Xna.Framework;
-using System.IO;
-using System.Xml;
 using SWENG.Criteria;
 
 namespace SWENG.Service
@@ -51,6 +50,22 @@ namespace SWENG.Service
         }
     }
 
+    public class CatalogItem
+    {
+        public string ID { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+
+        public CatalogItem() { }
+
+        public CatalogItem(string id, string name, string description)
+        {
+            ID = id;
+            Name = name;
+            Description = description;
+        }
+    }
+
     public class CatalogManager : IGameComponent
     {
 
@@ -78,7 +93,6 @@ namespace SWENG.Service
 
         #endregion
 
-        private string _catalogFile;
         public string CatalogFile { get; set; }
 
         /// <summary>
@@ -86,7 +100,7 @@ namespace SWENG.Service
         /// This is what the UI would be populating/depopulating when assigning exercises to the workout.
         /// Maybe this should be bound to in the UI?
         /// </summary>
-        public List<string> WorkoutList { get; set; }
+        private List<Exercise> _workoutList;
 
         private CatalogManagerStatus _status;
         public CatalogManagerStatus Status
@@ -135,10 +149,9 @@ namespace SWENG.Service
             _status = CatalogManagerStatus.Start;
             // Initialize catalog variables 
             var applicationDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            _catalogFile = applicationDirectory +  "../../../../KinectTherapyContent/Exercises/MasterCatalog.xml";
-            CatalogFile = _catalogFile;
-            WorkoutList = new List<string>();
-            // load the datatable. 
+            CatalogFile = applicationDirectory + "../../../../KinectTherapyContent/Exercises/MasterCatalog.xml";
+            _workoutList = new List<Exercise>();
+            // load the datatable.
             CatalogXmlLinqData();
         }
 
@@ -196,21 +209,75 @@ namespace SWENG.Service
         }
 
         /// <summary>
-        /// Generates the string list of exercises into Exercise objects.
+        /// Add an exercise to the current list if it does not exist already
         /// </summary>
-        /// <returns></returns>
-        public Exercise[] ListWorkoutExercises()
+        /// <param name="exerciseId"></param>
+        public void AddExerciseToSelected(string exerciseId)
         {
-            Exercise[] workout = new Exercise[WorkoutList.Count()];
-            int i=0;
-            foreach (var exercise in WorkoutList)
+            foreach (Exercise exercise in _workoutList)
             {
-                Exercise e = new Exercise();
-                e.Id = exercise;
-                workout[i++] = e;
+                if (exercise.Id == exerciseId)
+                {
+                    return;
+                }
             }
 
-            return workout;
+            _workoutList.Add(
+                new Exercise()
+                {
+                    Id = exerciseId
+                }
+            );
+        }
+
+        public void SetExerciseOptions(Exercise exerciseUpdate)
+        {
+            for (int i = 0; i < _workoutList.Count; i = i +1)
+            {
+                if (_workoutList[i].Id == exerciseUpdate.Id)
+                {
+                    _workoutList[i] = exerciseUpdate;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="exerciseId"></param>
+        /// <returns></returns>
+        public Exercise GetExercise(string exerciseId)
+        {
+            Exercise r = null;
+
+            foreach (Exercise exercise in _workoutList)
+            {
+                if (exercise.Id == exerciseId)
+                {
+                    r = exercise;
+                }
+            }
+
+            return r;
+        }
+
+        /// <summary>
+        /// Remove an exercise from the current list if it does exist
+        /// </summary>
+        /// <param name="exerciseId"></param>
+        public void RemoveExerciseFromSelected(string exerciseId)
+        {
+            int i = 0;
+            foreach (Exercise exercise in _workoutList)
+            {
+                if (exercise.Id == exerciseId)
+                {
+                    break;
+                }
+                i = i + 1;
+            }
+
+            _workoutList.RemoveAt(i);
         }
 
         /// <summary>
@@ -220,11 +287,8 @@ namespace SWENG.Service
         /// <returns></returns>
         public CatalogCompleteEventArg GetCurrentWorkout()
         {
-            // ************* take this out, hardcoding workout for now **************
-            WorkoutList.Add("EXELAE");
-            // **********************************************************************
-            var exerciseList = ListWorkoutExercises();
-            var eventArgs = new CatalogCompleteEventArg(exerciseList);
+            Exercise[] exerciseList = _workoutList.ToArray();
+            CatalogCompleteEventArg eventArgs = new CatalogCompleteEventArg(exerciseList);
             return eventArgs;
         }
 
@@ -234,23 +298,31 @@ namespace SWENG.Service
         /// </summary>
         /// <param name="exerciseGroup"></param>
         /// <returns></returns>
-        public List<string> GetExercisesByType(string exerciseGroup)
+        public List<CatalogItem> GetExercisesByType(string exerciseGroup)
         {
-            var _workoutList = new List<string>();
+            List<CatalogItem> r = new List<CatalogItem>();
             try
             {
                 var dataRow = DataTable.Select("Category = '" + exerciseGroup + "'");
                 foreach (var row in dataRow)
                 {
-                    _workoutList.Add(row["Id"].ToString());
+                    r.Add(
+                        new CatalogItem()
+                        {
+                            ID = row["Id"].ToString(), 
+                            Name = row["Name"].ToString(), 
+                            Description = row["Description"].ToString()
+                        }
+                    );
                 }
             }
             catch (Exception)
             {
-                _workoutList = null;
+                r = null;
                 throw;
             }
-            return _workoutList;
+
+            return r;
         }
     }
 }

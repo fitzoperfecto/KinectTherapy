@@ -1,5 +1,4 @@
-﻿using Microsoft.Samples.Kinect.XnaBasics;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,27 +7,20 @@ namespace SWENG.UserInterface
 {
     class LogInScreen : Screen
     {
-        private ContentManager _contentManager;
-        private Texture2D _blankTexture;
-        private SpriteFont _spriteFont;
-        private bool _isInitialized;
-        private MouseState _oldMouseState;
-
-        private Vector2 _fontSize;
-        private Vector2 _fontPosition;
-
-        private const int MARGIN = 10;
-        private const float BannerHeight = 110;
-        private const float TextBoxWidth = 300;
-
         private readonly Rectangle _viewableArea;
+        private readonly GuiButtonCollection _buttonList;
+        private readonly GuiHeader _header;
+        private readonly GuiSensorStatus _sensorStatus;
 
-        private readonly GuiButton[] _buttonList;
-        private readonly GuiTextBox _userNameTextBox; 
-        private readonly GuiTextBox _passwordTextBox;
-        private readonly GuiLabel _label;
-        private readonly GuiLabel _userName;
-        private readonly GuiLabel _passWord;
+        private const float MARGIN = 10f;
+
+        private bool _isInitialized;
+
+        // fake log in box
+        private Texture2D _logInTexture;
+        private Vector2 _logInPosition;
+        private Vector2 _logInSize;
+        private MouseState _oldMouseState;
 
         public LogInScreen(Game game, Rectangle viewableArea, ScreenState startingState) : base(game)
         {
@@ -37,45 +29,41 @@ namespace SWENG.UserInterface
 
             Title = "Log In";
 
+            Vector2 buttonSize = new Vector2(240f, 60f);
+            Vector2 buttonBottom = new Vector2(
+                _viewableArea.Right - buttonSize.X + MARGIN,
+                _viewableArea.Bottom - buttonSize.Y);
+
             #region Laying out the positions
+            _buttonList = new GuiButtonCollection();
+            _buttonList.Collection.Add(
+                new GuiButton("Submit", buttonSize, 
+                    buttonBottom 
+                    - new Vector2(0f , MARGIN) 
+                    - new Vector2(0f, buttonSize.Y)
+                ));
+            _buttonList.Collection.Add(new GuiButton("Exit Program", buttonSize, buttonBottom));
 
-            var bannerSize = new Vector2(800, BannerHeight);
-            var bannerStartingPosition = new Vector2(0, 50);
-            _label = new GuiLabel("System Log In", bannerSize, bannerStartingPosition);
+            _sensorStatus = new GuiSensorStatus("Sensor Status",
+                new Vector2(99f, 32f),
+                new Vector2(
+                (_viewableArea.Right / 2) - (99f / 2),
+                _viewableArea.Bottom - 32f
+            ));
 
-            var buttonSize = new Vector2(100, 30f);
-            var buttonPosition = new Vector2(
-                (
-                    (_viewableArea.X + // get the far left position
-                    (_viewableArea.Width / 2)) - // add half of the width of the viewable area
-                    (buttonSize.X / 4) // and then get rid of half the button width... now we are centered
-                ),
-                (
-                    (_viewableArea.Y + _viewableArea.Y) + // get the bottom of the stream
-                    (
-                        (_viewableArea.Height) / 2 - // get the entire viewable area 
-                        (buttonSize.Y / 2) // and then get rid of half of the button height... again, centered
-                    )
-                )
-            );
+            _header = new GuiHeader("Kinect Therapy: Log In Screen",
+                new Vector2(326f, 52f),
+                new Vector2(
+                _viewableArea.Left,
+                _viewableArea.Top - MARGIN - 52f
+            ));
 
-            bannerSize = new Vector2(175, BannerHeight / 4);
-            bannerStartingPosition = new Vector2(MARGIN, 250);
-            _userName = new GuiLabel("User Name:", bannerSize, bannerStartingPosition);
+            _logInSize = new Vector2(410f, 195f);
+            _logInPosition = new Vector2(
+                    (_viewableArea.Right / 2) - (_logInSize.X / 2),
+                    (_viewableArea.Bottom / 2) - (_logInSize.Y / 2)
+                );
 
-            var textboxSize = new Vector2(TextBoxWidth, BannerHeight / 4);
-            var userNamePosition = new Vector2(bannerSize.Length() + MARGIN, 250);
-            _userNameTextBox = new GuiTextBox("youngb", textboxSize, userNamePosition);
-
-            bannerSize = new Vector2(175, BannerHeight / 4);
-            bannerStartingPosition = new Vector2(MARGIN, 300);
-            _passWord = new GuiLabel("Password:", bannerSize, bannerStartingPosition);
-
-            textboxSize = new Vector2(TextBoxWidth, BannerHeight / 4);
-            var passWordPosition = new Vector2(bannerSize.Length() + MARGIN, 300);
-            _passwordTextBox = new GuiTextBox("*********", textboxSize, passWordPosition);
-
-            _buttonList = new[] { new GuiButton("Log In", buttonSize, buttonPosition) };
             #endregion
 
             _isInitialized = false;
@@ -89,25 +77,47 @@ namespace SWENG.UserInterface
         {
             _isInitialized = true;
 
+            _buttonList.ClickEventForAll(GuiButtonWasClicked);
+
             base.Initialize();
+        }
+
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "Submit":
+                    ScreenState = UserInterface.ScreenState.Hidden;
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                case "Exit Program":
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+            }
         }
 
         public override void LoadContent()
         {
-            if (null == _contentManager)
+            if (null == contentManager)
             {
-                _contentManager = new ContentManager(Game.Services, "Content");
+                contentManager = new ContentManager(Game.Services, "Content");
             }
 
-            _spriteFont = _contentManager.Load<SpriteFont>("Arial16");
-            _blankTexture = _contentManager.Load<Texture2D>("blank");
+            _buttonList.Collection[0].Texture2D = contentManager.Load<Texture2D>(@"UI\Submit");
+            _buttonList.Collection[1].Texture2D = contentManager.Load<Texture2D>(@"UI\ExitProgram");
+
+            _sensorStatus.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectSensorGood");
+
+            _header.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectTherapy");
+
+            _logInTexture = contentManager.Load<Texture2D>(@"UI\UserPassword");
 
             base.LoadContent();
         }
 
         public override void UnloadContent()
         {
-            _contentManager.Unload();
+            contentManager.Unload();
         }
         /// <summary>
         /// Allows the game component to update itself.
@@ -115,29 +125,14 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            var mouseState = Mouse.GetState();
-            var mouseBoundingBox = new Rectangle(mouseState.X, mouseState.Y, 1, 1);
-
-            foreach (var button in _buttonList)
+            if (_isInitialized
+                && (ScreenState & UserInterface.ScreenState.NonInteractive) == 0)
             {
-                if (mouseBoundingBox.Intersects(button.Rectangle))
-                {
-                    button.Hovered = true;
+                MouseState currentState = Mouse.GetState();
+                _buttonList.Update(currentState, _oldMouseState);
 
-                    if (mouseState.LeftButton == ButtonState.Pressed && mouseState.LeftButton != _oldMouseState.LeftButton)
-                    {
-                        Transition();
-                        Manager.CallOpen("The Hub");
-                    }
-                }
-                else
-                {
-                    button.Hovered = false;
-                }
+                _oldMouseState = currentState;
             }
-
-            _oldMouseState = mouseState;
-
             base.Update(gameTime);
         }
 
@@ -145,96 +140,23 @@ namespace SWENG.UserInterface
         {
             if (_isInitialized)
             {
-                _fontSize = _spriteFont.MeasureString(_label.Text);
-                _fontPosition = new Vector2(x: _viewableArea.Width / 2 - _fontSize.Length() / 2, y: BannerHeight - _fontSize.Y);  //Center text in banner
+                GraphicsDevice.Clear(Color.WhiteSmoke);
+                var spriteBatch = SharedSpriteBatch;
+                spriteBatch.Begin();
 
-                GraphicsDevice.Clear(Color.White);
-                SharedSpriteBatch.Begin();
+                _header.Draw(spriteBatch);
 
-                //========= User Name Text Box =============//
-                SharedSpriteBatch.Draw(
-                    _blankTexture,
-                    _userNameTextBox.Rectangle,
-                    Color.DarkGoldenrod);
+                _buttonList.Draw(spriteBatch);
 
-                SharedSpriteBatch.DrawString(
-                    _spriteFont,
-                    _userNameTextBox.Text,
-                    _userNameTextBox.Position,
+                _sensorStatus.Draw(spriteBatch);
+
+                spriteBatch.Draw(
+                    _logInTexture,
+                    _logInPosition,
                     Color.White
                 );
 
-                //========= Password Text Box =============//
-                SharedSpriteBatch.Draw(
-                    _blankTexture,
-                    _passwordTextBox.Rectangle,
-                    Color.DarkGoldenrod);
-
-                SharedSpriteBatch.DrawString(
-                    _spriteFont,
-                    _passwordTextBox.Text,
-                    _passwordTextBox.Position,
-                    Color.White
-                );
-
-                //============== Log In Button ===============//
-                foreach (var button in _buttonList)
-                {
-                    SharedSpriteBatch.Draw(
-                        _blankTexture,
-                        button.Rectangle,
-                        !button.Hovered ? Color.DarkGray : Color.Gray
-                        );
-
-                    SharedSpriteBatch.DrawString(
-                        _spriteFont,
-                        button.Text,
-                        button.Position,
-                        Color.Black
-                    );
-                }
-
-                //========= User Name Label =============//
-                SharedSpriteBatch.Draw(
-                        _blankTexture,
-                        _userName.Rectangle,
-                        Color.DarkBlue
-                    );
-
-                SharedSpriteBatch.DrawString(
-                    _spriteFont,
-                    _userName.Text,
-                    _userName.Position,
-                    Color.White
-                );
-
-                //========= Password Label =============//
-                SharedSpriteBatch.Draw(
-                        _blankTexture,
-                        _passWord.Rectangle,
-                        Color.DarkBlue
-                    );
-
-                SharedSpriteBatch.DrawString(
-                    _spriteFont,
-                    _passWord.Text,
-                    _passWord.Position,
-                    Color.White
-                );
-
-                SharedSpriteBatch.Draw(
-                        _blankTexture,
-                        _label.Rectangle,
-                        Color.DarkBlue
-                    );
-
-                SharedSpriteBatch.DrawString(
-                    _spriteFont,
-                    _label.Text,
-                    _fontPosition, 
-                    Color.White
-                );
-                SharedSpriteBatch.End();
+                spriteBatch.End();
             }
             base.Draw(gameTime);
         }

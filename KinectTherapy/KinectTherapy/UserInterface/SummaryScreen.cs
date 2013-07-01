@@ -1,18 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Samples.Kinect.XnaBasics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using Microsoft.Kinect;
-using Microsoft.Samples.Kinect.XnaBasics;
-using System.Diagnostics;
 using SWENG.Service;
-using Kinect.Toolbox.Record;
 
 namespace SWENG.UserInterface
 {
@@ -25,11 +18,13 @@ namespace SWENG.UserInterface
         private Texture2D _blankTexture;
         private SpriteFont _spriteFont;
         private Rectangle _viewableArea;
-        private bool _isInitialized = false;
-        private const int _MARGIN = 10;
-        private MouseState _oldMouseState;
+        private bool _isInitialized;
         private string _fileId;
         private const float _ANIMATION_RATE = 0.25f;
+        private const float MARGIN = 10f;
+        private readonly GuiHeader _header;
+        private readonly GuiSensorStatus _sensorStatus;
+        private bool _isReplaying;
         #endregion
 
         #region ColorStreamRenderer Variables
@@ -63,9 +58,10 @@ namespace SWENG.UserInterface
         #endregion
 
         #region Button Variables
-        private GuiButton[] _buttonList;
+        private GuiButtonCollection _buttonListSelect;
+        private GuiButtonCollection _buttonListReplay;
         private Vector2 _startingPosition;
-        private Vector2 _endingPosition;
+        private MouseState _oldMouseState;
         #endregion
 
         /// <summary>
@@ -80,22 +76,73 @@ namespace SWENG.UserInterface
             ScreenState = startingState;
             _viewableArea = viewableArea;
             _colorStream = new ColorStreamRenderer(game);
+
             Title = "Summary";
 
             _replayTiles = new ReplayTile[0];
-            _buttonList = new GuiButton[0];
 
             _colorStreamPosition = new Vector2(
-                    (float)(viewableArea.X),
-                    (float)(viewableArea.Y)
+                    (float)(_viewableArea.X),
+                    (float)(_viewableArea.Y)
                 );
 
             _colorStreamMaxSize = new Vector2(
-                    (float)(0.7 * viewableArea.Width),
-                    (float)(0.7 * viewableArea.Height)
+                    (float)(0.7 * _viewableArea.Width),
+                    (float)(0.7 * _viewableArea.Height)
                 );
 
             _colorStreamSize = Vector2.Zero;
+
+            Vector2 buttonSize = new Vector2(240f, 60f);
+            Vector2 buttonBottom = new Vector2(
+                _viewableArea.Right - buttonSize.X + MARGIN,
+                _viewableArea.Bottom - buttonSize.Y);
+
+            #region Laying out positions
+            _buttonListSelect = new GuiButtonCollection();
+            _buttonListSelect.Collection.Add(
+                new GuiButton("Finished", buttonSize,
+                    buttonBottom
+                    - new Vector2(0f, MARGIN)
+                    - new Vector2(0f, buttonSize.Y)
+                ));
+            _buttonListSelect.Collection.Add(new GuiButton("Exit Program", buttonSize, buttonBottom));
+
+            _buttonListReplay = new GuiButtonCollection();
+            _buttonListReplay.Collection.Add(new GuiButton("Replay", buttonSize,
+                    buttonBottom
+                    - (new Vector2(0f, 3 * MARGIN))
+                    - (new Vector2(0f, 3 * buttonSize.Y))
+                ));
+            _buttonListReplay.Collection.Add(new GuiButton("Change", buttonSize,
+                    buttonBottom
+                    - new Vector2(0f, 2 * MARGIN)
+                    - new Vector2(0f, 2 * buttonSize.Y)
+                ));
+            _buttonListReplay.Collection.Add(new GuiButton("Finished", buttonSize,
+                    buttonBottom
+                    - new Vector2(0f, MARGIN)
+                    - new Vector2(0f, buttonSize.Y)
+                ));
+            _buttonListReplay.Collection.Add(new GuiButton("Exit Program", buttonSize, buttonBottom));
+
+            _sensorStatus = new GuiSensorStatus("Sensor Status",
+                new Vector2(99f, 32f),
+                new Vector2(
+                (_viewableArea.Right / 2) - (99f / 2),
+                _viewableArea.Bottom - 32f
+            ));
+
+            _header = new GuiHeader("Kinect Therapy: Home Screen",
+                new Vector2(326f, 52f),
+                new Vector2(
+                _viewableArea.Left,
+                _viewableArea.Top - MARGIN - 52f
+            ));
+            #endregion
+
+            _isInitialized = false;
+            _isReplaying = false;
         }
 
         /// <summary>
@@ -108,6 +155,14 @@ namespace SWENG.UserInterface
             _colorStream.Size = Vector2.Zero;
             _colorStream.Initialize();
 
+            _startingPosition = new Vector2(
+                _colorStreamPosition.X,
+                _colorStreamPosition.Y
+            );
+
+            _buttonListSelect.ClickEventForAll(GuiButtonWasClicked);
+            _buttonListReplay.ClickEventForAll(GuiButtonWasClicked);
+
             foreach (ReplayTile replayTile in _replayTiles)
             {
                 replayTile.Initialize();
@@ -116,6 +171,24 @@ namespace SWENG.UserInterface
             _isInitialized = true;
 
             base.Initialize();
+        }
+
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "Exit Program":
+                case "Finished":
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                case "Replay":
+                    _recordingManager.RestartReplay();
+                    break;
+                case "Change":
+                    closeReplay();
+                    break;
+            }
+
         }
 
         /// <summary>
@@ -132,6 +205,18 @@ namespace SWENG.UserInterface
             _spriteFont = contentManager.Load<SpriteFont>("Arial16");
             _blankTexture = contentManager.Load<Texture2D>("blank");
 
+            _buttonListSelect.Collection[0].Texture2D = contentManager.Load<Texture2D>(@"UI\Finished");
+            _buttonListSelect.Collection[1].Texture2D = contentManager.Load<Texture2D>(@"UI\ExitProgram");
+
+            _buttonListReplay.Collection[0].Texture2D = contentManager.Load<Texture2D>(@"UI\Replay");
+            _buttonListReplay.Collection[1].Texture2D = contentManager.Load<Texture2D>(@"UI\Change");
+            _buttonListReplay.Collection[2].Texture2D = contentManager.Load<Texture2D>(@"UI\Finished");
+            _buttonListReplay.Collection[3].Texture2D = contentManager.Load<Texture2D>(@"UI\ExitProgram");
+
+            _sensorStatus.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectSensorGood");
+
+            _header.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectTherapy");
+
             base.LoadContent();
         }
 
@@ -141,69 +226,41 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            if (_isInitialized)
+            if (_isInitialized
+                && (ScreenState & UserInterface.ScreenState.NonInteractive) == 0)
             {
-                MouseState mouseState = Mouse.GetState();
-                Rectangle mouseBoundingBox = new Rectangle(mouseState.X, mouseState.Y, 1, 1);
+                MouseState currentState = Mouse.GetState();
+                Rectangle mouseBoundingBox = new Rectangle(currentState.X, currentState.Y, 1, 1);
 
-                foreach (GuiButton button in _buttonList)
+                if (_isReplaying)
                 {
-                    if (mouseBoundingBox.Intersects(button.Rectangle))
+                    _buttonListReplay.Update(currentState, _oldMouseState);
+                }
+                else
+                {
+                    _buttonListSelect.Update(currentState, _oldMouseState);
+                    foreach (ReplayTile replayTile in _replayTiles)
                     {
-                        button.Hovered = true;
-
-                        if (mouseState.LeftButton == ButtonState.Pressed 
-                            && mouseState.LeftButton != _oldMouseState.LeftButton)
+                        if (mouseBoundingBox.Intersects(replayTile.Rectangle))
                         {
-                            switch (button.Text)
+                            replayTile.Hovered = true;
+                            if (currentState.LeftButton == ButtonState.Pressed
+                                && _oldMouseState.LeftButton == ButtonState.Released)
                             {
-                                case "The Hub":
-                                    Transition();
-                                    Manager.CallOpen("The Hub");
-                                    break;
-                                case "Replay":
-                                    _recordingManager.RestartReplay();
-                                    break;
-                                case "Stop":
-                                    closeReplay();
-                                    break;
+                                openReplay(replayTile.FileId);
                             }
                         }
-                    }
-                    else
-                    {
-                        button.Hovered = false;
-                    }
-                }
-
-                foreach (ReplayTile replayTile in _replayTiles)
-                {
-                    if (mouseBoundingBox.Intersects(replayTile.Rectangle))
-                    {
-                        replayTile.Hovered = true;
-                        if (mouseState.LeftButton == ButtonState.Pressed
-                            && mouseState.LeftButton != _oldMouseState.LeftButton)
+                        else
                         {
-                            openReplay(replayTile.FileId);
+                            replayTile.Hovered = false;
                         }
-                    }
-                    else
-                    {
-                        replayTile.Hovered = false;
-                    }
 
-                    replayTile.Position = Vector2.SmoothStep(
-                            replayTile.Position,
-                            replayTile.ToPosition,
-                            _ANIMATION_RATE
-                        );
-
-                    replayTile.Update(gameTime);
+                        replayTile.Update(gameTime);
+                    }
                 }
 
-                _oldMouseState = mouseState;
-
-                if (Math.Ceiling(_colorStream.Size.X) == _colorStreamSize.X && !string.IsNullOrEmpty(_fileId))
+                if (Math.Ceiling(_colorStream.Size.X) == Math.Ceiling(_colorStreamSize.X) 
+                    && !string.IsNullOrEmpty(_fileId))
                 {
                     _recordingManager.StartReplaying(_fileId);
                     _fileId = string.Empty;
@@ -216,6 +273,8 @@ namespace SWENG.UserInterface
                 );
                 
                 _colorStream.Update(gameTime);
+
+                _oldMouseState = currentState;
             }
             
             base.Update(gameTime);
@@ -234,44 +293,7 @@ namespace SWENG.UserInterface
             else
             {
                 _colorStreamSize = _colorStreamMaxSize;
-
-                // adjust replay tile positions (and size possibly)
-                foreach (ReplayTile replayTile in _replayTiles)
-                {
-                    replayTile.ToPosition = new Vector2(
-                        _endingPosition.X,
-                        replayTile.Position.Y
-                    );
-                    /*
-                    replayTile.ToPosition = new Vector2(
-                        replayTile.Position.X + _colorStreamMaxSize.X + _MARGIN,
-                        replayTile.Position.Y
-                    );
-                    */
-                }
-
-                Vector2 buttonSize = new Vector2(100, 30f);
-                Vector2 buttonPosition = new Vector2(
-                    (
-                        (_colorStreamPosition.X + // get the far left position
-                        (_colorStreamSize.X / 2)) - // add half of the width of the stream
-                        (buttonSize.X / 2) // and then get rid of half the button width... now we are centered
-                    ),
-                    (
-                        (_colorStreamPosition.Y + _colorStreamSize.Y) + // get the bottom of the stream
-                        ((
-                            (_viewableArea.Height) - // get the entire viewable area 
-                            (_colorStreamPosition.Y + _colorStreamSize.Y) // remove what the stream has taken
-                        ) / 2) - // get the center of the remaining space
-                        (buttonSize.Y / 2) // and then get rid of half of the button height... again, centered
-                    )
-                );
-
-                _buttonList = new GuiButton[] {
-                    new GuiButton("The Hub", buttonSize, buttonPosition),
-                    new GuiButton("Replay", buttonSize, new Vector2(buttonPosition.X, buttonPosition.Y + buttonSize.Y + _MARGIN)),
-                    new GuiButton("Stop", buttonSize, new Vector2(buttonPosition.X + buttonSize.X + _MARGIN, buttonPosition.Y + buttonSize.Y + _MARGIN)),
-                };
+                _isReplaying = true;
             }
 
             _fileId = fileId;
@@ -286,22 +308,16 @@ namespace SWENG.UserInterface
             _recordingManager.StopReplaying();
             _colorStreamSize = Vector2.Zero;
 
-            // adjust replay tile positions (and size possibly)
+            _isReplaying = false;
+
+            /** adjust replay tile positions (and size possibly) */
             foreach (ReplayTile replayTile in _replayTiles)
             {
                 replayTile.ToPosition = new Vector2(
                     _startingPosition.X,
                     replayTile.Position.Y
                 );
-                /*
-                replayTile.ToPosition = new Vector2(
-                    replayTile.Position.X - (_colorStreamMaxSize.X + _MARGIN),
-                    replayTile.Position.Y
-                );
-                */
             }
-
-            _buttonList = new GuiButton[0];
         }
 
         /// <summary>
@@ -312,41 +328,33 @@ namespace SWENG.UserInterface
         {
             if (_isInitialized)
             {
-                GraphicsDevice.Clear(Color.White);
-                SharedSpriteBatch.Begin();
+                GraphicsDevice.Clear(Color.WhiteSmoke);
+                var spriteBatch = SharedSpriteBatch;
+                spriteBatch.Begin();
 
-                foreach (GuiButton button in _buttonList)
+                if (!_isReplaying)
                 {
-                    if (!button.Hovered)
-                    {
-                        SharedSpriteBatch.Draw(
-                            _blankTexture,
-                            button.Rectangle,
-                            Color.Magenta
-                        );
-                    }
-                    else
-                    {
-                        SharedSpriteBatch.Draw(
-                            _blankTexture,
-                            button.Rectangle,
-                            Color.DarkMagenta
-                        );
-                    }
-
-                    SharedSpriteBatch.DrawString(
-                        _spriteFont,
-                        button.Text,
-                        button.Position,
-                        Color.White
-                    );
+                    _buttonListSelect.Draw(spriteBatch);
+                }
+                else
+                {
+                    _buttonListReplay.Draw(spriteBatch);
                 }
 
-                SharedSpriteBatch.End();
+                _header.Draw(spriteBatch);
+
+                _sensorStatus.Draw(spriteBatch);
+
+                spriteBatch.End();
+
                 _colorStream.Draw(gameTime);
-                foreach (ReplayTile replayTile in _replayTiles)
+
+                if (!_isReplaying)
                 {
-                    replayTile.Draw(gameTime);
+                    foreach (ReplayTile replayTile in _replayTiles)
+                    {
+                        replayTile.Draw(gameTime);
+                    }
                 }
             }
 
@@ -358,37 +366,26 @@ namespace SWENG.UserInterface
         /// should be triggered to open when an event occurs
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="args"></param>
+        /// <param name="args">Generic event arguments</param>
         public void QueueIsDone(object sender, EventArgs args)
         {
-            _startingPosition = new Vector2(
-                (float)(_colorStreamPosition.X),
-                (float)(_colorStreamPosition.Y)
-            );
-
-            _endingPosition = new Vector2(
-                (float)(_colorStreamPosition.X + _colorStreamMaxSize.X + _MARGIN),
-                (float)(_colorStreamPosition.Y)
-            );
-
             Vector2 tileStartingPosition = new Vector2(
-                (float)_colorStreamPosition.X,
-                //(float)(_colorStreamPosition.X + _colorStreamSize.X + (_MARGIN * 2)),
-                (float)(_colorStreamPosition.Y)
+                _viewableArea.Left,
+                _viewableArea.Top
             );
 
             Vector2 tileSize = new Vector2(
-                (float)(0.25 * _viewableArea.Width),
-                (float)(0.25 * _viewableArea.Height)
+                0.25f * _viewableArea.Width,
+                0.25f * _viewableArea.Height
             );
             
             ExerciseGameComponent[] exercises = _exerciseQueue.Exercises;
             List<ReplayTile> replayTilesList = new List<ReplayTile>();
-            _replayTiles = new ReplayTile[exercises.Length];
 
+            int replayCount = 0;
             foreach (ExerciseGameComponent exercise in exercises)
             {
-                for (int i = 0; i < exercise.RepetitionToFileId.Count; i++)
+                for (int i = 0; i < exercise.RepetitionToFileId.Count; i = i + 1)
                 {
                     replayTilesList.Add(
                         new ReplayTile(
@@ -399,23 +396,42 @@ namespace SWENG.UserInterface
                         )
                     );
 
-                    replayTilesList[i].Position = tileStartingPosition;
-                    // initial position is the position we want, otherwise
-                    // it will immediately start shrinking
-                    replayTilesList[i].ToPosition = tileStartingPosition;
-                    replayTilesList[i].Size = tileSize;
-                    replayTilesList[i].Initialize();
+                    replayTilesList[replayCount].Position = new Vector2(tileStartingPosition.X, tileStartingPosition.Y);
+                    /** 
+                     * initial position is the position we want, otherwise
+                     * it will immediately start shrinking 
+                     */
+                    replayTilesList[replayCount].ToPosition = new Vector2(tileStartingPosition.X, tileStartingPosition.Y);
+                    replayTilesList[replayCount].Size = tileSize;
+                    replayTilesList[replayCount].Initialize();
 
-                    // bump the next tile down by the size of the tile and a y margin
-                    tileStartingPosition = new Vector2(
-                        tileStartingPosition.X,
-                        tileStartingPosition.Y + tileSize.Y + _MARGIN
-                    );
+                    /** bump the next tile right by the size of the tile and a x margin */
+                    if (tileStartingPosition.X + 2 * (tileSize.X + MARGIN) < _viewableArea.Right)
+                    {
+                        tileStartingPosition = new Vector2(
+                            tileStartingPosition.X + tileSize.X + MARGIN,
+                            tileStartingPosition.Y
+                        );
+                    }
+                    /**
+                     * bump the next tile down by the size of the tile and a y margin.
+                     * reset to the left side
+                     */
+                    else
+                    {
+                        tileStartingPosition = new Vector2(
+                            _viewableArea.Left,
+                            tileStartingPosition.Y + tileSize.Y + MARGIN
+                        );
+                    }
+
+                    replayCount = replayCount + 1;
                 }
             }
 
             _replayTiles = replayTilesList.ToArray();
 
+            ScreenState = UserInterface.ScreenState.Active;
             base.Transition();
         }
     }
