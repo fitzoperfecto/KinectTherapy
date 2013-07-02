@@ -220,7 +220,10 @@ namespace SWENG.UserInterface
 
                 foreach (ExerciseTile exerciseTile in _exerciseTiles)
                 {
-                    exerciseTile.Draw(gameTime);
+                    if (exerciseTile.IsCurrentTile)
+                    {
+                        exerciseTile.Draw(gameTime);
+                    }
                 }
 
                 colorStream.Draw(gameTime);
@@ -258,6 +261,7 @@ namespace SWENG.UserInterface
             ExerciseGameComponent[] exercises = ExerciseQueue.Exercises;
             _exerciseTiles = new ExerciseTile[exercises.Length];
             
+            // draw at the same height... going to "cycle" through them
             for (int i = 0; i < exercises.Length; i++)
             {
                 _exerciseTiles[i] = new ExerciseTile(Game, exercises[i], i);
@@ -266,10 +270,10 @@ namespace SWENG.UserInterface
                 _exerciseTiles[i].Initialize();
 
                 // bump the next tile down by the size of the tile and a y margin
-                tileStartingPosition = new Vector2(
-                    tileStartingPosition.X,
-                    tileStartingPosition.Y + tileSize.Y + MARGIN
-                );
+                //tileStartingPosition = new Vector2(
+                //    tileStartingPosition.X,
+                //    tileStartingPosition.Y + tileSize.Y + MARGIN
+                //);
             }
 
             base.Transition();

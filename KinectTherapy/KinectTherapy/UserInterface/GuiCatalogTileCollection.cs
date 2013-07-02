@@ -13,7 +13,7 @@ namespace SWENG.UserInterface
         protected bool _IsReadOnly = false;
         private readonly Rectangle _viewableArea;
         private const float MARGIN = 10f;
-        private const float CATALOG_WIDTH = 700f;
+        private const float CATALOG_WIDTH = 615f;
         private const float CATALOG_HEIGHT = 90f;
         private const float SCROLL_WIDTH = 20f;
         private const int VIEWABLE_TILES = 5;
@@ -88,9 +88,12 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch"></param>
         public void Draw(SpriteBatch spriteBatch)
         {
-            for (int i = _pageBeginning; i < _pageEnding; i = i + 1)
+            if (_collection.Count != 0)
             {
-                _collection[i].Draw(spriteBatch);
+                for (int i = _pageBeginning; i < _pageEnding; i = i + 1)
+                {
+                    _collection[i].Draw(spriteBatch);
+                }
             }
 
             _scrollable.Draw(spriteBatch);
@@ -116,9 +119,6 @@ namespace SWENG.UserInterface
                 float scrollPercent = _scrollable.GetScrollTop();
 
                 float paginationSegment = 100.0f / (_pages);
-                Debug.WriteLine(
-                    string.Format("pages = {0}", _pages)
-                );
 
                 /** 100% scrolled would always give you a page 1 if this wasn't implemented */
                 if (scrollPercent != 100.0f)
@@ -194,6 +194,8 @@ namespace SWENG.UserInterface
             /** Zero based paging system */
             _pages = (int)Math.Ceiling((1.0 * count) / VIEWABLE_TILES);
             _scrollable.Count = _pages;
+            _pageBeginning = 0;
+            _pageEnding = count < VIEWABLE_TILES ? count : VIEWABLE_TILES - 1;
         }
     }
 }

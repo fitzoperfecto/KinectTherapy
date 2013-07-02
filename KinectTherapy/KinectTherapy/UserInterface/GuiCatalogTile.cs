@@ -55,7 +55,7 @@ namespace SWENG.UserInterface
         #endregion
 
         #region Catalog data
-        private string _itemId;
+        public string ItemID { get; private set; }
         private string _description;
 
         private CatalogManager _catalogManager
@@ -94,7 +94,7 @@ namespace SWENG.UserInterface
         public GuiCatalogTile(Game game, string itemId, string title, string description, Vector2 size, Vector2 position)
             : base(title, size, position) 
         {
-            _itemId = itemId;
+            ItemID = itemId;
             _description = description;
             _game = game;
 
@@ -154,7 +154,7 @@ namespace SWENG.UserInterface
                 case "Edit Settings":
                     /** Add to the queue if it is not already */
                     changeTileQueueStatus(true);
-                    OnEditSettings(new EditCatalogSettingsArgs(_itemId));
+                    OnEditSettings(new EditCatalogSettingsArgs(ItemID));
                     break;
             }
         }
@@ -175,12 +175,18 @@ namespace SWENG.UserInterface
 
             if (isEnqueued)
             {
-                _catalogManager.AddExerciseToSelected(_itemId);
+                _catalogManager.AddExerciseToSelected(ItemID);
             }
             else
             {
-                _catalogManager.RemoveExerciseFromSelected(_itemId);
+                _catalogManager.RemoveExerciseFromSelected(ItemID);
             }
+        }
+
+        public void SilentSetChecked()
+        {
+            Hovered = true;
+            _buttonList.Collection[0].Hovered = true;
         }
 
         /// <summary>

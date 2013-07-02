@@ -153,7 +153,7 @@ namespace SWENG.Service
         private string CatalogDirectory = System.AppDomain.CurrentDomain.BaseDirectory + "../../../../KinectTherapyContent/Exercises/";
         private const string XmlHeader = @"<?xml version=""1.0"" encoding=""utf-8"" ?>";
 
-        private string _exerciseGroup { get; set; }
+        public string[] Categories { get; internal set; }
 
         /// <summary>   
         /// The master list of exercises
@@ -183,13 +183,19 @@ namespace SWENG.Service
         public void CatalogXmlLinqData()
         {
             var catalogList =
+                from c in XDocument.Load(CatalogDirectory + @"MasterCatalog.xml").Descendants("Group")
+                select c.Attribute("Name").Value;
+
+            Categories = catalogList.ToArray();
+
+            var exerciseList =
                 from c in XDocument.Load(CatalogDirectory + @"MasterCatalog.xml").Descendants("Exercise")
                 select new
                 {
                     xmlFile = c.Attribute("Id").Value
                 };
 
-            var xmlFileList = catalogList.ToList();
+            var xmlFileList = exerciseList.ToList();
             var xmlFileName = new List<string>(xmlFileList.Count);
             xmlFileName.AddRange(from t in xmlFileList where !t.xmlFile.Equals("MasterCatalog") select t.xmlFile);
 
@@ -241,7 +247,8 @@ namespace SWENG.Service
             _workoutList.Add(
                 new Exercise()
                 {
-                    Id = exerciseId
+                    Id = exerciseId,
+                    Repetitions = 10
                 }
             );
         }
@@ -306,6 +313,11 @@ namespace SWENG.Service
             Exercise[] exerciseList = _workoutList.ToArray();
             CatalogCompleteEventArg eventArgs = new CatalogCompleteEventArg(exerciseList);
             return eventArgs;
+        }
+
+        public Exercise[] GetSelectedWorkouts()
+        {
+            return _workoutList.ToArray();
         }
 
         /// <summary>

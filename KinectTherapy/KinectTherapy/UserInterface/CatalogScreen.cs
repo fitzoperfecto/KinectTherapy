@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SWENG.Service;
+using System;
+using SWENG.Criteria;
 
 namespace SWENG.UserInterface
 {
@@ -31,6 +33,7 @@ namespace SWENG.UserInterface
 
         /** Needed to send to the GuiCatalogTiles */
         private Game _game;
+        private string _selectedCategory;
 
         /// <summary>
         /// 
@@ -52,11 +55,18 @@ namespace SWENG.UserInterface
             Vector2 buttonBottom = new Vector2(
                 _viewableArea.Right - buttonSize.X + MARGIN,
                 _viewableArea.Bottom - buttonSize.Y);
+
+            Vector2 tabSize = new Vector2(120f, 60f);
+            Vector2 tabPosition = new Vector2(
+                _viewableArea.Left,
+                _viewableArea.Top + tabSize.Y
+            );
+
             Rectangle catalogArea = new Rectangle(
-                    _viewableArea.Left - (int)MARGIN,
-                    _viewableArea.Top + 100,
-                    _viewableArea.Width - (int)buttonSize.X - (int)MARGIN,
-                    _viewableArea.Height + 100
+                    _viewableArea.Left + (int)MARGIN + (int)tabSize.X,
+                    _viewableArea.Top + (int)tabSize.Y,
+                    _viewableArea.Width - (int)buttonSize.X - (int)MARGIN - (int)tabSize.X - (int)MARGIN,
+                    _viewableArea.Height - (int)tabSize.Y
                 );
 
             #region Laying out the positions
@@ -74,6 +84,19 @@ namespace SWENG.UserInterface
                     - new Vector2(0f, buttonSize.Y)
                 ));
             _buttonList.Collection.Add(new GuiButton("Exit Program", buttonSize, buttonBottom));
+
+            foreach (string tabCat in _catalogManager.Categories)
+            {
+                _buttonList.Collection.Add(
+                    new GuiButton(
+                        tabCat,
+                        tabSize,
+                        tabPosition
+                    )
+                );
+
+                tabPosition.Y = tabPosition.Y + tabSize.Y;
+            }
 
             _sensorStatus = new GuiSensorStatus("Sensor Status",
                 new Vector2(99f, 32f),
@@ -132,7 +155,22 @@ namespace SWENG.UserInterface
                 case "Exit Program":
                     OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
                     break;
+                default:
+                    changeCategory(e.ClickedOn);
+                    break;
             }
+        }
+
+        private void changeCategory(string category)
+        {
+            foreach (GuiButton button in _buttonList.Collection)
+            {
+                if (button.Text != category)
+                {
+                    button.Hovered = false;
+                }
+            }
+            SwitchCategories(category);
         }
 
         /// <summary>
@@ -160,6 +198,19 @@ namespace SWENG.UserInterface
             _buttonList.Collection[1].Texture2D = contentManager.Load<Texture2D>(@"UI\SensorSetup");
             _buttonList.Collection[2].Texture2D = contentManager.Load<Texture2D>(@"UI\ExitProgram");
 
+            for (int i = 3; i < _buttonList.Collection.Count; i = i + 1)
+            {
+                string buttonName = _buttonList.Collection[i].Text.Replace(" ", "");
+                try
+                {
+                    _buttonList.Collection[i].Texture2D = contentManager.Load<Texture2D>(@"UI\" + buttonName);
+                }
+                catch (Exception e)
+                {
+                    _buttonList.Collection[i].Texture2D = contentManager.Load<Texture2D>("blank");
+                }
+            }
+
             _sensorStatus.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectSensorGood");
 
             _header.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectTherapy");
@@ -183,12 +234,31 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            string[] a = new string[] { "Start", "Sensor Setup", "Exit Program" };
             if (_isInitialized
                 && (ScreenState & UserInterface.ScreenState.NonInteractive) == 0)
             {
                 MouseState currentState = Mouse.GetState();
-                _buttonList.Update(currentState, _oldMouseState);
                 _catalogList.Update(currentState, _oldMouseState);
+
+                Rectangle mouseBoundingBox = new Rectangle(currentState.X, currentState.Y, 1, 1);
+                foreach (GuiButton button in _buttonList.Collection)
+                {
+                    if (button.Text != _selectedCategory)
+                    {
+                        button.Hovered = false;
+                    }
+
+                    if (mouseBoundingBox.Intersects(button.Rectangle))
+                    {
+                        button.Hovered = true;
+                        if (currentState.LeftButton == ButtonState.Released
+                            && _oldMouseState.LeftButton == ButtonState.Pressed)
+                        {
+                            button.Click();
+                        }
+                    }
+                }
 
                 _oldMouseState = currentState;
             }
@@ -226,29 +296,52 @@ namespace SWENG.UserInterface
 
         public void SwitchCategories(string category)
         {
-            foreach (GuiCatalogTile catalogTile in _catalogList.Collection)
+            if (category != _selectedCategory)
             {
-                catalogTile.ClickEditSettingsEvent -= GuiCatalogTileButtonWasClicked;
-            }
-            _catalogList.Collection.Clear();
+                foreach (GuiCatalogTile catalogTile in _catalogList.Collection)
+                {
+                    catalogTile.ClickEditSettingsEvent -= GuiCatalogTileButtonWasClicked;
+                }
+                _catalogList.Collection.Clear();
 
-            foreach (var catalogItem in _catalogManager.GetExercisesByType(category))
-            {
-                _catalogList.AddCatalogItem(_game, catalogItem.ID, catalogItem.Name, catalogItem.Description);
-            }
+                foreach (var catalogItem in _catalogManager.GetExercisesByType(category))
+                {
+                    _catalogList.AddCatalogItem(_game, catalogItem.ID, catalogItem.Name, catalogItem.Description);
+                }
 
-            _catalogList.Initialize();
-            _catalogList.LoadContent(contentManager);
+                _catalogList.Initialize();
+                _catalogList.LoadContent(contentManager);
 
-            foreach (GuiCatalogTile catalogTile in _catalogList.Collection)
-            {
-                catalogTile.ClickEditSettingsEvent += GuiCatalogTileButtonWasClicked;
+                Exercise[] selected = _catalogManager.GetSelectedWorkouts();
+
+                foreach (GuiCatalogTile catalogTile in _catalogList.Collection)
+                {
+                    catalogTile.ClickEditSettingsEvent += GuiCatalogTileButtonWasClicked;
+                    foreach (Exercise exercise in selected)
+                    {
+                        if (exercise.Id == catalogTile.ItemID)
+                        {
+                            catalogTile.SilentSetChecked();
+                        }
+                    }
+                }
+
+                _selectedCategory = category;
             }
         }
 
         public override void OpenScreen()
         {
-            SwitchCategories("Arms");
+            string defaultCategory = "Arms";
+            SwitchCategories(defaultCategory);
+
+            foreach (GuiButton button in _buttonList.Collection)
+            {
+                if (button.Text == defaultCategory)
+                {
+                    button.Hovered = true;
+                }
+            }
 
             base.OpenScreen();
         }

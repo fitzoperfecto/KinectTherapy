@@ -108,6 +108,7 @@ namespace SWENG.Service
                 // deserialize the xml and create an Exercise
                 Exercise temp = (Exercise)serializer.Deserialize(reader);
                 temp.Repetitions = e.Exercises[i].Repetitions;
+
                 Exercises[i] = new ExerciseGameComponent(_game, temp);
                 reader.Close();
 

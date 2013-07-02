@@ -160,7 +160,14 @@ namespace SWENG.Criteria
             vector0.Normalize();
             vector1.Normalize();
             float dotAngle = (float)Math.Acos(Vector3.Dot(vector0, vector1));
-            int convertedDotAngle = Convert.ToInt32(dotAngle * (180.0 / Math.PI));
+            int convertedDotAngle;
+
+            // got into a NaN situation when leaving the screen
+            if (!float.IsNaN(dotAngle))
+                convertedDotAngle = Convert.ToInt32(dotAngle * (180.0 / Math.PI));
+            else
+                convertedDotAngle = 0;
+
             return convertedDotAngle;
         }
     }

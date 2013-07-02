@@ -107,6 +107,14 @@ namespace SWENG.UserInterface
         public int ExerciseIndex { get; internal set; }
         public string CheckpointId { get; internal set; }
 
+        public bool IsCurrentTile
+        {
+            get
+            {
+                return (SharedExerciseQueue.CurrentExercise == SharedExerciseQueue.Exercises[ExerciseIndex]);
+            }
+        }
+
         private string repetitionSentence;
 
         public ExerciseTile(Game game, string title)
