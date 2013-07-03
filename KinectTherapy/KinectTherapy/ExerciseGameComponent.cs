@@ -62,7 +62,7 @@ namespace SWENG
         
         public int Repetitions { get; internal set; }
         public string Name { get; internal set; }
-        public CriteriaRepetition repetition;
+        public Repetition repetition;
 
         public List<string> RepetitionToFileId { get; internal set; }
         public List<string> ExerciseToCatalogId { get; internal set; }
@@ -75,7 +75,7 @@ namespace SWENG
             this.Repetitions = 0;
             this.Exercise = exercise;
             this.Name = exercise.Name;
-            this.repetition = new CriteriaRepetition(exercise);
+            this.repetition = new Repetition(exercise);
             RepetitionToFileId = new List<string>();
         }
 

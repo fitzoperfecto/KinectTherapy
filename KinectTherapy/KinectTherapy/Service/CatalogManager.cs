@@ -352,5 +352,11 @@ namespace SWENG.Service
 
             return r;
         }
+
+        public void ClearWorkout()
+        {
+            _status = CatalogManagerStatus.Start;
+            _workoutList.Clear();
+        }
     }
 }

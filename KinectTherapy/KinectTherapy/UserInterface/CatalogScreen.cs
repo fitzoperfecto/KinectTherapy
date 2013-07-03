@@ -332,7 +332,11 @@ namespace SWENG.UserInterface
 
         public override void OpenScreen()
         {
+            _catalogManager.ClearWorkout();
+
             string defaultCategory = "Arms";
+            // don't let max comment this
+            _selectedCategory = "";
             SwitchCategories(defaultCategory);
 
             foreach (GuiButton button in _buttonList.Collection)

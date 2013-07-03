@@ -87,6 +87,7 @@ namespace KinectTherapy
             graphics.PreferredBackBufferHeight = (WIDTH / 4) * 3;
             graphics.PreparingDeviceSettings += this.GraphicsDevicePreparingDeviceSettings;
             graphics.SynchronizeWithVerticalRetrace = true;
+            graphics.IsFullScreen = false;
             // this will give the viewport a border
             viewPortRectangle = new Rectangle(10, 80, WIDTH - 20, ((WIDTH / 4) * 3) - 90);
 

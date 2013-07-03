@@ -30,7 +30,7 @@ namespace SWENG.UserInterface
         private string _repetitions;
         private Vector2 _repLocation;
 
-        private string _deviation;
+        private string _variance;
         private Vector2 _devLocation;
 
         private KeyboardState _oldKeyState;
@@ -170,11 +170,19 @@ namespace SWENG.UserInterface
         private void saveChanges()
         {
             CatalogManager catalogManager = _catalogManager;
-
+            int temp = 0;
+            float tempFloat = 0;
             _exercise = new Exercise();
             _exercise.Id = _itemId;
-            _exercise.Repetitions = int.Parse(_repetitions);
+            if (int.TryParse(_repetitions, out temp))
+            {
+                _exercise.Repetitions = temp;
+            }
 
+            if (float.TryParse(_variance, out tempFloat))
+            {
+                _exercise.Variance = tempFloat;
+            }
             catalogManager.SetExerciseOptions(_exercise);
         }
 
@@ -306,24 +314,24 @@ namespace SWENG.UserInterface
             {
                 if (_oldKeyState.IsKeyDown(Keys.Back)
                     && keyState.IsKeyUp(Keys.Back)
-                    && _deviation.Length > 0)
+                    && _variance.Length > 0)
                 {
-                    _deviation = _deviation.Remove(_deviation.Length - 1, 1);
+                    _variance = _variance.Remove(_variance.Length - 1, 1);
                 }
 
-                _deviation += CheckKeys(keyState);
+                _variance += CheckKeys(keyState);
 
-                if (int.TryParse(_deviation, out temp))
+                if (int.TryParse(_variance, out temp))
                 {
-                    _deviation = temp.ToString();
+                    _variance = temp.ToString();
                 }
 
                 if (_oldKeyState.IsKeyDown(Keys.Enter)
                     && keyState.IsKeyUp(Keys.Enter))
                 {
-                    if (string.IsNullOrEmpty(_deviation))
+                    if (string.IsNullOrEmpty(_variance))
                     {
-                        _deviation = "10";
+                        _variance = "10";
                     }
 
                     foreach (GuiButton button in _buttonList.Collection)
@@ -393,7 +401,7 @@ namespace SWENG.UserInterface
 
                 spriteBatch.DrawString(
                     _spriteFont,
-                    _deviation,
+                    _variance,
                     _devLocation,
                     Color.Black
                 );
@@ -411,7 +419,7 @@ namespace SWENG.UserInterface
 
             _itemId = _exercise.Id;
             _repetitions = _exercise.Repetitions.ToString();
-            _deviation = "10";
+            _variance = "10";
         }
     }
 }

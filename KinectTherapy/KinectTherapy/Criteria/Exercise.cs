@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Kinect;
 using System.Collections;
 using System.Xml.Serialization;
+using System.Diagnostics;
 
 namespace SWENG.Criteria
 {
@@ -39,6 +40,8 @@ namespace SWENG.Criteria
         public string Description { get; set; }
         [XmlAttribute("Category")]
         public string Category { get; set; }
+        [XmlAttribute("Variance")]
+        public float Variance { get; set; }
 
         /// <summary>
         /// Empty Constructor Needed for XmlSerializer
@@ -58,13 +61,14 @@ namespace SWENG.Criteria
         public double[] checkForm(SkeletonStamp skeletonStamp)
         {
             double[] jointAccuracy = new double[20];
-            // loop through each joint and determine if it is bad or 
+            /** loop through each joint and determine if it is bad or */ 
             foreach (Criterion criterion in TrackingCriteria)
             {
                 double percentBad = 0.0;
                 if (!criterion.matchesCriterion(skeletonStamp))
                 {
                     percentBad = 1.0;
+                    Debug.WriteLine(DateTime.Now.ToFileTime());
                 }
                 // store into an array indexed by joint id. 
                 //jointAccuracy[(int)trackedJoint.Key] = percentBad;

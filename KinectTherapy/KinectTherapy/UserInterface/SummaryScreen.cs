@@ -179,6 +179,7 @@ namespace SWENG.UserInterface
             {
                 case "Exit Program":
                 case "Finished":
+                    ScreenState = UserInterface.ScreenState.Hidden;
                     OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
                     break;
                 case "Replay":

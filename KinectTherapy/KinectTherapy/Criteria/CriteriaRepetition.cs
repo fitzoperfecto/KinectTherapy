@@ -24,7 +24,7 @@ namespace SWENG.Criteria
             FileId = fileId;
         }
     }
-    public class CriteriaRepetition:IRepetition
+    public class Repetition:IRepetition
     {
 
         #region event stuff
@@ -63,7 +63,7 @@ namespace SWENG.Criteria
         }
 
         //***********************************
-        public CriteriaRepetition(Exercise criteria)
+        public Repetition(Exercise criteria)
         {
             this.Exercise = criteria;
             this.Checkpoint = 0;
