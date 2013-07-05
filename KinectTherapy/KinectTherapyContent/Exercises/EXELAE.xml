@@ -40,7 +40,7 @@
       <Checkpoints>
         <Checkpoint>
           <Criteria>
-            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="180">
+            <Criterion xsi:type="AngleCriterion" Variance="10" Angle="170">
               <Vertex>
                 <Name>ElbowLeft</Name>
               </Vertex>
