@@ -36,7 +36,14 @@ namespace SWENG.Criteria
             // Normalize vectors so we can use Dot product correctly
             vector0.Normalize();
             vector1.Normalize();
-            return Vector3.Dot(vector0, vector1);
+            float dot = Vector3.Dot(vector0, vector1);
+
+            // must be the same point so return 0
+            if (float.IsNaN(dot))
+            {
+                dot = 0;
+            }
+            return dot;
         }
 
         /// <summary>
@@ -74,7 +81,7 @@ namespace SWENG.Criteria
         /// <returns></returns>
         public static bool isLeftOf(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            return alignedVertically(aligningJoint,jointToBeAlignedTo) < 0;
+            return alignedVertically(aligningJoint, jointToBeAlignedTo) < 0;
         }
 
         /// <summary>

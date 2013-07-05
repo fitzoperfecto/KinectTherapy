@@ -24,7 +24,7 @@ namespace SWENG.Criteria
             FileId = fileId;
         }
     }
-    public class Repetition:IRepetition
+    public class Repetition : IRepetition
     {
 
         #region event stuff
@@ -48,7 +48,7 @@ namespace SWENG.Criteria
         {
             get
             {
-                return 
+                return
                     _checkpoint;
             }
             internal set
@@ -76,7 +76,7 @@ namespace SWENG.Criteria
         /// <returns></returns>
         public bool isRepStarted(SkeletonStamp skeletonStamp)
         {
-            bool matches = Exercise.matchesCriteria(skeletonStamp,Exercise.StartingCriteria);
+            bool matches = Exercise.matchesCriteria(skeletonStamp, Exercise.StartingCriteria);
             if (matches)
             {
                 startTime = DateTime.Now;
@@ -95,9 +95,8 @@ namespace SWENG.Criteria
         public bool isRepComplete(SkeletonStamp skeletonStamp)
         {
             bool matches = false;
-            // see if we completed the current checkpoint.
-            matches = Exercise.matchesCriteria(skeletonStamp,Exercise.Checkpoints[_checkpoint].Criteria);
-            // if we completed the current checkpoint increment and update the checkpoint picture.
+
+            matches = Exercise.matchesCriteria(skeletonStamp, Exercise.Checkpoints[_checkpoint].Criteria);
             if (matches)
             {
                 // increment the checkpoint
@@ -111,21 +110,12 @@ namespace SWENG.Criteria
                 }
             }
 
-            // Issue #11 fix:
-            // I don't like this but for now it will do. If the timer has gone off you have gone back to starting position consider rep complete.
-            matches = Exercise.matchesCriteria(skeletonStamp,Exercise.StartingCriteria);
-            if (matches && endTime < DateTime.Now)
-            {
-                // short circuit (Man Johnny Five is Alive)
-                Checkpoint = 0;
-                return true;
-            }
             return false;
         }
 
         public double[] checkForm(SkeletonStamp skeletonStamp)
         {
-            return Exercise.checkForm(skeletonStamp);
+            return Exercise.CheckForm(skeletonStamp);
         }
     }
 }

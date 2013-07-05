@@ -20,6 +20,11 @@ namespace SWENG.Criteria
         {
             throw new NotSupportedException();
         }
+
+        public override double[] CheckForm(SkeletonStamp skeletonStamp)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 

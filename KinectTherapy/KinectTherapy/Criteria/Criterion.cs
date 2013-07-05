@@ -45,5 +45,7 @@ namespace SWENG.Criteria
         }
 
         public abstract bool matchesCriterion(SkeletonStamp skeletonStamp);
+
+        public abstract double[] CheckForm(SkeletonStamp skeletonStamp);
     }
 }
