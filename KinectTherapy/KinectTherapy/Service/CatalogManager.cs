@@ -248,7 +248,8 @@ namespace SWENG.Service
                 new Exercise()
                 {
                     Id = exerciseId,
-                    Repetitions = 10
+                    Repetitions = 10,
+                    Variance = 10
                 }
             );
         }
