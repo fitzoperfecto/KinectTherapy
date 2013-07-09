@@ -4,327 +4,166 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SWENG.Criteria;
 using SWENG.Service;
+using Microsoft.Xna.Framework.Input;
 
 // TODO: refactor similar functionality within ReplayTile to a "tile" drawablegamecomponent
 namespace SWENG.UserInterface
 {
-    /// <summary>
-    /// This is a game component that implements IUpdateable.
-    /// </summary>
-    public class ExerciseTile : DrawableGameComponent
+    public class ExerciseTile : GuiDrawable
     {
-        /// <summary>
-        /// Gets the SpriteBatch from the services.
-        /// </summary>
-        private SpriteBatch SharedSpriteBatch
-        {
-            get
-            {
-                return (SpriteBatch)this.Game.Services.GetService(typeof(SpriteBatch));
-            }
-        }
+        private ContentManager _contentManager;
 
-        /// <summary>
-        /// Gets the ExerciseQueue from the services.
-        /// </summary>
-        private ExerciseQueue SharedExerciseQueue
-        {
-            get
-            {
-                return (ExerciseQueue)Game.Services.GetService(typeof(ExerciseQueue));
-            }
-        }
+        private Texture2D _titleTexture;
+        private Rectangle _titleDestination;
+        private Rectangle _titleSource;
 
-        private Vector2 position;
-        public Vector2 Position
-        {
-            get { return position; }
-            set
-            {
-                position = value;
-                if (null != size)
-                {
-                    Rectangle = new Rectangle(
-                        (int)position.X,
-                        (int)position.Y,
-                        (int)size.X,
-                        (int)size.Y
-                    );
-                }
-            }
-        }
+        private Texture2D _checkpointTexture;
+        private Rectangle _checkpointDestination;
+        private const int HEADER = 40;
 
-        private Vector2 size;
-        public Vector2 Size
-        {
-            get { return size; }
-            set
-            {
-                size = value;
-                if (null != position)
-                {
-                    Rectangle = new Rectangle(
-                        (int)position.X,
-                        (int)position.Y,
-                        (int)size.X,
-                        (int)size.Y
-                    );
-                }
-            }
-        }
+        //private string _repetitionCount;
 
-        private Rectangle rectangle;
-        public Rectangle Rectangle
-        {
-            get { return rectangle; }
-            set
-            {
-                rectangle = value;
-                position = new Vector2(value.X, value.Y);
-                size = new Vector2(value.Width, value.Height);
-            }
-        }
-
-        public bool Hovered { get; set; }
-
-        private ContentManager contentManager;
-        private Texture2D blankTexture;
-        private SpriteFont spriteFont;
-        private float TitleSize;
-        private const int MARGIN = 3;
-        private Vector2 drawableTitle;
-        private Vector2 drawableSection;
-        private const float SCROLL_RATE = -1f;
-        private Rectangle header;
-        private Rectangle body;
-        private Rectangle border;
-
-        private Texture2D titleTexture;
-        private RenderTarget2D renderTarget2d;
-        private Texture2D checkpointTexture;
+        private const int SCROLLRATE = 5;
+        private const double MILLISECONDS = 100;
+        private const int MARGIN = 10;
+        private double _oldGameTime;
 
         public string Title { get; internal set; }
         public int ExerciseIndex { get; internal set; }
         public string CheckpointId { get; internal set; }
 
-        public bool IsCurrentTile
-        {
-            get
-            {
-                return (SharedExerciseQueue.CurrentExercise == SharedExerciseQueue.Exercises[ExerciseIndex]);
-            }
-        }
+        public bool IsCurrentTile { get; set; }
 
-        private string repetitionSentence;
-
-        public ExerciseTile(Game game, string title)
-            : base(game)
-        {
-            this.Title = title;
-        }
-
-        // TODO: With a reference to the exerciseIndex and the ExerciseQueue passing in 
-        // the ExerciseGameComponent may be redundant.  Need to check performance measures
-        public ExerciseTile(Game game, ExerciseGameComponent exercise, int exerciseIndex)
-            : base(game)
+        public ExerciseTile(Game game, ExerciseGameComponent exercise, int exerciseIndex, Vector2 size, Vector2 position)
+            : base(exercise.Name, size, position)
         {
             this.Title = exercise.Name;
-            this.ExerciseIndex = exerciseIndex;
             exercise.repetition.CheckpointChanged += HandleCheckpointChange;
+
+            _oldGameTime = double.MaxValue;
         }
 
-        /// <summary>
-        /// Allows the game component to perform any initialization it needs to before starting
-        /// to run.  This is where it can query for any required services and load content.
-        /// </summary>
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
+        public override void LoadContent(ContentManager contentManager) { }
 
-        /// <summary>
-        /// This method creates a new ContentManager 
-        /// and loads the textures and fonts.
-        /// </summary>
-        protected override void LoadContent()
+        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            if (null == this.contentManager)
+            if (null == contentManager)
             {
-                this.contentManager = new ContentManager(this.Game.Services, "Content");
+                return;
             }
 
-            this.spriteFont = contentManager.Load<SpriteFont>("Arial16");
-            this.blankTexture = contentManager.Load<Texture2D>("blank");
+            _contentManager = contentManager;
+            Texture2D = _contentManager.Load<Texture2D>(@"UI\ExerciseTile");
 
-            this.drawableTitle = spriteFont.MeasureString(Title);
-            this.TitleSize = drawableTitle.Length();
-            this.drawableSection = Vector2.Zero;
-
-            this.header = new Rectangle(
-                (int)this.Position.X, 
-                (int)this.Position.Y, 
-                (int)this.Size.X, 
-                (int)(0.2 * this.Size.Y)
+            _checkpointDestination = new Rectangle(
+                (int)Position.X + MARGIN,
+                (int)Position.Y + HEADER,
+                (int)Size.X - (2 * MARGIN),
+                (int)Size.Y - HEADER - MARGIN
             );
 
-            this.border = new Rectangle(
-                (int)this.Position.X,
-                (int)this.Position.Y + this.header.Height,
-                (int)this.Size.X,
-                (int)(0.8 * this.Size.Y)
+            _titleTexture = CreateTitleTexture(game, _contentManager, spriteBatch);
+            _titleDestination = new Rectangle(
+                (int)Position.X + MARGIN,
+                (int)Position.Y + MARGIN,
+                (int)Size.X - (2 * MARGIN),
+                HEADER
             );
 
-            this.body = new Rectangle(
-                this.border.X + MARGIN,
-                this.border.Y + MARGIN,
-                this.border.Width - (2 * MARGIN),
-                this.border.Height - (2 * MARGIN)
+            _titleSource = new Rectangle(
+                0,
+                0,
+                _titleDestination.Width,
+                _titleDestination.Height
+            );
+        }
+
+        private Texture2D CreateTitleTexture(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
+        {
+            SpriteFont spriteFont = contentManager.Load<SpriteFont>("Arial16");
+            Vector2 textMeasure = spriteFont.MeasureString(Text);
+            RenderTarget2D renderTarget2d = new RenderTarget2D(game.GraphicsDevice, (int)textMeasure.X, (int)textMeasure.Y);
+
+            game.GraphicsDevice.SetRenderTarget(renderTarget2d);
+            game.GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(
+                spriteFont,
+                Text,
+                Vector2.Zero,
+                Color.White
             );
 
-            this.renderTarget2d = new RenderTarget2D(Game.GraphicsDevice, this.header.Width, this.header.Height);
+            spriteBatch.End();
 
-            base.LoadContent();
+            game.GraphicsDevice.SetRenderTarget(null);
+
+            return (Texture2D)renderTarget2d;
         }
 
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
+        public override void Update(MouseState currentState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
         {
-            if (this.SharedExerciseQueue.CurrentExercise == this.SharedExerciseQueue.Exercises[ExerciseIndex])
-            {
-                this.repetitionSentence = string.Format(
-                    "Reps: {1}",
-                    Title,
-                    SharedExerciseQueue.Exercises[ExerciseIndex].Repetitions,
-                    ExerciseIndex, SharedExerciseQueue.Exercises[ExerciseIndex].RepetitionStarted,CheckpointId
-                );
-            }
-            else
-            {
-                this.repetitionSentence = null;
-            }
+            double currentGameTime = gameTime.TotalGameTime.TotalMilliseconds;
 
-            if (this.TitleSize > this.Size.X - (2 * MARGIN))
+            if (currentGameTime - _oldGameTime >= MILLISECONDS)
             {
-                this.drawableSection.X = this.drawableSection.X + SCROLL_RATE;
-
-                if (Math.Abs(this.drawableSection.X) > (this.Size.X + this.TitleSize - MARGIN))
+                if (_titleSource.Width >= Texture2D.Width - (2 * MARGIN))
                 {
-                    this.drawableSection.X = this.header.Width + MARGIN;
+                    _titleSource.X += SCROLLRATE;
+
+                    if (_titleSource.X > _titleTexture.Width)
+                    {
+                        _titleSource.X = 0;
+                    }
                 }
             }
 
-            this.titleTexture = CreateScrollingHeader();
-
-            base.Update(gameTime);
+            _oldGameTime = currentGameTime;
         }
 
         /// <summary>
         /// This method renders the current state of the ExerciseTile.
         /// </summary>
         /// <param name="gameTime">The elapsed game time.</param>
-        public override void Draw(GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            this.SharedSpriteBatch.Begin();
-
-            if (titleTexture != null)
+            if (_titleTexture != null)
             {
-                this.SharedSpriteBatch.Draw(
-                    this.titleTexture,
-                    this.header,
+                spriteBatch.Draw(
+                    Texture2D,
+                    Position,
                     Color.White
                 );
-            }
 
-            if (blankTexture != null)
-            {
-                this.SharedSpriteBatch.Draw(
-                    this.blankTexture,
-                    this.border,
-                    Color.DarkMagenta
-                );
-
-                this.SharedSpriteBatch.Draw(
-                this.blankTexture,
-                this.body,
-                Color.White
-                );
-            }
-
-
-
-            if (!string.IsNullOrEmpty(repetitionSentence))
-            {
-                this.SharedSpriteBatch.DrawString(
-                    this.spriteFont,
-                    this.repetitionSentence,
-                    // stupid quick way of centering this for the meeting
-                    new Vector2(
-                        this.body.X + (this.body.Width / 4),
-                        this.body.Y + (this.body.Height / 2) - 58
-                    ),
-                    Color.Blue
-                );
-            }
-
-            if (checkpointTexture != null)
-            {
-
-                this.SharedSpriteBatch.Draw(
-               this.checkpointTexture,
-               new Vector2(
-                        this.body.X + (this.body.Width / 4),
-                        this.body.Y + (this.body.Height / 2) - 36
-                    ),
+                spriteBatch.Draw(
+                    _titleTexture,
+                    _titleDestination,
+                    _titleSource,
                     Color.White
-               );
+                );
+
+                if (_checkpointTexture != null)
+                {
+                    spriteBatch.Draw(
+                        _checkpointTexture,
+                        _checkpointDestination,
+                        Color.White
+                    );
+                }
             }
-
-            this.SharedSpriteBatch.End();
-
-            base.Draw(gameTime);
-        }
-
-        /// <summary>
-        /// Create a texture with the text scrolled
-        /// </summary>
-        /// <returns>Updated texture</returns>
-        private Texture2D CreateScrollingHeader()
-        {
-            Game.GraphicsDevice.SetRenderTarget(this.renderTarget2d);
-            Game.GraphicsDevice.Clear(ClearOptions.Target, Color.DarkMagenta, 0, 0);
-            this.SharedSpriteBatch.Begin();
-
-            this.SharedSpriteBatch.Draw(
-                this.blankTexture,
-                new Rectangle(
-                    MARGIN,
-                    MARGIN,
-                    this.header.Width - (2 * MARGIN),
-                    this.header.Height - (2 * MARGIN)
-                ),
-                Color.DarkMagenta
-            );
-
-            this.SharedSpriteBatch.DrawString(
-                this.spriteFont,
-                this.Title,
-                this.drawableSection,
-                Color.White
-            );
-
-            this.SharedSpriteBatch.End();
-            Game.GraphicsDevice.SetRenderTarget(null);
-
-            return (Texture2D)renderTarget2d;
         }
 
         public void HandleCheckpointChange(object sender, CheckpointChangedEventArgs args)
         {
             // display the file. 
-            this.checkpointTexture = contentManager.Load<Texture2D>("Exercises/"+args.FileId);
+            _checkpointTexture = _contentManager.Load<Texture2D>(@"Exercises\" + args.FileId);
+            IsCurrentTile = true;
         }
     }
 }

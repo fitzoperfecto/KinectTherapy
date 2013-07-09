@@ -12,7 +12,7 @@ namespace SWENG.Service
     public enum CatalogManagerStatus
     {
         Complete,
-        Start,
+        Selecting,
         Cancel
     }
 
@@ -134,7 +134,7 @@ namespace SWENG.Service
                                 // do cancel case
                                 break;
                             }
-                        case CatalogManagerStatus.Start:
+                        case CatalogManagerStatus.Selecting:
                             {
                                 // do start case
                                 break;
@@ -162,7 +162,7 @@ namespace SWENG.Service
 
         public CatalogManager()
         {
-            _status = CatalogManagerStatus.Start;
+            _status = CatalogManagerStatus.Selecting;
             // Initialize catalog variables 
             var applicationDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             CatalogFile = applicationDirectory + "../../../../KinectTherapyContent/Exercises/MasterCatalog.xml";
@@ -234,7 +234,7 @@ namespace SWENG.Service
         /// Add an exercise to the current list if it does not exist already
         /// </summary>
         /// <param name="exerciseId"></param>
-        public void AddExerciseToSelected(string exerciseId)
+        public void AddExerciseToSelected(string exerciseId, string title)
         {
             foreach (Exercise exercise in _workoutList)
             {
@@ -249,7 +249,8 @@ namespace SWENG.Service
                 {
                     Id = exerciseId,
                     Repetitions = 10,
-                    Variance = 10
+                    Variance = 10,
+					Name = title
                 }
             );
         }
@@ -260,7 +261,8 @@ namespace SWENG.Service
             {
                 if (_workoutList[i].Id == exerciseUpdate.Id)
                 {
-                    _workoutList[i] = exerciseUpdate;
+                    _workoutList[i].Repetitions = exerciseUpdate.Repetitions;
+                    _workoutList[i].Variance = exerciseUpdate.Variance;
                 }
             }
         }
@@ -356,7 +358,7 @@ namespace SWENG.Service
 
         public void ClearWorkout()
         {
-            _status = CatalogManagerStatus.Start;
+            _status = CatalogManagerStatus.Selecting;
             _workoutList.Clear();
         }
     }

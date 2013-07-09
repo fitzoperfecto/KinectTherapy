@@ -1,97 +1,57 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Samples.Kinect.XnaBasics;
+using Microsoft.Kinect;
 
 namespace SWENG.UserInterface
 {
-    class GuiSensorStatus
+    class GuiSensorStatus : GuiDrawable
     {
-        private Vector2 _position;
-        public Vector2 Position 
-        {
-            get { return _position; } 
-            set 
-            { 
-                _position = value;
-                if (null != _size)
-                {
-                    Rectangle = new Rectangle(
-                        (int)_position.X,
-                        (int)_position.Y,
-                        (int)_size.X,
-                        (int)_size.Y
-                    );
-                }
-            } 
-        }
+        private readonly Game _game;
+        private int _oldStatus;
 
-        private Vector2 _size;
-        public Vector2 Size
+        private KinectChooser _chooser
         {
-            get { return _size; }
-            set
+            get
             {
-                _size = value;
-                if (null != _position)
-                {
-                    Rectangle = new Rectangle(
-                        (int)_position.X,
-                        (int)_position.Y,
-                        (int)_size.X,
-                        (int)_size.Y
-                    );
-                }
+                return (KinectChooser)_game.Services.GetService(typeof(KinectChooser));
             }
         }
 
-        private Rectangle _rectangle;
-        public Rectangle Rectangle
+        public GuiSensorStatus(string text, Vector2 size, Vector2 position, Game game)
+            : base(text, size, position)
         {
-            get { return _rectangle; }
-            set
+            _game = game;
+        }
+
+        public override void LoadContent(Microsoft.Xna.Framework.Content.ContentManager contentManager) { }
+
+        public override void LoadContent(Game game, Microsoft.Xna.Framework.Content.ContentManager contentManager, SpriteBatch spriteBatch) { }
+
+        public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
+        {
+            int currentStatus = 0;
+
+            switch (_chooser.Sensor.Status)
             {
-                _rectangle = value;
-                _position = new Vector2(value.X, value.Y);
-                _size = new Vector2(value.Width, value.Height);
+                case KinectStatus.Connected:
+                    currentStatus = 1;
+                    break;
+                case KinectStatus.Initializing:
+                    currentStatus = 0;
+                    break;
+                default:
+                    currentStatus = 2;
+                    break;
             }
-        }
 
-        private Rectangle _sourceRectangle;
-        public Rectangle SourceRectangle
-        {
-            get { return _sourceRectangle; }
-        }
-
-        public Texture2D Texture2D { get; set; }
-
-        public string Text { get; set; }
-
-        private bool _hovered;
-        public bool Hovered
-        {
-            get { return _hovered; }
-            set
+            if (_oldStatus != Frame)
             {
-                _hovered = value;
+                Frame = currentStatus;
             }
-        }
 
-        public GuiSensorStatus(string text, Vector2 size, Vector2 position)
-        {
-            this.Text = text;
-            this.Size = size;
-            this.Position = position;
-            _sourceRectangle = new Rectangle(0, 0, (int)size.X, (int)size.Y);
-            this.Hovered = false;
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(
-                Texture2D,
-                Rectangle,
-                SourceRectangle,
-                Color.White
-            );
+            _oldStatus = currentStatus;
         }
     }
 }

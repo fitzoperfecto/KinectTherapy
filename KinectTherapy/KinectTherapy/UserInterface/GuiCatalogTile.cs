@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -22,10 +23,6 @@ namespace SWENG.UserInterface
 
     class GuiCatalogTile : GuiDrawable
     {
-        private const float MARGIN = 10f;
-        GuiButtonCollection _buttonList;
-        public GuiButtonCollection ButtonList { get { return _buttonList; } }
-
         #region event stuff
         public event EditCatalogSettings ClickEditSettingsEvent;
 
@@ -82,6 +79,10 @@ namespace SWENG.UserInterface
         private Rectangle _innerTextSource;
         #endregion
 
+        private const float MARGIN = 10f;
+        private GuiDrawable[] _guiDrawables;
+        private int _updateButtonIndex;
+
         /// <summary>
         /// 
         /// </summary>
@@ -92,7 +93,7 @@ namespace SWENG.UserInterface
         /// <param name="size"></param>
         /// <param name="position"></param>
         public GuiCatalogTile(Game game, string itemId, string title, string description, Vector2 size, Vector2 position)
-            : base(title, size, position) 
+            : base(title, size, position)
         {
             ItemID = itemId;
             _description = description;
@@ -104,18 +105,26 @@ namespace SWENG.UserInterface
                 size.Y + position.Y - buttonSize.Y
             );
 
-            _buttonList = new GuiButtonCollection();
-            _buttonList.Collection.Add(new GuiButton(
-                    "Update Queue",
+            Dictionary<string, GuiDrawable> guiDrawableDct = new Dictionary<string, GuiDrawable>();
+            guiDrawableDct.Add(
+                "UpdateQueue",
+                new GuiCheckbox(
+                    "UpdateQueue",
                     buttonSize,
                     buttonBottom
-                ));
+                )
+            );
 
-            _buttonList.Collection.Add(new GuiButton(
-                    "Edit Settings",
+            _updateButtonIndex = guiDrawableDct.Count - 1;
+
+            guiDrawableDct.Add(
+                "EditSettings",
+                new GuiButton(
+                    "EditSettings",
                     buttonSize,
                     new Vector2(buttonBottom.X, buttonBottom.Y - buttonSize.Y)
-                ));
+                )
+            );
 
             _innerTextDestination = new Rectangle(
                 (int)(position.X + MARGIN),
@@ -129,6 +138,11 @@ namespace SWENG.UserInterface
                 _innerTextDestination.Width,
                 _innerTextDestination.Height
             );
+
+            _guiDrawables = new GuiDrawable[guiDrawableDct.Count];
+            guiDrawableDct.Values.CopyTo(_guiDrawables, 0);
+
+            Initialize();
         }
 
         /// <summary>
@@ -136,7 +150,18 @@ namespace SWENG.UserInterface
         /// </summary>
         public void Initialize()
         {
-            _buttonList.ClickEventForAll(GuiButtonWasClicked);
+            foreach (GuiDrawable guiDrawable in _guiDrawables)
+            {
+                Type t = guiDrawable.GetType();
+                if (t == typeof(GuiButton))
+                {
+                    ((GuiButton)guiDrawable).ClickEvent += GuiButtonWasClicked;
+                }
+                else if (t == typeof(GuiCheckbox))
+                {
+                    ((GuiCheckbox)guiDrawable).ClickEvent += GuiButtonWasClicked;
+                }
+            }
         }
 
         /// <summary>
@@ -148,10 +173,10 @@ namespace SWENG.UserInterface
         {
             switch (e.ClickedOn)
             {
-                case "Update Queue":
+                case "UpdateQueue":
                     changeTileQueueStatus();
                     break;
-                case "Edit Settings":
+                case "EditSettings":
                     /** Add to the queue if it is not already */
                     changeTileQueueStatus(true);
                     OnEditSettings(new EditCatalogSettingsArgs(ItemID));
@@ -171,11 +196,11 @@ namespace SWENG.UserInterface
         private void changeTileQueueStatus(bool isEnqueued)
         {
             Hovered = isEnqueued;
-            _buttonList.Collection[0].Hovered = Hovered;
+            ((GuiCheckbox)_guiDrawables[_updateButtonIndex]).Checked = Hovered;
 
             if (isEnqueued)
             {
-                _catalogManager.AddExerciseToSelected(ItemID);
+                _catalogManager.AddExerciseToSelected(ItemID, Text);
             }
             else
             {
@@ -186,18 +211,22 @@ namespace SWENG.UserInterface
         public void SilentSetChecked()
         {
             Hovered = true;
-            _buttonList.Collection[0].Hovered = true;
+            ((GuiCheckbox)_guiDrawables[_updateButtonIndex]).Checked = true;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="contentManager"></param>
-        public void LoadContent(ContentManager contentManager)
+        public override void LoadContent(ContentManager contentManager)
         {
             Texture2D = contentManager.Load<Texture2D>(@"UI\CatalogTile");
-            _buttonList.Collection[0].Texture2D = contentManager.Load<Texture2D>(@"UI\CatalogCheckbox");
-            _buttonList.Collection[1].Texture2D = contentManager.Load<Texture2D>(@"UI\CatalogEdit");
+
+            foreach (GuiDrawable guiDrawable in _guiDrawables)
+            {
+                guiDrawable.LoadContent(contentManager);
+            }
+
             _spriteFont = contentManager.Load<SpriteFont>("Arial10");
 
             _overlayTexture = CreateNewTexture();
@@ -209,11 +238,16 @@ namespace SWENG.UserInterface
 #endif
         }
 
+        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
+        {
+            LoadContent(contentManager);
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="spriteBatch">A SpriteBatch that has already "begun"</param>
-        public void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
             /** If any texture has not loaded just give up */
             if (null != _overlayTexture && null != Texture2D)
@@ -225,7 +259,10 @@ namespace SWENG.UserInterface
                     Color
                 );
 
-                _buttonList.Draw(spriteBatch);
+                foreach (GuiDrawable guiDrawable in _guiDrawables)
+                {
+                    guiDrawable.Draw(spriteBatch);
+                }
 
                 spriteBatch.Draw(
                     _overlayTexture,
@@ -236,46 +273,17 @@ namespace SWENG.UserInterface
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mouseState">Instance of the mouse state</param>
-        /// <param name="oldMouseState">Instance of the previous mouse state</param>
-        public void Update(MouseState mouseState, MouseState oldMouseState)
+        public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
         {
-            Rectangle mouseBoundingBox = new Rectangle(mouseState.X, mouseState.Y, 1, 1);
-            foreach (GuiButton button in _buttonList.Collection)
+            foreach (GuiDrawable guiDrawable in _guiDrawables)
             {
-                /** The catalog item was added to the queue */
-                if (Hovered)
-                {
-                    /** The "Update Queue" button should remain in the hovered state */
-                    if (button.Text != "Update Queue")
-                    {
-                        button.Hovered = false;
-                    }
-                }
-                /** The catalog is NOT added to the queue */
-                else
-                {
-                    button.Hovered = false;
-                }
-
-                if (mouseBoundingBox.Intersects(button.Rectangle))
-                {
-                    button.Hovered = true;
-                    if (mouseState.LeftButton == ButtonState.Released
-                        && oldMouseState.LeftButton == ButtonState.Pressed)
-                    {
-                        button.Click();
-                    }
-                }
+                guiDrawable.Update(mouseState, oldMouseState, mouseBoundingBox, gameTime);
             }
 
             if (mouseBoundingBox.Intersects(_innerTextDestination))
             {
                 /** Scroll the top of source of the texture, but keep the height */
-                _innerTextSource.Y = TextScrollTop();
+                //_innerTextSource.Y = TextScrollTop(gameTime);
             }
         }
 
@@ -283,7 +291,7 @@ namespace SWENG.UserInterface
         /// Snapshot of where the top of the text Texture2D should be.
         /// </summary>
         /// <returns>Value between 0 and Texture2D Height</returns>
-        public int TextScrollTop()
+        public int TextScrollTop(GameTime gameTime)
         {
             int r = _innerTextSource.Y;
             _frameCount = _frameCount + 1;
@@ -373,12 +381,17 @@ namespace SWENG.UserInterface
             int start = 0;
             for (int i = 0; i < r.Length; i = i + 1)
             {
+                /** This is the very beginning and will not have anything in the array yet */
                 if (string.IsNullOrEmpty(r[i]))
                 {
                     r[i] = _description.Substring(start, 1);
                     start = start + 1;
                 }
 
+                /** 
+                 * Continuously add to the current array index until the width is met or there 
+                 * aren't anymore letters in the description
+                 */
                 while (_spriteFont.MeasureString(r[i]).X < lineHeight.X && start < _description.Length)
                 {
                     r[i] = r[i] + _description.Substring(start, 1);

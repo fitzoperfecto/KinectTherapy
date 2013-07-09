@@ -94,10 +94,6 @@
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\NUnit 2.6.2\bin\framework\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
@@ -121,7 +117,6 @@
     <Compile Include="ColorStreamRenderer.cs" />
     <Compile Include="Criteria\Checkpoint.cs" />
     <Compile Include="Criteria\XmlJointType.cs" />
-    <Compile Include="Sensor\KinectSensorController.cs" />
     <Compile Include="Service\CatalogManager.cs" />
     <Compile Include="Service\ExerciseQueue.cs" />
     <Compile Include="Criteria\CriteriaRepetition.cs" />
@@ -144,27 +139,25 @@
     <Compile Include="TimerRepetition.cs" />
     <Compile Include="UserInterface\CatalogScreen.cs" />
     <Compile Include="UserInterface\CatalogTileEditScreen.cs" />
+    <Compile Include="UserInterface\GuiLabel.cs" />
+    <Compile Include="UserInterface\GuiCheckbox.cs" />
     <Compile Include="UserInterface\GuiInputBox.cs" />
     <Compile Include="UserInterface\SensorTileEditScreen.cs" />
     <Compile Include="UserInterface\LoadingScreen.cs" />
     <Compile Include="UserInterface\ExerciseScreen.cs" />
     <Compile Include="UserInterface\ExerciseTile.cs" />
     <Compile Include="UserInterface\GuiButton.cs" />
-    <Compile Include="UserInterface\GuiButtonCollection.cs" />
     <Compile Include="UserInterface\GuiCatalogTile.cs" />
-    <Compile Include="UserInterface\GuiCatalogTileCollection.cs" />
+    <Compile Include="UserInterface\GuiScrollableCollection.cs" />
     <Compile Include="UserInterface\GuiDrawable.cs" />
     <Compile Include="UserInterface\GuiHeader.cs" />
-    <Compile Include="UserInterface\GuiLabel.cs" />
     <Compile Include="UserInterface\GuiScrollable.cs" />
     <Compile Include="UserInterface\GuiSensorStatus.cs" />
-    <Compile Include="UserInterface\GuiTextBox.cs" />
     <Compile Include="UserInterface\HomeScreen.cs" />
     <Compile Include="UserInterface\LogInScreen.cs" />
     <Compile Include="UserInterface\Manager.cs" />
     <Compile Include="UserInterface\ReplayTile.cs" />
     <Compile Include="UserInterface\Screen.cs" />
-    <Compile Include="UserInterface\SensorTile.cs" />
     <Compile Include="UserInterface\SummaryScreen.cs" />
   </ItemGroup>
   <ItemGroup>

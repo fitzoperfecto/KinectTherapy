@@ -38,7 +38,7 @@ namespace SWENG
             }
         }
 
-        private Exercise Exercise;
+        private Exercise _exercise;
         public Boolean RepetitionComplete { get; internal set; }
         
         public Boolean RepetitionStarted 
@@ -61,6 +61,7 @@ namespace SWENG
         }
         
         public int Repetitions { get; internal set; }
+        public int RepetitionsToComplete { get { return _exercise.Repetitions; } }
         public string Name { get; internal set; }
         public Repetition repetition;
 
@@ -70,12 +71,12 @@ namespace SWENG
         public ExerciseGameComponent(Game game,Exercise exercise)
             : base(game)
         {
-            this.RepetitionComplete = false;
-            this.RepetitionStarted = false;
-            this.Repetitions = 0;
-            this.Exercise = exercise;
-            this.Name = exercise.Name;
-            this.repetition = new Repetition(exercise);
+            RepetitionComplete = false;
+            RepetitionStarted = false;
+            Repetitions = 0;
+            _exercise = exercise;
+            Name = exercise.Name;
+            repetition = new Repetition(exercise);
             RepetitionToFileId = new List<string>();
         }
 
@@ -97,7 +98,7 @@ namespace SWENG
                 if (!RepetitionStarted)
                 {
                     // initialize the checkpoint to the 0 based checkpoint. 
-                    repetition.Checkpoint = Exercise.Checkpoints.Length;
+                    repetition.Checkpoint = _exercise.Checkpoints.Length;
                     RepetitionStarted = repetition.isRepStarted(skeletonStamp);
                 }
                 else
@@ -133,7 +134,7 @@ namespace SWENG
 
         public bool isExerciseComplete()
         {
-            return Repetitions >= Exercise.Repetitions;
+            return Repetitions >= _exercise.Repetitions;
         }
     }
 }

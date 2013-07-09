@@ -57,7 +57,7 @@ namespace SWENG.UserInterface
         {
             switch (e.ClickedOn)
             {
-                case "Exit Program":
+                case "ExitProgram":
                     UnloadContent();
                     Game.Exit();
                     break;
@@ -73,7 +73,7 @@ namespace SWENG.UserInterface
                         CallOpen("Home");
                     }
                     break;
-                case "Log In":
+                case "LogIn":
                     if (e.ScreenName == "Home")
                     {
                         //CallOpen("Log In");
@@ -101,8 +101,8 @@ namespace SWENG.UserInterface
                         CallOpen("Exercise");
                     }
                     break;
-                case "Sensor Setup":
-                    CallOpenModal(e.ClickedOn);
+                case "SensorSetup":
+                    CallOpenModal("Sensor Setup");
                     break;
                 case "Return":
                     foreach (Screen screen in ScreenList)

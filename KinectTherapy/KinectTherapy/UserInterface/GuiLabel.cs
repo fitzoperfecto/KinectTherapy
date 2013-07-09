@@ -1,60 +1,44 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace SWENG.UserInterface
 {
-    class GuiLabel
+    public class GuiLabel : GuiDrawable
     {
-        private Vector2 _position;
-        public Vector2 Position 
-        {
-            get { return _position; } 
-            set 
-            { 
-                _position = value;
-                Rectangle = new Rectangle(
-                    (int)_position.X,
-                    (int)_position.Y,
-                    (int)_size.X,
-                    (int)_size.Y
-                    );
-            } 
-        }
+        #region event stuff
+        public event GuiButtonClicked ClickEvent;
 
-        private Vector2 _size;
-        public Vector2 Size
+        // Invoke the Changed event; called whenever repetitions changes
+        protected virtual void OnClick(GuiButtonClickedArgs e)
         {
-            get { return _size; }
-            set
-            {
-                _size = value;
-                Rectangle = new Rectangle(
-                    (int)_position.X,
-                    (int)_position.Y,
-                    (int)_size.X,
-                    (int)_size.Y
-                    );
-            }
+            if (ClickEvent != null)
+                ClickEvent(this, e);
         }
-
-        private Rectangle _rectangle;
-        public Rectangle Rectangle
-        {
-            get { return _rectangle; }
-            set
-            {
-                _rectangle = value;
-                _position = new Vector2(value.X, value.Y);
-                _size = new Vector2(value.Width, value.Height);
-            }
-        }
-
-        public string Text { get; set; }
+        #endregion
 
         public GuiLabel(string text, Vector2 size, Vector2 position)
+            : base(text, size, position) { }
+
+        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            Text = text;
-            Size = size;
-            Position = position;
+            LoadContent(contentManager);
+        }
+
+        public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime) { }
+
+        public override void LoadContent(ContentManager contentManager)
+        {
+            try
+            {
+                Texture2D = contentManager.Load<Texture2D>(@"UI\" + Text);
+            }
+            catch (Exception e)
+            {
+                Texture2D = contentManager.Load<Texture2D>("blank");
+            }
         }
     }
 }

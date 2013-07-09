@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace SWENG.UserInterface
 {
@@ -11,9 +12,9 @@ namespace SWENG.UserInterface
     public class HomeScreen : Screen
     {
         private readonly Rectangle _viewableArea;
-        private readonly GuiButtonCollection _buttonList;
-        private readonly GuiHeader _header;
-        private readonly GuiSensorStatus _sensorStatus;
+        private readonly GuiDrawable[] _guiDrawable;
+        //private readonly GuiHeader _header;
+        //private readonly GuiSensorStatus _sensorStatus;
 
         private const float MARGIN = 10f;
 
@@ -34,34 +35,64 @@ namespace SWENG.UserInterface
                 _viewableArea.Bottom - buttonSize.Y);
 
             #region Laying out the positions
-            _buttonList = new GuiButtonCollection();
-            _buttonList.Collection.Add(
-                new GuiButton("Log In", buttonSize,
+            Dictionary<string, GuiDrawable> _buttonDct = new Dictionary<string,GuiDrawable>();
+            _buttonDct.Add(
+                "LogIn",
+                new GuiButton(
+                    "LogIn", 
+                    buttonSize,
                     buttonBottom
                     - (new Vector2(0f, 2 * MARGIN))
                     - (new Vector2(0f, 2 * buttonSize.Y))
-                ));
-            _buttonList.Collection.Add(new GuiButton("Sensor Setup", buttonSize,
+                )
+            );
+            _buttonDct.Add(
+                "SensorSetup",
+                new GuiButton(
+                    "SensorSetup", 
+                    buttonSize,
                     buttonBottom
                     - new Vector2(0f, MARGIN)
                     - new Vector2(0f, buttonSize.Y)
-                ));
-            _buttonList.Collection.Add(new GuiButton("Exit Program", buttonSize, buttonBottom));
+                )
+            );
+            _buttonDct.Add(
+                "ExitProgram",
+                new GuiButton(
+                    "ExitProgram", 
+                    buttonSize, 
+                    buttonBottom
+                )
+            );
 
-            _sensorStatus = new GuiSensorStatus("Sensor Status",
-                new Vector2(99f, 32f),
-                new Vector2(
-                (_viewableArea.Right / 2) - (99f / 2),
-                _viewableArea.Bottom - 32f
-            ));
+            _buttonDct.Add(
+                "SensorStatus",
+                new GuiSensorStatus(
+                    "SensorStatus",
+                    new Vector2(99f, 32f),
+                    new Vector2(
+                        (_viewableArea.Right / 2) - (99f / 2),
+                        _viewableArea.Bottom - 32f
+                    ),
+                    game
+                )
+            );
 
-            _header = new GuiHeader("Kinect Therapy: Home Screen",
-                new Vector2(326f, 52f),
-                new Vector2(
-                _viewableArea.Left,
-                _viewableArea.Top - MARGIN - 52f
-            ));
+            _buttonDct.Add(
+                "KinectTherapy",
+                new GuiHeader(
+                    "KinectTherapy",
+                        new Vector2(326f, 52f),
+                        new Vector2(
+                            _viewableArea.Left,
+                            _viewableArea.Top - MARGIN - 52f
+                    )
+                )
+            );
             #endregion
+
+            _guiDrawable = new GuiDrawable[_buttonDct.Count];
+            _buttonDct.Values.CopyTo(_guiDrawable, 0);
 
             _isInitialized = false;
         }
@@ -74,7 +105,13 @@ namespace SWENG.UserInterface
         {
             _isInitialized = true;
 
-            _buttonList.ClickEventForAll(GuiButtonWasClicked);
+            foreach (GuiDrawable guiDrawable in _guiDrawable)
+            {
+                if (guiDrawable.GetType() == typeof(GuiButton))
+                {
+                    ((GuiButton)guiDrawable).ClickEvent += GuiButtonWasClicked;
+                }
+            }
 
             base.Initialize();
         }
@@ -83,15 +120,15 @@ namespace SWENG.UserInterface
         {
             switch (e.ClickedOn)
             {
-                case "Log In":
+                case "LogIn":
                     ScreenState = UserInterface.ScreenState.Hidden;
                     OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
                     break;
-                case "Sensor Setup":
+                case "SensorSetup":
                     ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
                     OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
                     break;
-                case "Exit Program":
+                case "ExitProgram":
                     OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
                     break;
             }
@@ -104,13 +141,10 @@ namespace SWENG.UserInterface
                 contentManager = new ContentManager(Game.Services, "Content");
             }
 
-            _buttonList.Collection[0].Texture2D = contentManager.Load<Texture2D>(@"UI\LogIn");
-            _buttonList.Collection[1].Texture2D = contentManager.Load<Texture2D>(@"UI\SensorSetup");
-            _buttonList.Collection[2].Texture2D = contentManager.Load<Texture2D>(@"UI\ExitProgram");
-
-            _sensorStatus.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectSensorGood");
-
-            _header.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectTherapy");
+            foreach (GuiDrawable guiDrawable in _guiDrawable)
+            {
+                guiDrawable.LoadContent(contentManager);
+            }
 
             base.LoadContent();
         }
@@ -130,7 +164,12 @@ namespace SWENG.UserInterface
                 && (ScreenState & UserInterface.ScreenState.NonInteractive) == 0)
             {
                 MouseState currentState = Mouse.GetState();
-                _buttonList.Update(currentState, _oldMouseState);
+                Rectangle mouseBoundingBox = new Rectangle(currentState.X, currentState.Y, 1, 1);
+
+                foreach (GuiDrawable guiDrawable in _guiDrawable)
+                {
+                    guiDrawable.Update(currentState, _oldMouseState, mouseBoundingBox, gameTime);
+                }
 
                 _oldMouseState = currentState;
             }
@@ -145,11 +184,10 @@ namespace SWENG.UserInterface
                 var spriteBatch = SharedSpriteBatch;
                 spriteBatch.Begin();
 
-                _header.Draw(spriteBatch);
-
-                _buttonList.Draw(spriteBatch);
-
-                _sensorStatus.Draw(spriteBatch);
+                foreach (GuiDrawable guiDrawable in _guiDrawable)
+                {
+                    guiDrawable.Draw(spriteBatch);
+                }
 
                 spriteBatch.End();
             }

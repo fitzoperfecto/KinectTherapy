@@ -72,7 +72,6 @@ namespace KinectTherapy
             "blank",
         };
 
-
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 

@@ -68,15 +68,6 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         /// </summary>
         private bool initialized;
 
-        /// <summary>
-        /// needed for model usage
-        /// </summary>
-        private Model jointModel;
-        private float aspectRatio;
-        private Vector3 cameraPosition;
-        private Matrix view;
-        private Matrix projection;
-
         private SkeletonPool SkeletonPool
         {
             get
@@ -115,10 +106,6 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         public override void Initialize()
         {
             base.Initialize();
-            this.aspectRatio = (float)Game.GraphicsDevice.Viewport.Width / (float)Game.GraphicsDevice.Viewport.Height;
-            cameraPosition = new Vector3(0f, 0f, 500f);
-            view = Matrix.CreateLookAt(cameraPosition, Vector3.Zero, Vector3.Up);
-            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), aspectRatio, 1.0f, 10000.0f);
             this.initialized = true;
         }
 

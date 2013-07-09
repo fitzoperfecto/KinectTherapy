@@ -6,6 +6,7 @@ using Microsoft.Samples.Kinect.XnaBasics;
 using System.Diagnostics;
 using Microsoft.Kinect;
 using System;
+using System.Collections.Generic;
 
 namespace SWENG.UserInterface
 {
@@ -15,7 +16,7 @@ namespace SWENG.UserInterface
     public class SensorTileEditScreen : Screen
     {
         private readonly Rectangle _viewableArea;
-        private readonly GuiButtonCollection _buttonList;
+        private readonly GuiDrawable[] _guiDrawable;
 
         private const float MARGIN = 10f;
 
@@ -65,9 +66,9 @@ namespace SWENG.UserInterface
                 _inputBoxDestination.Bottom - buttonSize.Y);
 
             #region Laying out the positions
-            _buttonList = new GuiButtonCollection();
-            _buttonList.Collection.Add(
-                new GuiButton("Save", 
+            List<GuiDrawable> _buttonList = new List<GuiDrawable>();
+            _buttonList.Add(
+                new GuiButton("Submit", 
                     buttonSize,
                     buttonBottom
                 ));
@@ -96,6 +97,8 @@ namespace SWENG.UserInterface
 
             #endregion
 
+            _guiDrawable = _buttonList.ToArray();
+
             _isInitialized = false;
         }
 
@@ -112,8 +115,13 @@ namespace SWENG.UserInterface
             _isInitialized = true;
             _scrollable.Initialize();
 
-            _buttonList.ClickEventForAll(GuiButtonWasClicked);
-
+            foreach (GuiDrawable guiDrawable in _guiDrawable)
+            {
+                if (guiDrawable.GetType() == typeof(GuiButton))
+                {
+                    ((GuiButton)guiDrawable).ClickEvent += GuiButtonWasClicked;
+                }
+            }
 
             base.Initialize();
         }
@@ -122,7 +130,7 @@ namespace SWENG.UserInterface
         {
             switch (e.ClickedOn)
             {
-                case "Save":
+                case "Submit":
                 case "Cancel":
                     ScreenState = UserInterface.ScreenState.Hidden;
                     OnTransition(new TransitionEventArgs(Title, "Return"));
@@ -142,7 +150,10 @@ namespace SWENG.UserInterface
             _inputBoxTexture = contentManager.Load<Texture2D>(@"UI\SensorTileEdit");
             _inputSensorTexture = contentManager.Load<Texture2D>(@"UI\SensorSlider");
 
-            _buttonList.Collection[0].Texture2D = contentManager.Load<Texture2D>(@"UI\Submit");
+            foreach (GuiDrawable guiDrawable in _guiDrawable)
+            {
+                guiDrawable.LoadContent(contentManager); //.Texture2D = LoadTexture(guiDrawable.Text);
+            }
 
             _scrollable.LoadContent(contentManager);
 
@@ -166,14 +177,17 @@ namespace SWENG.UserInterface
                 Rectangle mouseBoundingBox = new Rectangle(currentState.X, currentState.Y, 1, 1);
                 colorStream.Update(gameTime);
 
-                _buttonList.Update(currentState, _oldMouseState);
+                foreach (GuiDrawable guiDrawable in _guiDrawable)
+                {
+                    guiDrawable.Update(currentState, _oldMouseState, mouseBoundingBox, gameTime);
+                }
 
                 if (null != Chooser.Sensor
                     && Chooser.Sensor.IsRunning)
                 {
                     if (mouseBoundingBox.Intersects(_scrollable.GraceArea))
                     {
-                        _scrollable.Update(currentState, _oldMouseState);
+                        _scrollable.Update(currentState, _oldMouseState, mouseBoundingBox, gameTime);
 
                         if (currentState.LeftButton == ButtonState.Released
                             && _oldMouseState.LeftButton == ButtonState.Pressed)
@@ -263,7 +277,11 @@ namespace SWENG.UserInterface
                     Color.White
                 );
 
-                _buttonList.Draw(spriteBatch);
+                foreach (GuiDrawable guiDrawable in _guiDrawable)
+                {
+                    guiDrawable.Draw(spriteBatch);
+                }
+
                 _scrollable.Draw(spriteBatch);
                 spriteBatch.End();
 

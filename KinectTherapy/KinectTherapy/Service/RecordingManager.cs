@@ -52,8 +52,6 @@ namespace SWENG.Service
         private FileStream recordingStream;
         private FileStream replayStream;
 
-        private XmlWriter xmlWriter;
-
         private string fileLocation;
         public Dictionary<string, string> filesUsed { get; internal set; }
         public RecordingManagerStatus Status { get; internal set; }

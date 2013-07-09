@@ -1,10 +1,31 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace SWENG.UserInterface
 {
     public abstract class GuiDrawable
     {
+        private int _frame;
+        public int Frame 
+        {
+            get
+            {
+                return _frame;
+            }
+            set
+            {
+                _frame = value;
+                _sourceRectangle = new Rectangle(
+                    0, 
+                    value * (int)_size.Y, 
+                    (int)_size.X, 
+                    (int)_size.Y
+                );
+            }
+        }
+
         public Color Color { get; set; }
 
         private Vector2 _position;
@@ -78,11 +99,11 @@ namespace SWENG.UserInterface
                 {
                     if (value == false)
                     {
-                        _sourceRectangle = new Rectangle(0, 0, (int)_size.X, (int)_size.Y);
+                        Frame = 0;
                     }
                     else
                     {
-                        _sourceRectangle = new Rectangle(0, (int)_size.Y, (int)_size.X, (int)_size.Y);
+                        Frame = 1;
                     }
                 }
             }
@@ -111,5 +132,11 @@ namespace SWENG.UserInterface
                 Color = Color.White;
             }
         }
+
+        public abstract void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime);
+
+        public abstract void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch);
+
+        public abstract void LoadContent(ContentManager contentManager);
     }
 }

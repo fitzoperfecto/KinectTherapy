@@ -91,7 +91,7 @@ namespace SWENG.UserInterface
         /// 
         /// </summary>
         /// <param name="contentManager"></param>
-        public void LoadContent(ContentManager contentManager)
+        public override void LoadContent(ContentManager contentManager)
         {
             Texture2D = contentManager.Load<Texture2D>(@"blank");
             if (string.IsNullOrEmpty(_textureName))
@@ -115,6 +115,9 @@ namespace SWENG.UserInterface
             
         }
 
+
+        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) { }
+
         /// <summary>
         /// 
         /// </summary>
@@ -135,9 +138,8 @@ namespace SWENG.UserInterface
         /// </summary>
         /// <param name="mouseState"></param>
         /// <param name="oldMouseState"></param>
-        public void Update(MouseState mouseState, MouseState oldMouseState)
+        public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
         {
-            Rectangle mouseBoundingBox = new Rectangle(mouseState.X, mouseState.Y, 1, 1);
             if (mouseBoundingBox.Intersects(_scrollButton.Rectangle))
             {
                 _scrollButton.Color = Color.DarkGray;

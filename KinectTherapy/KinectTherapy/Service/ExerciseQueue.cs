@@ -113,14 +113,9 @@ namespace SWENG.Service
                 StreamReader reader = new StreamReader(path + e.Exercises[i].Id + ".xml");
                 // deserialize the xml and create an Exercise
                 Exercise temp = (Exercise)serializer.Deserialize(reader);
-                if (null != e.Exercises[i].Repetitions)
-                {
-                    temp.Repetitions = e.Exercises[i].Repetitions;
-                }
-                if (null != e.Exercises[i].Variance)
-                {
-                    temp.Variance = e.Exercises[i].Variance;
-                }
+                temp.Repetitions = e.Exercises[i].Repetitions;
+                temp.Variance = e.Exercises[i].Variance;
+
                 Exercises[i] = new ExerciseGameComponent(_game, temp);
                 reader.Close();
 

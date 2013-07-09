@@ -6,19 +6,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace SWENG.UserInterface
 {
-    public delegate void GuiButtonClicked(object sender, GuiButtonClickedArgs e);
 
-    public class GuiButtonClickedArgs : EventArgs
-    {
-        public string ClickedOn;
-
-        public GuiButtonClickedArgs(string clickedOn)
-        {
-            ClickedOn = clickedOn;
-        }
-    }
-
-    public class GuiButton : GuiDrawable
+    public class GuiCheckbox : GuiDrawable
     {
         #region event stuff
         public event GuiButtonClicked ClickEvent;
@@ -31,8 +20,10 @@ namespace SWENG.UserInterface
         }
         #endregion
 
-        public GuiButton(string text, Vector2 size, Vector2 position)
-            : base(text, size, position) { }
+        public bool Checked;
+
+        public GuiCheckbox(string text, Vector2 size, Vector2 position)
+            : base(text, size, position) { Checked = false; }
 
         public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
         {
@@ -43,18 +34,15 @@ namespace SWENG.UserInterface
                 if (mouseState.LeftButton == ButtonState.Released
                     && oldMouseState.LeftButton == ButtonState.Pressed)
                 {
+                    Checked = !Checked;
                     Click();
                 }
             }
             else
             {
-                Hovered = false;
+                Hovered = Checked;
             }
-        }
 
-        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
-        {
-            LoadContent(contentManager);
         }
 
         public override void LoadContent(ContentManager contentManager)
@@ -67,6 +55,11 @@ namespace SWENG.UserInterface
             {
                 Texture2D = contentManager.Load<Texture2D>("blank");
             }
+        }
+
+        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
+        {
+            LoadContent(contentManager);
         }
 
         public void Click()

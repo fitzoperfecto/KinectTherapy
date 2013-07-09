@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SWENG.Service;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SWENG.UserInterface
 {
@@ -14,18 +16,18 @@ namespace SWENG.UserInterface
     public class ExerciseScreen : Screen
     {
         private readonly Rectangle _viewableArea;
-        private readonly GuiButtonCollection _buttonList;
-        private readonly GuiHeader _header;
-        private readonly GuiSensorStatus _sensorStatus;
+        private readonly GuiDrawable[] _guiDrawable;
+
+        private SpriteFont _spriteFont;
 
         private const float MARGIN = 10f;
 
         private bool _isInitialized;
 
         #region ColorStreamRenderer Variables
-        private readonly ColorStreamRenderer colorStream;
-        private Vector2 colorStreamPosition;
-        private Vector2 colorStreamSize;
+        private readonly ColorStreamRenderer _colorStream;
+        private Vector2 _colorStreamPosition;
+        private Vector2 _colorStreamSize;
         #endregion
 
         #region ExerciseQueue Variables
@@ -41,6 +43,11 @@ namespace SWENG.UserInterface
         private ExerciseTile[] _exerciseTiles;
         private MouseState _oldMouseState;
         #endregion
+
+        private Vector2 _tilePosition;
+        private Vector2 _tileSize;
+        private Vector2 _tileTextPosition;
+        private string _repetitionString;
 
         private RecordingManager recordingManager
         {
@@ -61,57 +68,84 @@ namespace SWENG.UserInterface
         {
             ScreenState = startingState;
             _viewableArea = viewableArea;
-            colorStream = new ColorStreamRenderer(game);
+            _colorStream = new ColorStreamRenderer(game);
 
             Title = "Exercise";
 
             _exerciseTiles = new ExerciseTile[0];
 
             #region Laying out the positions
-            colorStreamPosition = new Vector2(
+            _colorStreamPosition = new Vector2(
                     (float)(viewableArea.X),
                     (float)(viewableArea.Y)
                 );
 
-            colorStreamSize = new Vector2(
+            _colorStreamSize = new Vector2(
                     (float)(0.7 * viewableArea.Width),
                     (float)(0.7 * viewableArea.Height)
                 );
+
+            _tileSize = new Vector2(250f, 250f);
+            _tilePosition = new Vector2(
+                (float)(_colorStreamPosition.X + _colorStreamSize.X + (MARGIN * 2)),
+                (float)(_colorStreamPosition.Y)
+            );
+
+            _tileTextPosition = new Vector2(
+                _tilePosition.X,
+                _tilePosition.Y + _tileSize.Y
+            );
 
             Vector2 buttonSize = new Vector2(240f, 60f);
             Vector2 buttonBottom = new Vector2(
                 _viewableArea.Right - buttonSize.X + MARGIN,
                 _viewableArea.Bottom - buttonSize.Y);
 
-            _buttonList = new GuiButtonCollection();
-            _buttonList.Collection.Add(new GuiButton("Menu", buttonSize,                     
+            Dictionary<string, GuiDrawable> guiDrawables = new Dictionary<string, GuiDrawable>();
+            guiDrawables.Add("Menu",
+                new GuiButton("Menu",
+                    buttonSize,                     
                     buttonBottom 
                     - (new Vector2(0f, 2 * MARGIN)) 
                     - (new Vector2(0f, 2 * buttonSize.Y))
-                ));
-            _buttonList.Collection.Add(new GuiButton("Skip", buttonSize, 
+            ));
+            guiDrawables.Add("Skip",
+                new GuiButton("Skip", 
+                    buttonSize, 
                     buttonBottom 
                     - new Vector2(0f , MARGIN) 
                     - new Vector2(0f, buttonSize.Y)
-                ));
-            _buttonList.Collection.Add(new GuiButton("End Queue", buttonSize, buttonBottom));
-
-
-            _sensorStatus = new GuiSensorStatus("Sensor Status",
-                new Vector2(99f, 32f),
-                new Vector2(
-                (_viewableArea.Right / 2) - (99f / 2),
-                _viewableArea.Bottom - 32f
             ));
+            guiDrawables.Add("EndQueue",
+                new GuiButton("EndQueue",
+                    buttonSize,
+                    buttonBottom)
+            );
 
-            _header = new GuiHeader("Kinect Therapy: Exercise Screen",
+            guiDrawables.Add("SensorStatus",
+                new GuiSensorStatus(
+                    "SensorStatus",
+                    new Vector2(99f, 32f),
+                    new Vector2(
+                        (_viewableArea.Right / 2) - (99f / 2),
+                        _viewableArea.Bottom - 32f
+                    ),
+                    game
+                )
+            );
+
+            guiDrawables.Add("KinectTherapy", new GuiHeader("KinectTherapy",
                 new Vector2(326f, 52f),
                 new Vector2(
                 _viewableArea.Left,
                 _viewableArea.Top - MARGIN - 52f
-            ));
+            )));
 
             #endregion
+
+            _guiDrawable = new GuiDrawable[guiDrawables.Count];
+
+            guiDrawables.Values.CopyTo(_guiDrawable, 0);
 
             _isInitialized = false;
         }
@@ -122,15 +156,16 @@ namespace SWENG.UserInterface
         /// </summary>
         public override void Initialize()
         {
-            colorStream.Position = colorStreamPosition;
-            colorStream.Size = colorStreamSize;
-            colorStream.Initialize();
+            _colorStream.Position = _colorStreamPosition;
+            _colorStream.Size = _colorStreamSize;
+            _colorStream.Initialize();
 
-            _buttonList.ClickEventForAll(GuiButtonWasClicked);
-
-            foreach (ExerciseTile exerciseTile in _exerciseTiles)
+            foreach (GuiDrawable guiDrawable in _guiDrawable)
             {
-                exerciseTile.Initialize();
+                if (guiDrawable.GetType() == typeof(GuiButton))
+                {
+                    ((GuiButton)guiDrawable).ClickEvent += GuiButtonWasClicked;
+                }
             }
 
             _isInitialized = true;
@@ -164,13 +199,12 @@ namespace SWENG.UserInterface
                 contentManager = new ContentManager(Game.Services, "Content");
             }
 
-            _buttonList.Collection[0].Texture2D = contentManager.Load<Texture2D>(@"UI\Menu");
-            _buttonList.Collection[1].Texture2D = contentManager.Load<Texture2D>(@"UI\Skip");
-            _buttonList.Collection[2].Texture2D = contentManager.Load<Texture2D>(@"UI\EndQueue");
+            foreach (GuiDrawable guiDrawable in _guiDrawable)
+            {
+                guiDrawable.LoadContent(contentManager); //.Texture2D = LoadTexture(guiDrawable.Text);
+            }
 
-            _sensorStatus.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectSensorGood");
-
-            _header.Texture2D = contentManager.Load<Texture2D>(@"UI\KinectTherapy");
+            _spriteFont = contentManager.Load<SpriteFont>("Arial16");
 
             base.LoadContent();
         }
@@ -185,13 +219,26 @@ namespace SWENG.UserInterface
                 && (ScreenState & UserInterface.ScreenState.NonInteractive) == 0)
             {
                 MouseState currentState = Mouse.GetState();
-                _buttonList.Update(currentState, _oldMouseState);
+                Rectangle mouseBoundingBox = new Rectangle(currentState.X, currentState.Y, 1, 1);
 
-                colorStream.Update(gameTime);
+                foreach (GuiDrawable guiDrawable in _guiDrawable)
+                {
+                    guiDrawable.Update(currentState, _oldMouseState, mouseBoundingBox, gameTime);
+                }
+
                 foreach (ExerciseTile exerciseTile in _exerciseTiles)
                 {
-                    exerciseTile.Update(gameTime);
+                    exerciseTile.Update(currentState, _oldMouseState, mouseBoundingBox, gameTime);
                 }
+
+                _colorStream.Update(gameTime);
+
+                _repetitionString = string.Format(
+                    "Completed {0} of {1}",
+                    ExerciseQueue.CurrentExercise.Repetitions,
+                    ExerciseQueue.CurrentExercise.RepetitionsToComplete
+                );
+
                 _oldMouseState = currentState;
             }
 
@@ -210,23 +257,32 @@ namespace SWENG.UserInterface
                 var spriteBatch = SharedSpriteBatch;
                 spriteBatch.Begin();
 
-                _header.Draw(spriteBatch);
-
-                _buttonList.Draw(spriteBatch);
-
-                _sensorStatus.Draw(spriteBatch);
-
-                spriteBatch.End();
+                foreach (GuiDrawable guiDrawable in _guiDrawable)
+                {
+                    guiDrawable.Draw(spriteBatch);
+                }
 
                 foreach (ExerciseTile exerciseTile in _exerciseTiles)
                 {
                     if (exerciseTile.IsCurrentTile)
                     {
-                        exerciseTile.Draw(gameTime);
+                        exerciseTile.Draw(spriteBatch);
                     }
                 }
 
-                colorStream.Draw(gameTime);
+                if (!string.IsNullOrEmpty(_repetitionString))
+                {
+                    spriteBatch.DrawString(
+                        _spriteFont,
+                        _repetitionString,
+                        _tileTextPosition,
+                        Color.Black
+                    );
+                }
+
+                spriteBatch.End();
+
+                _colorStream.Draw(gameTime);
             }
 
             base.Draw(gameTime);
@@ -246,34 +302,18 @@ namespace SWENG.UserInterface
 
         public override void OpenScreen()
         {
-            Vector2 tileStartingPosition = new Vector2(
-                (float)(colorStreamPosition.X + colorStreamSize.X + (MARGIN * 2)),
-                (float)(colorStreamPosition.Y)
-            );
-
-            Vector2 tileSize = new Vector2(
-                    (float)(0.25 * _viewableArea.Width),
-                    (float)(0.25 * _viewableArea.Height)
-                );
-
-            // for now we'll generate hardcoded exercises....
-            // note the location of this will need to change if we load these from an external file. 
             ExerciseGameComponent[] exercises = ExerciseQueue.Exercises;
             _exerciseTiles = new ExerciseTile[exercises.Length];
-            
-            // draw at the same height... going to "cycle" through them
-            for (int i = 0; i < exercises.Length; i++)
-            {
-                _exerciseTiles[i] = new ExerciseTile(Game, exercises[i], i);
-                _exerciseTiles[i].Position = tileStartingPosition;
-                _exerciseTiles[i].Size = tileSize;
-                _exerciseTiles[i].Initialize();
 
-                // bump the next tile down by the size of the tile and a y margin
-                //tileStartingPosition = new Vector2(
-                //    tileStartingPosition.X,
-                //    tileStartingPosition.Y + tileSize.Y + MARGIN
-                //);
+            /** Draw at the same height for cycling through */
+            for (int i = 0; i < exercises.Length; i = i + 1)
+            {
+                _exerciseTiles[i] = new ExerciseTile(Game, exercises[i], i, _tileSize, _tilePosition);
+                _exerciseTiles[i].LoadContent(Game, contentManager, SharedSpriteBatch);
+                if (i == 0)
+                {
+                    _exerciseTiles[i].IsCurrentTile = true;
+                }
             }
 
             base.Transition();
