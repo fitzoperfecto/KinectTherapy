@@ -48,13 +48,46 @@
         /// Will return the oldest Skeleton that is active and not in current use
         /// </summary>
         /// <returns></returns>
-        public SkeletonStamp GetOldestSkeleton()
+        public SkeletonStamp GetOldestActiveSkeleton()
         {
             int index = int.MinValue;
 
             for (int i = 0; i < this.universe.Length; ++i)
             {
                 if (!this.universe[i].IsActive && this.universe[i].InUse)
+                {
+                    continue;
+                }
+
+                if (index == int.MinValue)
+                {
+                    index = i;
+                }
+                else if (this.universe[index].TimeStamp > this.universe[i].TimeStamp)
+                {
+                    index = i;
+                }
+            }
+            if (index == int.MinValue)
+            {
+                index = 0;
+            }
+            this.universe[index].InUse = true;
+
+            return this.universe[index];
+        }
+
+        /// <summary>
+        /// Will return the oldest Skeleton that is active and not in current use
+        /// </summary>
+        /// <returns></returns>
+        public SkeletonStamp GetOldestProcessedSkeleton()
+        {
+            int index = int.MinValue;
+
+            for (int i = 0; i < this.universe.Length; ++i)
+            {
+                if (!this.universe[i].IsProcessed && this.universe[i].InUse)
                 {
                     continue;
                 }
@@ -129,7 +162,7 @@
         /// </summary>
         /// <param name="timeStamp">Time stamp of the skeleton you are done with</param>
         /// <param name="percentBad">How bad was the skeleton (between 0.0 and 1.0)</param>
-        public void FinishedWithSkeleton(long timeStamp, double[] percentBad)
+        public void FinishedWithSkeleton(long timeStamp)
         {
             foreach (SkeletonStamp skeleton in this.universe)
             {
@@ -137,8 +170,15 @@
                 {
                     continue;
                 }
+                else
+                {
+                    /*
+                     * Pool now knows this skeleton has been processed and is waiting to be post processed by the draw
+                     */
+                    skeleton.IsProcessed = true;
+                    skeleton.InUse = false;
+                }
 
-                skeleton.PercentBad = percentBad;
             }
         }
 

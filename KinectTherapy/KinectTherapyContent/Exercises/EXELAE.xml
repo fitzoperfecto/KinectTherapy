@@ -26,15 +26,41 @@
         </Criterion>
       </StartingCriteria>
       <TrackingCriteria>
-        <Criterion xsi:type="AlignmentCriterion" Variance=".1" Alignment="Horizontal">
+        <Criterion xsi:type="AlignmentCriterion" Variance="10" Alignment="Horizontal">
           <Joints>
             <Joint>
-              <Name>HipRight</Name>
+              <Name>ShoulderLeft</Name>
             </Joint>
             <Joint>
-              <Name>HipLeft</Name>
+              <Name>ElbowLeft</Name>
             </Joint>
           </Joints>
+        </Criterion>
+        <Criterion xsi:type="AngleCriterion" Variance="10" Angle="90" Operation="GreaterThan">
+          <Vertex>
+            <Name>ElbowLeft</Name>
+          </Vertex>
+          <AdjacentJoints>
+            <Joint>
+              <Name>ShoulderLeft</Name>
+            </Joint>
+            <Joint>
+              <Name>WristLeft</Name>
+            </Joint>
+          </AdjacentJoints>
+        </Criterion>
+        <Criterion xsi:type="AngleCriterion" Variance="10" Angle="170" Operation="LessThan">
+          <Vertex>
+            <Name>ElbowLeft</Name>
+          </Vertex>
+          <AdjacentJoints>
+            <Joint>
+              <Name>ShoulderLeft</Name>
+            </Joint>
+            <Joint>
+              <Name>WristLeft</Name>
+            </Joint>
+          </AdjacentJoints>
         </Criterion>
       </TrackingCriteria>
       <Checkpoints>

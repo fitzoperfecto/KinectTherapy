@@ -13,24 +13,25 @@ namespace Microsoft.Samples.Kinect.XnaBasics
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
     using SWENG.Service;
+    using SWENG;
 
     /// <summary>
     /// A delegate method explaining how to map a SkeletonPoint from one space to another.
     /// </summary>
     /// <param name="point">The SkeletonPoint to map.</param>
     /// <returns>The Vector2 representing the target location.</returns>
-    public delegate Vector2 SkeletonPointMap(SkeletonPoint point);
+    public delegate Vector2 SkeletonStampPointMap(SkeletonPoint point);
 
     /// <summary>
     /// This class is responsible for rendering a skeleton stream.
     /// </summary>
-    public class SkeletonStreamRenderer : Object2D
+    public class SkeletonStampStreamRenderer : Object2D
     {
         /// <summary>
         /// This is the map method called when mapping from
         /// skeleton space to the target space.
         /// </summary>
-        private readonly SkeletonPointMap mapMethod;
+        private readonly SkeletonStampPointMap mapMethod;
 
         /// <summary>
         /// The last frames skeleton data.
@@ -81,7 +82,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         /// </summary>
         /// <param name="game">The related game object passed in by the color and depth stream renderers.</param>
         /// <param name="map">The method used to map the SkeletonPoint to the target space.</param>
-        public SkeletonStreamRenderer(Game game, SkeletonPointMap map)
+        public SkeletonStampStreamRenderer(Game game, SkeletonStampPointMap map)
             : base(game)
         {
             this.mapMethod = map;
@@ -172,13 +173,17 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             {
                 this.LoadContent();
             }
-
+            SkeletonStamp skeletonData = SkeletonPool.GetOldestProcessedSkeleton();
             // If we don't have data, lets leave
             if (null == skeletonData || null == this.mapMethod)
             {
                 return;
             }
-
+            Skeleton skeleton = skeletonData.GetTrackedSkeleton();
+            if (null == skeleton)
+            {
+                return;
+            }
             if (false == this.initialized)
             {
                 this.Initialize();
@@ -186,78 +191,42 @@ namespace Microsoft.Samples.Kinect.XnaBasics
 
             this.SharedSpriteBatch.Begin();
 
-            foreach (var skeleton in skeletonData)
+            // Now draw the joints
+            Game.GraphicsDevice.BlendState = BlendState.Opaque;
+            Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            Game.GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            foreach (Joint j in skeleton.Joints)
             {
-                switch (skeleton.TrackingState)
+                /* its good unless proven bad.*/
+                Color jointColor = Color.Green;
+                
+                /*  How do we know its bad? 
+                 * Check the deviation field */
+                double deviation = skeletonData.PercentBad[(int)j.JointType];
+                if (!Double.IsNaN(deviation))
                 {
-                    case SkeletonTrackingState.Tracked:
-                        // Draw Bones
-                        this.DrawBone(skeleton.Joints, JointType.Head, JointType.ShoulderCenter);
-                        this.DrawBone(skeleton.Joints, JointType.ShoulderCenter, JointType.ShoulderLeft);
-                        this.DrawBone(skeleton.Joints, JointType.ShoulderCenter, JointType.ShoulderRight);
-                        this.DrawBone(skeleton.Joints, JointType.ShoulderCenter, JointType.Spine);
-                        this.DrawBone(skeleton.Joints, JointType.Spine, JointType.HipCenter);
-                        this.DrawBone(skeleton.Joints, JointType.HipCenter, JointType.HipLeft);
-                        this.DrawBone(skeleton.Joints, JointType.HipCenter, JointType.HipRight);
+                    if (deviation > .05 || deviation < -.05)
+                    {
+                        jointColor = Color.Red;
+                    }
 
-                        this.DrawBone(skeleton.Joints, JointType.ShoulderLeft, JointType.ElbowLeft);
-                        this.DrawBone(skeleton.Joints, JointType.ElbowLeft, JointType.WristLeft);
-                        this.DrawBone(skeleton.Joints, JointType.WristLeft, JointType.HandLeft);
-
-                        this.DrawBone(skeleton.Joints, JointType.ShoulderRight, JointType.ElbowRight);
-                        this.DrawBone(skeleton.Joints, JointType.ElbowRight, JointType.WristRight);
-                        this.DrawBone(skeleton.Joints, JointType.WristRight, JointType.HandRight);
-
-                        this.DrawBone(skeleton.Joints, JointType.HipLeft, JointType.KneeLeft);
-                        this.DrawBone(skeleton.Joints, JointType.KneeLeft, JointType.AnkleLeft);
-                        this.DrawBone(skeleton.Joints, JointType.AnkleLeft, JointType.FootLeft);
-
-                        this.DrawBone(skeleton.Joints, JointType.HipRight, JointType.KneeRight);
-                        this.DrawBone(skeleton.Joints, JointType.KneeRight, JointType.AnkleRight);
-                        this.DrawBone(skeleton.Joints, JointType.AnkleRight, JointType.FootRight);
-
-                        // Now draw the joints
-                        Game.GraphicsDevice.BlendState = BlendState.Opaque;
-                        Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-                        Game.GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-                        foreach (Joint j in skeleton.Joints)
-                        {
-                                Color jointColor = Color.Green;
-
-                                this.SharedSpriteBatch.Draw(
-                                    this.jointTexture,
-                                    this.mapMethod(j.Position),
-                                    null,
-                                    jointColor,
-                                    0.0f,
-                                    this.jointOrigin,
-                                    1.0f,
-                                    SpriteEffects.None,
-                                    0.0f);
-
-                        }
-
-
-                        break;
-                    case SkeletonTrackingState.PositionOnly:
-                        // If we are only tracking position, draw a blue dot
-                        this.SharedSpriteBatch.Draw(
-                                this.jointTexture,
-                                this.mapMethod(skeleton.Position),
-                                null,
-                                Color.Blue,
-                                0.0f,
-                                this.jointOrigin,
-                                1.0f,
-                                SpriteEffects.None,
-                                0.0f);
-                        break;
+                    this.SharedSpriteBatch.Draw(
+                    this.jointTexture,
+                    this.mapMethod(j.Position),
+                    null,
+                    jointColor,
+                    0.0f,
+                    this.jointOrigin,
+                    1.0f,
+                    SpriteEffects.None,
+                    0.0f);
                 }
             }
 
             this.SharedSpriteBatch.End();
             skeletonDrawn = true;
-
+            // we are now done with this skeleton data remove all previous from the pool
+            SkeletonPool.Remove(skeletonData.TimeStamp);
             base.Draw(gameTime);
         }
 

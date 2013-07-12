@@ -12,6 +12,7 @@ namespace SWENG
         public long TimeStamp { get; set; }
         public bool IsActive { get; set; }
         public bool InUse { get; set; }
+        public bool IsProcessed { get; set; }
         public double[] PercentBad { get; set; }
 
         public Skeleton[] SkeletonData 
@@ -35,6 +36,7 @@ namespace SWENG
             this.IsActive = false;
             this.InUse = false;
             this.PercentBad = new double[20];
+            this.IsProcessed = false;
         }
 
         public Skeleton GetTrackedSkeleton()

@@ -89,7 +89,7 @@ namespace SWENG
         {
 
             // the stamp being processed
-            SkeletonStamp skeletonStamp=skeletonPool.GetOldestSkeleton();
+            SkeletonStamp skeletonStamp=skeletonPool.GetOldestActiveSkeleton();
             double[] percentBad = new double[20]; 
 
             // determine whether a rep has been started based on Exercise Start Criteria.
@@ -118,7 +118,7 @@ namespace SWENG
                             Repetitions++;
                             RepetitionComplete = RepetitionStarted = false;
                             // remove all the skeletons before this skeleton
-                            skeletonPool.Remove(skeletonStamp.TimeStamp);
+                            skeletonPool.FinishedWithSkeleton(skeletonStamp.TimeStamp);
                         }
                     }
                 }
@@ -126,7 +126,7 @@ namespace SWENG
             // remove the skeleton stamp so it can move on
             if (skeletonStamp != null)
             {
-                skeletonPool.Remove(skeletonStamp.TimeStamp);
+                skeletonPool.FinishedWithSkeleton(skeletonStamp.TimeStamp);
             }
 
             base.Update(gameTime);

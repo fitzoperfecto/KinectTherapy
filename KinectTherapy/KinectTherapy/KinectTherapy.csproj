@@ -112,6 +112,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Criteria\Operation.cs" />
+    <Compile Include="SkeletonStampStreamRenderer.cs" />
     <Compile Include="Criteria\AlignmentCriterion.cs" />
     <Compile Include="Criteria\AngleCriterion.cs" />
     <Compile Include="ColorStreamRenderer.cs" />
@@ -154,7 +156,6 @@
     <Compile Include="UserInterface\GuiScrollable.cs" />
     <Compile Include="UserInterface\GuiSensorStatus.cs" />
     <Compile Include="UserInterface\HomeScreen.cs" />
-    <Compile Include="UserInterface\LogInScreen.cs" />
     <Compile Include="UserInterface\Manager.cs" />
     <Compile Include="UserInterface\ReplayTile.cs" />
     <Compile Include="UserInterface\Screen.cs" />

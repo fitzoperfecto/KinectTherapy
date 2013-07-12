@@ -19,6 +19,11 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         /// This child responsible for rendering the color stream's skeleton.
         /// </summary>
         private readonly SkeletonStreamRenderer skeletonStream;
+
+        /// <summary>
+        /// This child responsible for rendering the color stream's overlay skeleton when an exercise is occurring.
+        /// </summary>
+        private readonly SkeletonStampStreamRenderer skeletonStampStream;
         
         /// <summary>
         /// The last frame of color data.
@@ -54,6 +59,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             : base(game)
         {
             this.skeletonStream = new SkeletonStreamRenderer(game, this.SkeletonToColorMap);
+            this.skeletonStampStream = new SkeletonStampStreamRenderer(game, this.SkeletonToColorMap);
         }
 
         /// <summary>
@@ -118,6 +124,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
 
             // Update the skeleton renderer
             this.skeletonStream.Update(gameTime);
+            this.skeletonStampStream.Update(gameTime);
         }
 
         /// <summary>
@@ -153,7 +160,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
 
                 // Draw the skeleton
                 this.skeletonStream.Draw(gameTime);
-
+                this.skeletonStampStream.Draw(gameTime);
                 // Reset the render target and prepare to draw scaled image
                 this.Game.GraphicsDevice.SetRenderTargets(null);
 
