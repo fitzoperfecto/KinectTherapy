@@ -279,45 +279,6 @@ namespace SWENG.UserInterface
             {
                 guiDrawable.Update(mouseState, oldMouseState, mouseBoundingBox, gameTime);
             }
-
-            if (mouseBoundingBox.Intersects(_innerTextDestination))
-            {
-                /** Scroll the top of source of the texture, but keep the height */
-                //_innerTextSource.Y = TextScrollTop(gameTime);
-            }
-        }
-
-        /// <summary>
-        /// Snapshot of where the top of the text Texture2D should be.
-        /// </summary>
-        /// <returns>Value between 0 and Texture2D Height</returns>
-        public int TextScrollTop(GameTime gameTime)
-        {
-            int r = _innerTextSource.Y;
-            _frameCount = _frameCount + 1;
-
-            if (r != 0)
-            {
-                if (_frameCount % _scrollRate == 0)
-                {
-                    r = r + 1;
-                }
-            }
-            else
-            {
-                if (_frameCount % _initialWait == 0)
-                {
-                    r = r + 1;
-                }
-            }
-
-            if (r > _innerTextSource.Height)
-            {
-                _frameCount = 0;
-                r = 0;
-            }
-
-            return r;
         }
 
         /// <summary>

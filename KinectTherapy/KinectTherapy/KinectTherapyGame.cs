@@ -57,7 +57,6 @@ namespace KinectTherapy
         private readonly SummaryScreen _summaryScreen;
         private readonly ExerciseScreen _exerciseScreen;
         private readonly CatalogScreen _catalogScreen;
-        private readonly LogInScreen _logInScreen;
         private readonly HomeScreen _homeScreen;
         private readonly CatalogTileEditScreen _catalogTileEditScreen;
         private readonly LoadingScreen _loadingScreen;
@@ -118,7 +117,6 @@ namespace KinectTherapy
             _summaryScreen = new SummaryScreen(this, viewPortRectangle, ScreenState.Hidden);
             _exerciseScreen = new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden);
             _catalogScreen = new CatalogScreen(this, viewPortRectangle, ScreenState.Hidden);
-            _logInScreen = new LogInScreen(this, viewPortRectangle, ScreenState.Hidden);
             _catalogTileEditScreen = new CatalogTileEditScreen(
                 this, 
                 new Rectangle(
@@ -178,7 +176,6 @@ namespace KinectTherapy
             #region Adding Screens
             //TODO: This needs to be refitted as the actual home screen.
             userInterfaceManager.AddScreen(_homeScreen);
-            userInterfaceManager.AddScreen(_logInScreen);
             userInterfaceManager.AddScreen(_exerciseScreen);
             userInterfaceManager.AddScreen(_summaryScreen);
             userInterfaceManager.AddScreen(_catalogScreen);
