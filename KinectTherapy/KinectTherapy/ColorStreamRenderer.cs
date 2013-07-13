@@ -4,11 +4,14 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+using Kinect.Toolbox.Record;
+
 namespace Microsoft.Samples.Kinect.XnaBasics
 {
     using Microsoft.Kinect;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
+    using SWENG.Service;
 
     /// <summary>
     /// This class renders the current color stream frame.
@@ -60,6 +63,42 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         {
             this.skeletonStream = new SkeletonStreamRenderer(game, this.SkeletonToColorMap);
             this.skeletonStampStream = new SkeletonStampStreamRenderer(game, this.SkeletonToColorMap);
+            this.RecordingManager.ColorEventListener.Add(Replay_ColorFrameReady);
+        }
+
+        void Replay_ColorFrameReady(object sender, ReplayColorImageFrameReadyEventArgs args)
+        {
+            // Sometimes we get a null frame back if no data is ready
+            if (args.ColorImageFrame == null)
+            {
+                return;
+            }
+
+            // Reallocate values if necessary
+            if (this.colorData == null || this.colorData.Length != args.ColorImageFrame.PixelDataLength)
+            {
+                this.colorData = new byte[args.ColorImageFrame.PixelDataLength];
+
+                this.colorTexture = new Texture2D(
+                    this.Game.GraphicsDevice,
+                    args.ColorImageFrame.Width,
+                    args.ColorImageFrame.Height,
+                    false,
+                    SurfaceFormat.Color);
+
+                this.backBuffer = new RenderTarget2D(
+                    this.Game.GraphicsDevice,
+                    args.ColorImageFrame.Width,
+                    args.ColorImageFrame.Height,
+                    false,
+                    SurfaceFormat.Color,
+                    DepthFormat.None,
+                    this.Game.GraphicsDevice.PresentationParameters.MultiSampleCount,
+                    RenderTargetUsage.PreserveContents);
+            }
+
+            args.ColorImageFrame.CopyPixelDataTo(this.colorData);
+            this.needToRedrawBackBuffer = true;
         }
 
         /// <summary>
@@ -87,12 +126,22 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                 return;
             }
 
+            if (this.RecordingManager.Status == RecordingManagerStatus.Replaying)
+            {
+                return;
+            }
+
             using (var frame = this.Chooser.Sensor.ColorStream.OpenNextFrame(0))
             {
                 // Sometimes we get a null frame back if no data is ready
                 if (frame == null)
                 {
                     return;
+                }
+
+                if (this.RecordingManager.Status == RecordingManagerStatus.Recording)
+                {
+                    this.RecordingManager.Record(frame);
                 }
 
                 // Reallocate values if necessary
