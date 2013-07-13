@@ -18,10 +18,6 @@ namespace Microsoft.Samples.Kinect.XnaBasics
     /// </summary>
     public class ColorStreamRenderer : Object2D
     {
-        /// <summary>
-        /// This child responsible for rendering the color stream's skeleton.
-        /// </summary>
-        private readonly SkeletonStreamRenderer skeletonStream;
 
         /// <summary>
         /// This child responsible for rendering the color stream's overlay skeleton when an exercise is occurring.
@@ -61,7 +57,6 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         public ColorStreamRenderer(Game game)
             : base(game)
         {
-            this.skeletonStream = new SkeletonStreamRenderer(game, this.SkeletonToColorMap);
             this.skeletonStampStream = new SkeletonStampStreamRenderer(game, this.SkeletonToColorMap);
             this.RecordingManager.ColorEventListener.Add(Replay_ColorFrameReady);
         }
@@ -172,7 +167,6 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             }
 
             // Update the skeleton renderer
-            this.skeletonStream.Update(gameTime);
             this.skeletonStampStream.Update(gameTime);
         }
 
@@ -208,7 +202,6 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                 this.SharedSpriteBatch.End();
 
                 // Draw the skeleton
-                this.skeletonStream.Draw(gameTime);
                 this.skeletonStampStream.Draw(gameTime);
                 // Reset the render target and prepare to draw scaled image
                 this.Game.GraphicsDevice.SetRenderTargets(null);

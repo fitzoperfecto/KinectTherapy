@@ -234,7 +234,6 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                                     1.0f,
                                     SpriteEffects.None,
                                     0.0f);
-
                         }
 
 

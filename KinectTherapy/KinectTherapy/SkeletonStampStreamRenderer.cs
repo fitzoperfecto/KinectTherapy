@@ -168,6 +168,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         /// <param name="gameTime">The elapsed game time.</param>
         public override void Draw(GameTime gameTime)
         {
+            skeletonDrawn = true;
             // If the joint texture isn't loaded, load it now
             if (null == this.jointTexture)
             {
@@ -191,6 +192,31 @@ namespace Microsoft.Samples.Kinect.XnaBasics
 
             this.SharedSpriteBatch.Begin();
 
+            // Draw Bones
+            this.DrawBone(skeleton.Joints, JointType.Head, JointType.ShoulderCenter);
+            this.DrawBone(skeleton.Joints, JointType.ShoulderCenter, JointType.ShoulderLeft);
+            this.DrawBone(skeleton.Joints, JointType.ShoulderCenter, JointType.ShoulderRight);
+            this.DrawBone(skeleton.Joints, JointType.ShoulderCenter, JointType.Spine);
+            this.DrawBone(skeleton.Joints, JointType.Spine, JointType.HipCenter);
+            this.DrawBone(skeleton.Joints, JointType.HipCenter, JointType.HipLeft);
+            this.DrawBone(skeleton.Joints, JointType.HipCenter, JointType.HipRight);
+
+            this.DrawBone(skeleton.Joints, JointType.ShoulderLeft, JointType.ElbowLeft);
+            this.DrawBone(skeleton.Joints, JointType.ElbowLeft, JointType.WristLeft);
+            this.DrawBone(skeleton.Joints, JointType.WristLeft, JointType.HandLeft);
+
+            this.DrawBone(skeleton.Joints, JointType.ShoulderRight, JointType.ElbowRight);
+            this.DrawBone(skeleton.Joints, JointType.ElbowRight, JointType.WristRight);
+            this.DrawBone(skeleton.Joints, JointType.WristRight, JointType.HandRight);
+
+            this.DrawBone(skeleton.Joints, JointType.HipLeft, JointType.KneeLeft);
+            this.DrawBone(skeleton.Joints, JointType.KneeLeft, JointType.AnkleLeft);
+            this.DrawBone(skeleton.Joints, JointType.AnkleLeft, JointType.FootLeft);
+
+            this.DrawBone(skeleton.Joints, JointType.HipRight, JointType.KneeRight);
+            this.DrawBone(skeleton.Joints, JointType.KneeRight, JointType.AnkleRight);
+            this.DrawBone(skeleton.Joints, JointType.AnkleRight, JointType.FootRight);
+
             // Now draw the joints
             Game.GraphicsDevice.BlendState = BlendState.Opaque;
             Game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -205,7 +231,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                 double deviation = skeletonData.PercentBad[(int)j.JointType];
                 if (!Double.IsNaN(deviation))
                 {
-                    if (deviation > .05 || deviation < -.05)
+                    if (deviation > .01 || deviation < -.01)
                     {
                         jointColor = Color.Red;
                     }
@@ -224,7 +250,6 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             }
 
             this.SharedSpriteBatch.End();
-            skeletonDrawn = true;
             // we are now done with this skeleton data remove all previous from the pool
             SkeletonPool.Remove(skeletonData.TimeStamp);
             base.Draw(gameTime);
