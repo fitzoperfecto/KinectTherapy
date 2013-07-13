@@ -107,10 +107,7 @@ namespace SWENG
                     // A couple updates could occur before the next draw. 
                     if (!RepetitionComplete)
                     {
-                        // if the rep has been started we need to check the form of the repetition
-                        // just a stub of what needs to be done... we'll need to determine how a FormResponse should look. 
-                        percentBad = repetition.checkForm(skeletonStamp);
-                        skeletonStamp.PercentBad = percentBad;
+                        
                         // see if the rep has been completed
                         if (RepetitionComplete = repetition.isRepComplete(skeletonStamp))
                         {
@@ -122,6 +119,10 @@ namespace SWENG
                         }
                     }
                 }
+                // if the rep has been started we need to check the form of the repetition
+                // just a stub of what needs to be done... we'll need to determine how a FormResponse should look. 
+                percentBad = repetition.checkForm(skeletonStamp);
+                skeletonStamp.PercentBad = percentBad;
             }
             // remove the skeleton stamp so it can move on
             if (skeletonStamp != null)
