@@ -165,10 +165,8 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// Snapshot of the button clicked.  Will manage communications within the screen and with the manager.
+        /// Central button click management.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
         {
             switch (e.ClickedOn)
@@ -214,17 +212,13 @@ namespace SWENG.UserInterface
             ((GuiCheckbox)_guiDrawables[_updateButtonIndex]).Checked = true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="contentManager"></param>
-        public override void LoadContent(ContentManager contentManager)
+        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
         {
             Texture2D = contentManager.Load<Texture2D>(@"UI\CatalogTile");
 
             foreach (GuiDrawable guiDrawable in _guiDrawables)
             {
-                guiDrawable.LoadContent(contentManager);
+                guiDrawable.LoadContent(_game, contentManager, SharedSpriteBatch);
             }
 
             _spriteFont = contentManager.Load<SpriteFont>("Arial10");
@@ -238,15 +232,11 @@ namespace SWENG.UserInterface
 #endif
         }
 
-        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
-        {
-            LoadContent(contentManager);
-        }
 
         /// <summary>
-        /// 
+        /// This method renders the current state of the element to the screen.
         /// </summary>
-        /// <param name="spriteBatch">A SpriteBatch that has already "begun"</param>
+        /// <param name="spriteBatch">A SpriteBatch that has begun.</param>
         public override void Draw(SpriteBatch spriteBatch)
         {
             /** If any texture has not loaded just give up */
@@ -281,10 +271,6 @@ namespace SWENG.UserInterface
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public Texture2D CreateNewTexture()
         {
             float lineSpace = 0.0f;
@@ -323,10 +309,6 @@ namespace SWENG.UserInterface
             return (Texture2D)renderTarget2d;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public string[] PartitionString(ref float lineSpace)
         {
             Vector2 _titleSize = _spriteFont.MeasureString(Text + ": ");

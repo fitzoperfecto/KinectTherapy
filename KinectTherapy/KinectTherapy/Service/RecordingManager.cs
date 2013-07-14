@@ -33,6 +33,9 @@ namespace SWENG.Service
         }
     }
 
+    /// <summary>
+    /// The recording manager is a service responsible for handling the recording and replaying of Kinect frames.
+    /// </summary>
     public class RecordingManager : IGameComponent
     {
         #region event stuff
@@ -225,21 +228,11 @@ namespace SWENG.Service
             }
         }
 
-        /// <summary>
-        /// start recording
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
         public void StartRecording(object sender, EventArgs args)
         {
             StartRecording(KinectRecordOptions.Skeletons | KinectRecordOptions.Color);
         }
 
-        /// <summary>
-        /// stop recording
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
         public void StopRecording(object sender, EventArgs args)
         {
             StopRecording();

@@ -25,8 +25,6 @@ namespace SWENG.UserInterface
             _game = game;
         }
 
-        public override void LoadContent(Microsoft.Xna.Framework.Content.ContentManager contentManager) { }
-
         public override void LoadContent(Game game, Microsoft.Xna.Framework.Content.ContentManager contentManager, SpriteBatch spriteBatch) { }
 
         public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)

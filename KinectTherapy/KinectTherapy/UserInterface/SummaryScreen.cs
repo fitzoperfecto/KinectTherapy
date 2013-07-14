@@ -10,7 +10,7 @@ using SWENG.Service;
 namespace SWENG.UserInterface
 {
     /// <summary>
-    /// This is a game component that implements IUpdateable.
+    /// This class implements the screen for its use with the Manager
     /// </summary>
     public class SummaryScreen : Screen
     {
@@ -82,6 +82,7 @@ namespace SWENG.UserInterface
 
             _replayTiles = new ReplayTile[0];
 
+            #region Laying out positions
             _colorStreamPosition = new Vector2(
                     (float)(_viewableArea.X),
                     (float)(_viewableArea.Y)
@@ -109,7 +110,6 @@ namespace SWENG.UserInterface
                 _viewableArea.Height - buttonSize.Y
             );
 
-            #region Laying out positions
             List<GuiDrawable> guiDrawableSelect = new List<GuiDrawable>();
             guiDrawableSelect.Add(
                 new GuiButton(
@@ -236,6 +236,9 @@ namespace SWENG.UserInterface
             base.Initialize();
         }
 
+        /// <summary>
+        /// Central button click management.
+        /// </summary>
         private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
         {
             switch (e.ClickedOn)
@@ -272,17 +275,17 @@ namespace SWENG.UserInterface
 
             foreach (GuiDrawable guiDrawable in _guiDrawableReplay)
             {
-                guiDrawable.LoadContent(contentManager);
+                guiDrawable.LoadContent(Game, contentManager, SharedSpriteBatch);
             }
 
             foreach (GuiDrawable guiDrawable in _guiDrawableSelect)
             {
-                guiDrawable.LoadContent(contentManager);
+                guiDrawable.LoadContent(Game, contentManager, SharedSpriteBatch);
             }
 
             foreach (GuiDrawable guiDrawable in _guiDrawable)
             {
-                guiDrawable.LoadContent(contentManager);
+                guiDrawable.LoadContent(Game, contentManager, SharedSpriteBatch);
             }
 
             base.LoadContent();
@@ -300,6 +303,7 @@ namespace SWENG.UserInterface
                 MouseState currentState = Mouse.GetState();
                 Rectangle mouseBoundingBox = new Rectangle(currentState.X, currentState.Y, 1, 1);
 
+                /** Update only the items pertinent to a RUNNING replay */
                 if (_isReplaying)
                 {
                     foreach (GuiDrawable guiDrawable in _guiDrawableReplay)
@@ -315,6 +319,7 @@ namespace SWENG.UserInterface
                         }
                     }
                 }
+                /** Update only the items pertinent to a SELECTING replay */
                 else
                 {
                     foreach (GuiDrawable guiDrawable in _guiDrawableSelect)
@@ -386,7 +391,7 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// This method renders the current state of the ExerciseScreen.
+        /// This method renders the current state of the SummaryScreen to the screen.
         /// </summary>
         /// <param name="gameTime">The elapsed game time.</param>
         public override void Draw(GameTime gameTime)
@@ -397,6 +402,7 @@ namespace SWENG.UserInterface
                 var spriteBatch = SharedSpriteBatch;
                 spriteBatch.Begin();
 
+                /** Draw only the items pertinent to a running replay */
                 if (_isReplaying)
                 {
                     foreach (GuiDrawable guiDrawable in _guiDrawableReplay)
@@ -412,6 +418,7 @@ namespace SWENG.UserInterface
                         }
                     }
                 }
+                /** Draw only the items pertinent to a selecting replay */
                 else
                 {
                     foreach (GuiDrawable guiDrawable in _guiDrawableSelect)
@@ -437,8 +444,6 @@ namespace SWENG.UserInterface
         /// The method to use when the summary screen
         /// should be triggered to open when an event occurs
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args">Generic event arguments</param>
         public void QueueIsDone(object sender, EventArgs args)
         {
             GuiScrollableCollection scrollableCollection = (GuiScrollableCollection)_guiDrawable[_catalogLocation];

@@ -10,7 +10,7 @@ using SWENG.Service;
 namespace SWENG.UserInterface
 {
     /// <summary>
-    /// This is a game component that implements IUpdateable.
+    /// This class implements the screen for its use with the Manager
     /// </summary>
     public class CatalogScreen : Screen
     {
@@ -27,32 +27,37 @@ namespace SWENG.UserInterface
         private int _catalogLocation;
 
         private const float MARGIN = 10f;
+        /** Flag to let us know if the screens initialize method was ran. */
         private bool _isInitialized;
+
+        /** The subsequent gui elements will need to know the before and current states of the mouse */
         private MouseState _oldMouseState;
 
         private SpriteFont _spriteFont;
 
-        /** Needed to send to the GuiCatalogTiles */
-        private Game _game;
         private string _selectedCategory;
         private Vector2 _listItemPosition;
 
         /// <summary>
-        /// 
+        /// Initialize a new instance of the ExerciseScreen class.
         /// </summary>
-        /// <param name="game"></param>
-        /// <param name="viewableArea"></param>
-        /// <param name="startingState"></param>
+        /// <param name="game">The related game object.</param>
+        /// <param name="viewableArea">The desired canvas size to draw on.</param>
+        /// <param name="startingState">The desired starting Screen State</param>
         public CatalogScreen(Game game, Rectangle viewableArea, ScreenState startingState) 
             : base(game)
         {
-            _game = game;
             ScreenState = startingState;
             _viewableArea = viewableArea;
+            /** 
+             * Makes it easier to just add visual components without knowing how many items we need in the beginning 
+             * This will be converted into an array
+             */
             List<GuiDrawable> guiDrawable = new List<GuiDrawable>();
 
             Title = "Catalog";
 
+            #region Laying out the positions
             Vector2 buttonSize = new Vector2(240f, 60f);
             Vector2 buttonBottom = new Vector2(
                 _viewableArea.Right - buttonSize.X + MARGIN,
@@ -74,8 +79,16 @@ namespace SWENG.UserInterface
                 _viewableArea.Height - tabSize.Y
             );
 
-            #region Laying out the positions
-            /** Adding the catalog and getting the location are a pair */
+            /** This is used later; hence, it is global */
+            _listItemPosition = new Vector2(
+                _viewableArea.Width - buttonSize.X + MARGIN,
+                _viewableArea.Top + tabSize.Y
+            );
+            
+            /** 
+             * Adding the catalog and getting the location are a 
+             * pair for easy reference in the future 
+             */
             guiDrawable.Add(
                 new GuiScrollableCollection(
                     "Catalog", 
@@ -86,7 +99,6 @@ namespace SWENG.UserInterface
                     615f
                 )
             );
-
             _catalogLocation = guiDrawable.Count - 1;
 
             guiDrawable.Add(
@@ -108,11 +120,6 @@ namespace SWENG.UserInterface
                         _viewableArea.Top
                     )
                 )
-            );
-
-            _listItemPosition = new Vector2(
-                _viewableArea.Width - buttonSize.X + MARGIN,
-                _viewableArea.Top + tabSize.Y
             );
 
             guiDrawable.Add(
@@ -215,10 +222,8 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// 
+        /// Central button click management.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
         {
             switch (e.ClickedOn)
@@ -244,6 +249,10 @@ namespace SWENG.UserInterface
             }
         }
 
+        /// <summary>
+        /// Invoke SwitchCategories and change the checked state of the GUI elements.
+        /// </summary>
+        /// <param name="category">GUI text to match on.</param>
         private void changeCategory(string category)
         {
             foreach (GuiDrawable guiDrawable in _guiDrawable)
@@ -296,7 +305,7 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void UnloadContent()
         {
@@ -309,6 +318,7 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            
             if (_isInitialized
                 && (ScreenState & UserInterface.ScreenState.NonInteractive) == 0)
             {
@@ -332,6 +342,7 @@ namespace SWENG.UserInterface
         /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
+            /** Without initialization then load content will not have happened; makes drawing very difficult */
             if (_isInitialized)
             {
                 GraphicsDevice.Clear(Color.WhiteSmoke);
@@ -385,7 +396,7 @@ namespace SWENG.UserInterface
                 foreach (var catalogItem in _catalogManager.GetExercisesByType(category))
                 {
                     GuiCatalogTile guiCatalogTile = new GuiCatalogTile(
-                        _game,
+                        Game,
                         catalogItem.ID,
                         catalogItem.Name,
                         catalogItem.Description,
@@ -398,7 +409,7 @@ namespace SWENG.UserInterface
                     scrollableCollection.AddCatalogItem(guiCatalogTile);
                 }
 
-                scrollableCollection.LoadContent(contentManager);
+                scrollableCollection.LoadContent(Game, contentManager, SharedSpriteBatch);
 
                 Exercise[] selected = _catalogManager.GetSelectedWorkouts();
 

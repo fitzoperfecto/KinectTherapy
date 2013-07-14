@@ -9,6 +9,9 @@ using System;
 
 namespace SWENG.UserInterface
 {
+    /// <summary>
+    /// This class implements the screen for its use with the Manager
+    /// </summary>
     public class CatalogTileEditScreen : Screen
     {
         private readonly Rectangle _viewableArea;
@@ -36,6 +39,12 @@ namespace SWENG.UserInterface
         private int _repetitionIndex;
         private int _varianceIndex;
 
+        /// <summary>
+        /// Initialize a new instance of the ExerciseScreen class.
+        /// </summary>
+        /// <param name="game">The related game object.</param>
+        /// <param name="viewableArea">The desired canvas size to draw on.</param>
+        /// <param name="startingState">The desired starting Screen State</param>
         public CatalogTileEditScreen(Game game, Rectangle viewableArea, ScreenState startingState)
             : base(game)
         {
@@ -137,6 +146,9 @@ namespace SWENG.UserInterface
             _isInitialized = false;
         }
 
+        /// <summary>
+        /// Reset input boxes "checked" status.
+        /// </summary>
         private void InputBoxSelected(object sender, SelectedEventArgs e)
         {
             foreach (GuiDrawable guiDrawable in _guiDrawable)
@@ -176,6 +188,9 @@ namespace SWENG.UserInterface
             base.Initialize();
         }
 
+        /// <summary>
+        /// Central button click management.
+        /// </summary>
         private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
         {
             InputBoxSelected(sender, new SelectedEventArgs(e.ClickedOn));
@@ -194,6 +209,9 @@ namespace SWENG.UserInterface
             }
         }
 
+        /// <summary>
+        /// Pass back the data to the CatalogManager
+        /// </summary>
         private void saveChanges()
         {
             int tempInt = 0;
@@ -295,6 +313,10 @@ namespace SWENG.UserInterface
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Update the input boxes with the saved data from the CatalogManager.
+        /// </summary>
+        /// <param name="id">Exercise ID</param>
         public void OpenScreen(string id)
         {
             _exercise = _catalogManager.GetExercise(id);

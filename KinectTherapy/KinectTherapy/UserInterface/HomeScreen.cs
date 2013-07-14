@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace SWENG.UserInterface
 {
     /// <summary>
-    /// This is a game component that implements IUpdateable.
+    /// This class implements the screen for its use with the Manager
     /// </summary>
     public class HomeScreen : Screen
     {
@@ -21,6 +21,12 @@ namespace SWENG.UserInterface
         private bool _isInitialized;
         private MouseState _oldMouseState;
 
+        /// <summary>
+        /// Initialize a new instance of the ExerciseScreen class.
+        /// </summary>
+        /// <param name="game">The related game object.</param>
+        /// <param name="viewableArea">The desired canvas size to draw on.</param>
+        /// <param name="startingState">The desired starting Screen State</param>
         public HomeScreen(Game game, Rectangle viewableArea, ScreenState startingState)
             : base(game)
         {
@@ -116,6 +122,9 @@ namespace SWENG.UserInterface
             base.Initialize();
         }
 
+        /// <summary>
+        /// Central button click management.
+        /// </summary>
         private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
         {
             switch (e.ClickedOn)
@@ -143,7 +152,7 @@ namespace SWENG.UserInterface
 
             foreach (GuiDrawable guiDrawable in _guiDrawable)
             {
-                guiDrawable.LoadContent(contentManager);
+                guiDrawable.LoadContent(Game, contentManager, SharedSpriteBatch);
             }
 
             base.LoadContent();

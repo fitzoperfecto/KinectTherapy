@@ -19,12 +19,15 @@ namespace SWENG.UserInterface
         }
     }
 
+    /// <summary>
+    /// GUI box that displays information regarding a workout.
+    /// </summary>
     public class ReplayTile : GuiDrawable
     {
         #region event stuff
         public event ReplaySelected OnSelected;
 
-        // Invoke the Changed event; called whenever repetitions changes
+        /** Invoke a selected event in order to tell the subscribers */
         protected virtual void ReplaySelected(ReplaySelectedEventArgs e)
         {
             if (OnSelected != null)
@@ -53,9 +56,14 @@ namespace SWENG.UserInterface
 
         public string FileId { get; private set; }
 
-
-        // TODO: With a reference to the exerciseIndex and the ExerciseQueue passing in 
-        // the ExerciseGameComponent may be redundant.  Need to check performance measures
+        /// <summary>
+        /// Construct a 
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="position"></param>
+        /// <param name="fileId">File ID to send to any click event.</param>
+        /// <param name="exerciseName">This becomes the drawable's text.</param>
+        /// <param name="repetitionNumber">The repetition the replay refers to.</param>
         public ReplayTile(Vector2 size, Vector2 position, string fileId, string exerciseName, int repetitionNumber)
             : base(exerciseName, size, position)
         {
@@ -71,8 +79,12 @@ namespace SWENG.UserInterface
             );
         }
 
-        public override void LoadContent(ContentManager contentManager) { }
-
+        /// <summary>
+        /// Load relevant resources
+        /// </summary>
+        /// <param name="game">Provide access to the game.</param>
+        /// <param name="contentManager">Provide access to the screen's content manager.</param>
+        /// <param name="spriteBatch">Provide access to the screen's sprite batch.</param>
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
             if (null == contentManager)
@@ -99,6 +111,13 @@ namespace SWENG.UserInterface
             );
         }
 
+        /// <summary>
+        /// Use RenderTarget2D to create a custom title texture.
+        /// </summary>
+        /// <param name="game">Provide access to the game.</param>
+        /// <param name="contentManager">Provide access to the screen's content manager.</param>
+        /// <param name="spriteBatch">Provide access to the screen's sprite batch.</param>
+        /// <returns>Custom title texture</returns>
         private Texture2D CreateTitleTexture(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
             SpriteFont spriteFont = contentManager.Load<SpriteFont>("Arial16");
@@ -158,9 +177,9 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// This method renders the current state of the ExerciseTile.
+        /// This method renders the current state of the element to the screen.
         /// </summary>
-        /// <param name="gameTime">The elapsed game time.</param>
+        /// <param name="spriteBatch">A SpriteBatch that has begun.</param>
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (_titleTexture != null)

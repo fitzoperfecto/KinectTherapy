@@ -21,8 +21,6 @@ namespace SWENG.UserInterface
         private Rectangle _checkpointDestination;
         private const int HEADER = 40;
 
-        //private string _repetitionCount;
-
         private const int SCROLLRATE = 5;
         private const double MILLISECONDS = 100;
         private const int MARGIN = 10;
@@ -42,8 +40,6 @@ namespace SWENG.UserInterface
 
             _oldGameTime = double.MaxValue;
         }
-
-        public override void LoadContent(ContentManager contentManager) { }
 
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
@@ -128,9 +124,9 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// This method renders the current state of the ExerciseTile.
+        /// This method renders the current state of the element to the screen.
         /// </summary>
-        /// <param name="gameTime">The elapsed game time.</param>
+        /// <param name="spriteBatch">A SpriteBatch that has begun.</param>
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (_titleTexture != null)
@@ -159,9 +155,11 @@ namespace SWENG.UserInterface
             }
         }
 
+        /// <summary>
+        /// Update the checkpoint texture and set it to be the current tile.
+        /// </summary>
         public void HandleCheckpointChange(object sender, CheckpointChangedEventArgs args)
         {
-            // display the file. 
             _checkpointTexture = _contentManager.Load<Texture2D>(@"Exercises\" + args.FileId);
             IsCurrentTile = true;
         }

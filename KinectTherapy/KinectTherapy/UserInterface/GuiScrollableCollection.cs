@@ -80,20 +80,6 @@ namespace SWENG.UserInterface
             _pageEnding = _pageBeginning + _viewableItems;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="contentManager"></param>
-        public override void LoadContent(ContentManager contentManager)
-        {
-            foreach (GuiDrawable tile in _collection)
-            {
-                tile.LoadContent(contentManager);
-            }
-
-            _scrollable.LoadContent(contentManager);
-        }
-
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
             foreach (GuiDrawable tile in _collection)
@@ -101,13 +87,13 @@ namespace SWENG.UserInterface
                 tile.LoadContent(game, contentManager, spriteBatch);
             }
 
-            _scrollable.LoadContent(contentManager);
+            _scrollable.LoadContent(game, contentManager, spriteBatch);
         }
 
         /// <summary>
-        /// 
+        /// This method renders the current state of the element to the screen.
         /// </summary>
-        /// <param name="spriteBatch"></param>
+        /// <param name="spriteBatch">A SpriteBatch that has begun.</param>
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (_collection.Count != 0)

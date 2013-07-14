@@ -54,11 +54,6 @@ namespace SWENG.UserInterface
 
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            LoadContent(contentManager);
-        }
-
-        public override void LoadContent(ContentManager contentManager)
-        {
             try
             {
                 Texture2D = contentManager.Load<Texture2D>(@"UI\" + Text);

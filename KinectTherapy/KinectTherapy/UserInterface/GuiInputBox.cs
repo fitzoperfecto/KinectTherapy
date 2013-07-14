@@ -146,7 +146,7 @@ namespace SWENG.UserInterface
             _oldKeyState = keyState;
         }
 
-        public override void LoadContent(ContentManager contentManager)
+        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
         {
             try
             {
@@ -164,11 +164,10 @@ namespace SWENG.UserInterface
             catch (Exception e) { }
         }
 
-        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
-        {
-            LoadContent(contentManager);
-        }
-
+        /// <summary>
+        /// This method renders the current state of the element to the screen.
+        /// </summary>
+        /// <param name="spriteBatch">A SpriteBatch that has begun.</param>
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (null != Texture2D)

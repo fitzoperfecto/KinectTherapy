@@ -87,11 +87,7 @@ namespace SWENG.UserInterface
         /// </summary>
         public void Initialize() { }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="contentManager"></param>
-        public override void LoadContent(ContentManager contentManager)
+        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
         {
             Texture2D = contentManager.Load<Texture2D>(@"blank");
             if (string.IsNullOrEmpty(_textureName))
@@ -112,17 +108,14 @@ namespace SWENG.UserInterface
 
                 _scrollButton.Texture2D = scrollTexture;
             }
-            
         }
 
 
-        public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) { }
-
         /// <summary>
-        /// 
+        /// This method renders the current state of the element to the screen.
         /// </summary>
-        /// <param name="spriteBatch"></param>
-        public void Draw(SpriteBatch spriteBatch)
+        /// <param name="spriteBatch">A SpriteBatch that has begun.</param>
+        public override void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(
                 Texture2D,

@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 namespace SWENG.UserInterface
 {
     /// <summary>
-    /// This is a game component that implements IUpdateable.
+    /// This class implements the screen for its use with the Manager
     /// </summary>
     public class LoadingScreen : Screen
     {
@@ -18,6 +18,12 @@ namespace SWENG.UserInterface
         private Texture2D _blankTexture;
         private SpriteFont _spriteFont;
 
+        /// <summary>
+        /// Initialize a new instance of the ExerciseScreen class.
+        /// </summary>
+        /// <param name="game">The related game object.</param>
+        /// <param name="viewableArea">The desired canvas size to draw on.</param>
+        /// <param name="startingState">The desired starting Screen State</param>
         public LoadingScreen(Game game, Rectangle viewableArea, ScreenState startingState)
             : base(game)
         {
@@ -35,13 +41,13 @@ namespace SWENG.UserInterface
         /// </summary>
         public override void Initialize()
         {
-            _isInitialized = true;
-
             base.Initialize();
+            _isInitialized = true;
         }
 
         public override void LoadContent()
         {
+            base.LoadContent();
             if (null == contentManager)
             {
                 contentManager = new ContentManager(Game.Services, "Content");
@@ -49,8 +55,6 @@ namespace SWENG.UserInterface
 
             _blankTexture = contentManager.Load<Texture2D>(@"blank");
             _spriteFont = contentManager.Load<SpriteFont>(@"Arial16");
-
-            base.LoadContent();
         }
 
         public override void UnloadContent()
@@ -69,6 +73,7 @@ namespace SWENG.UserInterface
 
         public override void Draw(GameTime gameTime)
         {
+            base.Draw(gameTime);
             if (_isInitialized)
             {
                 var spriteBatch = SharedSpriteBatch;
@@ -90,7 +95,6 @@ namespace SWENG.UserInterface
 
                 spriteBatch.End();
             }
-            base.Draw(gameTime);
         }
 
         public void CloseScreen(object sender, EventArgs e)

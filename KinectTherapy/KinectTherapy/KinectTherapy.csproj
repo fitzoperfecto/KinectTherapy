@@ -125,7 +125,6 @@
     <Compile Include="Criteria\Criterion.cs" />
     <Compile Include="Criteria\Exercise.cs" />
     <Compile Include="ExerciseGameComponent.cs" />
-    <Compile Include="FormResult.cs" />
     <Compile Include="IRepetition.cs" />
     <Compile Include="Criteria\JointAnalyzer.cs" />
     <Compile Include="Sensor\KinectChooser.cs" />

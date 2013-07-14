@@ -11,7 +11,7 @@ using System.Diagnostics;
 namespace SWENG.UserInterface
 {
     /// <summary>
-    /// This is a game component that implements IUpdateable.
+    /// This class implements the screen for its use with the Manager
     /// </summary>
     public class ExerciseScreen : Screen
     {
@@ -173,6 +173,9 @@ namespace SWENG.UserInterface
             base.Initialize();
         }
 
+        /// <summary>
+        /// Central button click management.
+        /// </summary>
         private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
         {
             switch (e.ClickedOn)
@@ -201,7 +204,7 @@ namespace SWENG.UserInterface
 
             foreach (GuiDrawable guiDrawable in _guiDrawable)
             {
-                guiDrawable.LoadContent(contentManager); //.Texture2D = LoadTexture(guiDrawable.Text);
+                guiDrawable.LoadContent(Game, contentManager, SharedSpriteBatch);
             }
 
             _spriteFont = contentManager.Load<SpriteFont>("Arial16");
