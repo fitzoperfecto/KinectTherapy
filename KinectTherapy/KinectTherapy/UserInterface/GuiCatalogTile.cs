@@ -82,6 +82,11 @@ namespace SWENG.UserInterface
         private const float MARGIN = 10f;
         private GuiDrawable[] _guiDrawables;
         private int _updateButtonIndex;
+        
+        /// <summary>
+        /// Meant for debugging purposes only.
+        /// </summary>
+        public GuiDrawable[] GuiDrawables { get { return _guiDrawables; } }
 
         /// <summary>
         /// 
@@ -196,13 +201,16 @@ namespace SWENG.UserInterface
             Hovered = isEnqueued;
             ((GuiCheckbox)_guiDrawables[_updateButtonIndex]).Checked = Hovered;
 
-            if (isEnqueued)
+            if (_catalogManager != null)
             {
-                _catalogManager.AddExerciseToSelected(ItemID, Text);
-            }
-            else
-            {
-                _catalogManager.RemoveExerciseFromSelected(ItemID);
+                if (isEnqueued)
+                {
+                    _catalogManager.AddExerciseToSelected(ItemID, Text);
+                }
+                else
+                {
+                    _catalogManager.RemoveExerciseFromSelected(ItemID);
+                }
             }
         }
 
@@ -224,12 +232,6 @@ namespace SWENG.UserInterface
             _spriteFont = contentManager.Load<SpriteFont>("Arial10");
 
             _overlayTexture = CreateNewTexture();
-
-#if DEBUG
-            FileStream fs = File.Open(@"c:\school\" + Text + ".png", FileMode.Create);
-            _overlayTexture.SaveAsPng(fs, _overlayTexture.Width, _overlayTexture.Height);
-            fs.Close();
-#endif
         }
 
 
@@ -271,17 +273,35 @@ namespace SWENG.UserInterface
             }
         }
 
+        /// <summary>
+        /// Creates a texture to show in the tile instead of constantly re-drawing the text.
+        /// </summary>
         public Texture2D CreateNewTexture()
         {
-            float lineSpace = 0.0f;
-            string[] descriptionLines = PartitionString(ref lineSpace);
+            /** The title width will need to be subtracted for the string width measurement */
+            Vector2 titleWidth = _spriteFont.MeasureString(Text + ": ");
 
-            RenderTarget2D renderTarget2d = new RenderTarget2D(_game.GraphicsDevice, _innerTextDestination.Width, (int)(descriptionLines.Length * lineSpace));
+            string toWrite = string.Empty;
+
+            /** Descriptions may be of an indeterminate length */
+            for (int i = 0; i < _description.Length; ++i)
+            {
+                /** If one more letter is added will it go beyond the width of the acceptable area?  Push it to the next line if so. */
+                if (_spriteFont.MeasureString(toWrite + _description.Substring(i, 1)).X >= _innerTextDestination.Width - titleWidth.X)
+                {
+                    toWrite += "\r\n";
+                }
+
+                toWrite += _description.Substring(i, 1);
+            }
+
+            RenderTarget2D renderTarget2d = new RenderTarget2D(_game.GraphicsDevice, _innerTextDestination.Width, (int)_spriteFont.MeasureString(toWrite).Y);
             _game.GraphicsDevice.SetRenderTarget(renderTarget2d);
             _game.GraphicsDevice.Clear(ClearOptions.Target, Color.White, 0, 0);
 
             SharedSpriteBatch.Begin();
 
+            /** Red title */
             SharedSpriteBatch.DrawString(
                 _spriteFont,
                 Text + ": ",
@@ -289,60 +309,18 @@ namespace SWENG.UserInterface
                 Color.DarkRed
             );
 
-            Vector2 titleWidth = _spriteFont.MeasureString(Text + ": ");
-
-            for (int i = 0; i < descriptionLines.Length; i = i + 1)
-            {
-                SharedSpriteBatch.DrawString(
+            /** Black text */
+            SharedSpriteBatch.DrawString(
                     _spriteFont,
-                    descriptionLines[i],
-                    new Vector2(
-                        titleWidth.Length(),
-                        i * lineSpace
-                    ),
+                    toWrite,
+                    new Vector2(titleWidth.X, 0f),
                     Color.Black
                 );
-            }
+
             SharedSpriteBatch.End();
             _game.GraphicsDevice.SetRenderTarget(null);
 
             return (Texture2D)renderTarget2d;
-        }
-
-        public string[] PartitionString(ref float lineSpace)
-        {
-            Vector2 _titleSize = _spriteFont.MeasureString(Text + ": ");
-            Vector2 _descriptionSize = _spriteFont.MeasureString(_description);
-
-            Vector2 totalSize = _titleSize + _descriptionSize;
-            Vector2 lineHeight = new Vector2((Size.X - 100f - (2 * MARGIN)), _descriptionSize.Y);
-            lineSpace = _descriptionSize.Y;
-
-            /** The number of lines needed should be roughly equal to the length of the text divided by the width of the texture2D */
-            string[] r = new string[(int)Math.Ceiling(totalSize.Length() / lineHeight.Length())];
-
-            int start = 0;
-            for (int i = 0; i < r.Length; i = i + 1)
-            {
-                /** This is the very beginning and will not have anything in the array yet */
-                if (string.IsNullOrEmpty(r[i]))
-                {
-                    r[i] = _description.Substring(start, 1);
-                    start = start + 1;
-                }
-
-                /** 
-                 * Continuously add to the current array index until the width is met or there 
-                 * aren't anymore letters in the description
-                 */
-                while (_spriteFont.MeasureString(r[i]).X < lineHeight.X && start < _description.Length)
-                {
-                    r[i] = r[i] + _description.Substring(start, 1);
-                    start = start + 1;
-                }
-            }
-
-            return r;
         }
     }
 }
