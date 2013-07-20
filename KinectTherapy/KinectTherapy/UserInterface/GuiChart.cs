@@ -53,17 +53,8 @@ namespace SWENG.UserInterface
         #region Miscellaneous variables
         private readonly Vector2 _position;
 
-        private const int MARGIN = 10;
+        private const int MARGIN = 15;
         #endregion
-
-        /// <summary>
-        /// Empty constructor for use in the StatsScreen class
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="size"></param>
-        /// <param name="position"></param>
-        public GuiChart(string text, Vector2 size, Vector2 position) : base(text, size, position)
-        {}
 
         /// <summary>
         /// GuiChart is a class that handles taking datapoints from the Summary Screen and creates a chart object to be displayed and returns a percentage
@@ -152,12 +143,8 @@ namespace SWENG.UserInterface
         {
             if (null == contentManager) return;
 
-            _game = game;
-            _contentManager = contentManager;
-            _spriteBatch = spriteBatch;
-
             Texture2D = _contentManager.Load<Texture2D>(@"UI\ChartTexture");
-            _chartMarkerTexture = _contentManager.Load<Texture2D>(@"UI\ChartMarker");
+            _chartMarkerTexture = _contentManager.Load<Texture2D>(@"blank");
 
             _xAxisTitleTexture = CreateXAxisTitleTexture(game, _contentManager, spriteBatch);
             _yAxisTitleTexture = CreateYAxisTitleTexture(game, _contentManager, spriteBatch);
@@ -208,7 +195,7 @@ namespace SWENG.UserInterface
             );
 
             /* Create bounding rectangle for mouse functionality */
-            _texture2DRectangle = new Rectangle(Texture2D.Bounds.X + MARGIN, Texture2D.Bounds.Y + 3, Texture2D.Width + 100, Texture2D.Height + 3);
+            //_texture2DRectangle = new Rectangle(Texture2D.Bounds.X + MARGIN, Texture2D.Bounds.Y + 3, Texture2D.Width + 100, Texture2D.Height + 3);
 
         }
 
@@ -222,26 +209,15 @@ namespace SWENG.UserInterface
         /// <param name="gameTime"></param>
         public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
         {
-            if (!mouseBoundingBox.Intersects(_texture2DRectangle)) return;
+            if (!mouseBoundingBox.Intersects(Rectangle)) return;
 
             if (mouseState.LeftButton == ButtonState.Released && oldMouseState.LeftButton == ButtonState.Pressed)
             {
                 MouseXCoord = mouseState.X;
-                MouseXPercent = 100 - ((MouseXCoord/_texture2DRectangle.Width) * 100);
+                MouseXPercent = 100 - ((MouseXCoord / Rectangle.Width) * 100);
 
                 MouseYCoord = mouseState.Y;
-                MouseYPercent = 100 - ((MouseYCoord/_texture2DRectangle.Height) * 100);
-
-                /*============= Test of percentage conversion of mouse coordinates (not working -yet) ==============*/
-                var yMouseCoordTexture = CreateMouseCoordTexture(_game, _contentManager, _spriteBatch);
-                var yMouseSource = new Rectangle(0, 0, yMouseCoordTexture.Width, yMouseCoordTexture.Height);
-                var yMouseDestination = new Rectangle(0, Texture2D.Height + 50, yMouseCoordTexture.Width,
-                                                        yMouseCoordTexture.Height);
-
-                _spriteBatch.Begin();
-                _spriteBatch.Draw(yMouseCoordTexture, yMouseDestination, yMouseSource, Color.Blue);
-                _spriteBatch.End();
-                /*==================================================================================================*/
+                MouseYPercent = 100 - ((MouseYCoord / Rectangle.Height) * 100);
             }
         }
 
@@ -366,7 +342,9 @@ namespace SWENG.UserInterface
                 x = i * Texture2D.Width / timeSpan;
                 y = ((Math.Abs(dataPoints[i]) * -(Texture2D.Height)) + Texture2D.Bounds.Bottom) + 5;
 
-                _dataPointDestination = new Rectangle((int) ((_yAxisTitleTexture.Width + MARGIN) + x), (int) y, _chartMarkerTexture.Width * _markerSize, _chartMarkerTexture.Height * _markerSize);
+                /* Normalize y-point to go no higher than 1 */
+                if (y.Equals(0))
+                    y += y + (_chartMarkerTexture.Height * (_markerSize + 1));
 
                 spriteBatch.Draw(_chartMarkerTexture, _dataPointDestination, Color.Red);
 
@@ -411,32 +389,5 @@ namespace SWENG.UserInterface
         {
             sb.DrawString(_spriteFont, text, location, Color.Blue);
         }
-
-        /* ======================  Mouse coordinate test functionality ======================================== */
-        private Texture2D CreateMouseCoordTexture(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
-        {
-            SpriteFont spriteFont = contentManager.Load<SpriteFont>("Arial12");
-            Vector2 yAxisMeasure = spriteFont.MeasureString(MouseYPercent.ToString(CultureInfo.InvariantCulture));
-            RenderTarget2D renderTarget2d = new RenderTarget2D(game.GraphicsDevice, (int)yAxisMeasure.X, (int)yAxisMeasure.Y);
-
-            game.GraphicsDevice.SetRenderTarget(renderTarget2d);
-            game.GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-
-            spriteBatch.Begin();
-
-            spriteBatch.DrawString(
-                spriteFont,
-                String.Format("X Coord: {0} | Y Coord:{1}", MouseXCoord, MouseYCoord),
-                Vector2.Zero, 
-                Color.Blue
-            );
-
-            spriteBatch.End();
-
-            game.GraphicsDevice.SetRenderTarget(null);
-
-            return renderTarget2d;
-        }
-        /* ==================================================================================================== */
     }
 }
