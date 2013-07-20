@@ -88,7 +88,7 @@ namespace SWENG.Criteria
 
             // get the vertex and other joints off the skeleton stamp
             vertexJoint = skeletonStamp.GetTrackedSkeleton().Joints[Vertex.GetJointType()];
-            
+
             adjacentJoints = new Joint[2];
             adjacentJoints[0] = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[0].GetJointType()];
             adjacentJoints[1] = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[1].GetJointType()];
@@ -127,5 +127,18 @@ namespace SWENG.Criteria
             results[(int)adjacentJoints[1].JointType] = normalizedAccuracy;
             return results;
         }
+
+        public override List<Joint> MatchSkeletonToCriterion()
+        {
+            List<JointType> jointTypes = new List<JointType>();
+
+            jointTypes.Add(Vertex.GetJointType());
+            foreach (XmlJointType xmlJointType in OtherJoints)
+            {
+                jointTypes.Add(xmlJointType.GetJointType());
+            }
+            return null;
+        }
+
     }
 }

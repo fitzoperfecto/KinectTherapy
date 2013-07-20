@@ -79,7 +79,8 @@ namespace SWENG.Criteria
                     alignmentValue = JointAnalyzer.alignedVertically(trackedJoints[0], trackedJoints[1]);
                     break;
             }
-            return alignmentValue > MinimumAcceptedRange && alignmentValue < MaximumAcceptedRange;
+            Console.WriteLine("Align:" + Alignment + " Joint:" + trackedJoints[0].JointType.ToString() + " val:" + alignmentValue + " Min:" + MinimumAcceptedRange + " Max:" + MaximumAcceptedRange);
+            return alignmentValue > MaximumAcceptedRange;
         }
 
 
@@ -110,25 +111,30 @@ namespace SWENG.Criteria
             {
                 case Alignment.Point:
                     centerJoint = skeletonStamp.GetTrackedSkeleton().Joints[CenterJoint.GetJointType()];
-                    tempValue = JointAnalyzer.areJointsAligned(centerJoint, trackedJoints);
+                    tempValue = 1 - JointAnalyzer.areJointsAligned(centerJoint, trackedJoints);
                     alignmentValue[(int)CenterJoint.GetJointType()] = tempValue;
                     alignmentValue[(int)trackedJoints[0].JointType] = tempValue;
                     alignmentValue[(int)trackedJoints[1].JointType] = tempValue;
                     break;
                 case Alignment.Horizontal:
-                    tempValue = JointAnalyzer.alignedHorizontally(trackedJoints[0], trackedJoints[1]);
+                    tempValue = 1 - JointAnalyzer.alignedHorizontally(trackedJoints[0], trackedJoints[1]);
                     alignmentValue[(int)trackedJoints[0].JointType] = tempValue;
                     alignmentValue[(int)trackedJoints[1].JointType] = tempValue;
                     break;
                 case Alignment.Vertical:
-                    tempValue = JointAnalyzer.alignedVertically(trackedJoints[0], trackedJoints[1]);
+                    tempValue = 1 - JointAnalyzer.alignedVertically(trackedJoints[0], trackedJoints[1]);
                     alignmentValue[(int)trackedJoints[0].JointType] = tempValue;
                     alignmentValue[(int)trackedJoints[1].JointType] = tempValue;
                     break;
             }
 
-            Debug.WriteLine("Align:" + Alignment + " Joint:" + trackedJoints[0].JointType.ToString() + " val:" + alignmentValue[(int)trackedJoints[0].JointType] + " Min:" + MinimumAcceptedRange + " Max:" + MaximumAcceptedRange);
+            Console.WriteLine("Align:" + Alignment + " Joint:" + trackedJoints[0].JointType.ToString() + " val:" + alignmentValue[(int)trackedJoints[0].JointType] + " Min:" + MinimumAcceptedRange + " Max:" + MaximumAcceptedRange);
             return alignmentValue;
+        }
+
+        public override List<Joint> MatchSkeletonToCriterion()
+        {
+            throw new NotImplementedException();
         }
     }
 

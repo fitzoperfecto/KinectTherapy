@@ -138,6 +138,25 @@ namespace SWENG.Criteria
             }
             return matches;
         }
+
+        public Skeleton createStartingSkeleton(SkeletonStamp skeletonStamp)
+        {
+            Skeleton skeleton = skeletonStamp.GetTrackedSkeleton();
+            /* Determine the joint types to calculate */
+            ISet<JointType> jointTypes = new SortedSet<JointType>();
+            foreach (Criterion criterion in StartingCriteria)
+            {
+                foreach (Joint jointType in criterion.MatchSkeletonToCriterion())
+                {
+                    jointTypes.Add(jointType.JointType);
+                }
+            }
+            /* find path to take from parent to child */
+            foreach (JointType jointType in jointTypes)
+            {
+            }
+            return null;
+        }
     }
 
     [Serializable()]

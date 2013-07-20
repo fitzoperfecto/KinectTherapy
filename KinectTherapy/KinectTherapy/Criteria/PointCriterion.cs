@@ -6,11 +6,12 @@ using Microsoft.Kinect;
 
 namespace SWENG.Criteria
 {
-    public class PointCriterion:Criterion
+    public class PointCriterion : Criterion
     {
         public String Axis { get; set; }
         public JointType JointType;
-        public PointCriterion(String Axis,JointType jointType,float variance):base(variance)
+        public PointCriterion(String Axis, JointType jointType, float variance)
+            : base(variance)
         {
             this.Axis = Axis;
             this.JointType = jointType;
@@ -22,6 +23,11 @@ namespace SWENG.Criteria
         }
 
         public override double[] CheckForm(SkeletonStamp skeletonStamp)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override List<Joint> MatchSkeletonToCriterion()
         {
             throw new NotImplementedException();
         }

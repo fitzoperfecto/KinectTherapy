@@ -19,6 +19,7 @@ namespace SWENG.Criteria
         /// to see if the joints are aligned we must choose one joint as the starting point (NOT THE CENTER) and compare to the other two joints
         /// the Dot product will determine if they are in alignment. 
         /// 1 = parallel; 0 = perpendicular; -1 = pointing opposite directions
+        /// we take the absolute value so that 1 and -1 are both aligned correctly
         /// </summary>
         /// <param name="centerJoint"></param>
         /// <param name="otherJoints"></param>
@@ -41,36 +42,55 @@ namespace SWENG.Criteria
             // must be the same point so return 0
             if (float.IsNaN(dot))
             {
-                dot = 0;
+                Console.Write("isnan");
+                dot = 1;
             }
-            return dot;
+            return Math.Abs(dot);
         }
 
         /// <summary>
-        /// Negative response means aligning joint is below joint to be aligned to
-        /// Positive response means aligning joint is above joint to be aligned to. 
-        /// 0 means they are at the same level
+        /// 0 means they are perpendicuallary unaligned. 
+        /// 1 means they are at the same level
         /// </summary>
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
         public static float alignedHorizontally(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            // KISS then expand
-            return aligningJoint.Position.Y - jointToBeAlignedTo.Position.Y;
+            Joint joint = new Joint();
+            SkeletonPoint sp = new SkeletonPoint();
+            sp.X = aligningJoint.Position.X + 1;
+            sp.Y = aligningJoint.Position.Y;
+            sp.Z = aligningJoint.Position.Z;
+            joint.Position = sp;
+            Joint[] joints = new Joint[2];
+            joints[0] = aligningJoint;
+            joints[1] = jointToBeAlignedTo;
+            return areJointsAligned(joint, joints);
         }
 
         /// <summary>
-        /// Negative response means aligning joint is to the left of joint to be aligned to
-        /// Positive response means aligning joint is to the right of joint to be aligned to. 
-        /// 0 means they are at the same level
+        /// 0 means they are perpendicuallary unaligned. 
+        /// 1 means they are at the same level
         /// </summary>
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
         public static float alignedVertically(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            return aligningJoint.Position.X - jointToBeAlignedTo.Position.X;
+            Joint joint = new Joint();
+            SkeletonPoint sp = new SkeletonPoint();
+            sp.X = aligningJoint.Position.X;
+            sp.Y = aligningJoint.Position.Y + 1;
+            sp.Z = aligningJoint.Position.Z;
+            joint.Position = sp;
+            Joint[] joints = new Joint[2];
+            joints[0] = aligningJoint;
+            joints[1] = jointToBeAlignedTo;
+            Console.WriteLine("aligningjoint x " + joints[0].Position.X + " y " + joints[0].Position.Y);
+            Console.WriteLine("jointToBeAligned x " + joints[1].Position.X + " y " + joints[1].Position.Y);
+            Console.WriteLine("generatedJoint x " + joint.Position.X + " y " + joint.Position.Y);
+            return areJointsAligned(joint, joints);
         }
 
         /// <summary>
@@ -81,7 +101,7 @@ namespace SWENG.Criteria
         /// <returns></returns>
         public static bool isLeftOf(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            return alignedVertically(aligningJoint, jointToBeAlignedTo) < 0;
+            return aligningJoint.Position.X - jointToBeAlignedTo.Position.X < 0;
         }
 
         /// <summary>
@@ -92,7 +112,7 @@ namespace SWENG.Criteria
         /// <returns></returns>
         public static bool isRightOf(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            return alignedVertically(aligningJoint, jointToBeAlignedTo) > 0;
+            return aligningJoint.Position.X - jointToBeAlignedTo.Position.X > 0;
         }
 
         /// <summary>
@@ -103,7 +123,7 @@ namespace SWENG.Criteria
         /// <returns></returns>
         public static bool isAbove(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            return alignedHorizontally(aligningJoint, jointToBeAlignedTo) > 0;
+            return aligningJoint.Position.Y - jointToBeAlignedTo.Position.Y > 0;
         }
 
         /// <summary>
@@ -114,7 +134,7 @@ namespace SWENG.Criteria
         /// <returns></returns>
         public static bool isBelow(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            return alignedHorizontally(aligningJoint, jointToBeAlignedTo) < 0;
+            return aligningJoint.Position.Y - jointToBeAlignedTo.Position.Y < 0;
         }
 
         /// <summary>
@@ -125,7 +145,7 @@ namespace SWENG.Criteria
         /// <returns></returns>
         public static bool isAhead(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            return alignedHorizontally(aligningJoint, jointToBeAlignedTo) < 0;
+            return aligningJoint.Position.Z - jointToBeAlignedTo.Position.Z < 0;
         }
 
         /// <summary>
@@ -136,7 +156,7 @@ namespace SWENG.Criteria
         /// <returns></returns>
         public static bool isBehind(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
-            return alignedHorizontally(aligningJoint, jointToBeAlignedTo) < 0;
+            return aligningJoint.Position.Z - jointToBeAlignedTo.Position.Z > 0;
         }
 
         /// <summary>
