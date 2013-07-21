@@ -235,9 +235,6 @@ namespace SWENG.UserInterface
             int degreesOfFreedom = Math.Abs(Chooser.Sensor.MaxElevationAngle);
 
             float paginationSegment = 100.0f / (splits);
-            Debug.WriteLine(
-                string.Format("pages = {0}", splits)
-            );
 
             /** 100% scrolled would always give you a page 1 if this wasn't implemented */
             if (scrollPercent == 50.0f)

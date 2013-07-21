@@ -83,8 +83,6 @@ namespace SWENG.Criteria
             // Test bone orientations
             Skeleton skeleton = skeletonStamp.GetTrackedSkeleton();
             BoneOrientation bo = skeleton.BoneOrientations[Vertex.GetJointType()];
-            Debug.WriteLine("Bone Orientation: abs: " + bo.AbsoluteRotation.ToString() + " end: " + bo.EndJoint.ToString() + " start: " + bo.StartJoint.ToString() + " hier: " + bo.HierarchicalRotation.ToString());
-
 
             // get the vertex and other joints off the skeleton stamp
             vertexJoint = skeletonStamp.GetTrackedSkeleton().Joints[Vertex.GetJointType()];
@@ -93,7 +91,7 @@ namespace SWENG.Criteria
             adjacentJoints[0] = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[0].GetJointType()];
             adjacentJoints[1] = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[1].GetJointType()];
             int convertedDotAngle = JointAnalyzer.findAngle(vertexJoint, adjacentJoints);
-            Debug.WriteLine("Vertex: " + vertexJoint.JointType.ToString() + " Angle: " + convertedDotAngle + " Min: " + MinimumAngle + " Max: " + MaximumAngle);
+
             return convertedDotAngle;
         }
 

@@ -42,7 +42,6 @@ namespace SWENG.Criteria
             // must be the same point so return 0
             if (float.IsNaN(dot))
             {
-                Console.Write("isnan");
                 dot = 1;
             }
             return Math.Abs(dot);
@@ -87,9 +86,7 @@ namespace SWENG.Criteria
             Joint[] joints = new Joint[2];
             joints[0] = aligningJoint;
             joints[1] = jointToBeAlignedTo;
-            Console.WriteLine("aligningjoint x " + joints[0].Position.X + " y " + joints[0].Position.Y);
-            Console.WriteLine("jointToBeAligned x " + joints[1].Position.X + " y " + joints[1].Position.Y);
-            Console.WriteLine("generatedJoint x " + joint.Position.X + " y " + joint.Position.Y);
+
             return areJointsAligned(joint, joints);
         }
 

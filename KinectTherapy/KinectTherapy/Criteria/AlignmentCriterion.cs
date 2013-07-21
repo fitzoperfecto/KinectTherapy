@@ -79,7 +79,7 @@ namespace SWENG.Criteria
                     alignmentValue = JointAnalyzer.alignedVertically(trackedJoints[0], trackedJoints[1]);
                     break;
             }
-            Console.WriteLine("Align:" + Alignment + " Joint:" + trackedJoints[0].JointType.ToString() + " val:" + alignmentValue + " Min:" + MinimumAcceptedRange + " Max:" + MaximumAcceptedRange);
+
             return alignmentValue > MaximumAcceptedRange;
         }
 
@@ -128,7 +128,6 @@ namespace SWENG.Criteria
                     break;
             }
 
-            Console.WriteLine("Align:" + Alignment + " Joint:" + trackedJoints[0].JointType.ToString() + " val:" + alignmentValue[(int)trackedJoints[0].JointType] + " Min:" + MinimumAcceptedRange + " Max:" + MaximumAcceptedRange);
             return alignmentValue;
         }
 
