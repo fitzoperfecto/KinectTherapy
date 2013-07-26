@@ -14,6 +14,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
     using Microsoft.Xna.Framework.Graphics;
     using SWENG.Service;
     using SWENG;
+    using System.Diagnostics;
 
     /// <summary>
     /// A delegate method explaining how to map a SkeletonPoint from one space to another.
@@ -76,6 +77,8 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                 return (SkeletonPool)this.Game.Services.GetService(typeof(SkeletonPool));
             }
         }
+
+        private int _counter = 0;
 
         /// <summary>
         /// Initializes a new instance of the SkeletonStreamRenderer class.
@@ -143,9 +146,14 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                         return;
                     }
 
-                    if (this.RecordingManager.Status == RecordingManagerStatus.Recording)
+                    if (RecordingManager.Status == RecordingManagerStatus.Recording)
                     {
-                        this.RecordingManager.Record(skeletonFrame);
+                        SkeletonStamp stamp = SkeletonPool.GetOldestProcessedSkeleton();
+                        RecordingManager.Record(stamp.PercentBad, stamp.TimeStamp);
+                        ++_counter;
+                        Debug.WriteLine(_counter);
+
+                        RecordingManager.Record(skeletonFrame);
                     }
 
                     // Reallocate if necessary

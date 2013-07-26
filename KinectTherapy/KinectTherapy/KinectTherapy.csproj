@@ -113,6 +113,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Criteria\Operation.cs" />
+    <Compile Include="Record\DataRecorder.cs" />
+    <Compile Include="Record\PostProcessedRead.cs" />
+    <Compile Include="Record\PostProcessedRecorder.cs" />
     <Compile Include="SkeletonStampStreamRenderer.cs" />
     <Compile Include="Criteria\AlignmentCriterion.cs" />
     <Compile Include="Criteria\AngleCriterion.cs" />
@@ -140,6 +143,8 @@
     <Compile Include="TimerRepetition.cs" />
     <Compile Include="UserInterface\CatalogScreen.cs" />
     <Compile Include="UserInterface\CatalogTileEditScreen.cs" />
+    <Compile Include="UserInterface\GuiChart.cs" />
+    <Compile Include="UserInterface\GuiChartOptions.cs" />
     <Compile Include="UserInterface\GuiLabel.cs" />
     <Compile Include="UserInterface\GuiCheckbox.cs" />
     <Compile Include="UserInterface\GuiInputBox.cs" />

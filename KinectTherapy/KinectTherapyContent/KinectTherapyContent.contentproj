@@ -119,6 +119,11 @@
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>
+    <Compile Include="Arial12.spritefont">
+      <Name>Arial12</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
     <None Include="Exercises\ArmExtensions.xml">
       <Name>ArmExtensions</Name>
       <Importer>XmlImporter</Importer>
@@ -505,6 +510,13 @@
     </Compile>
     <Compile Include="UI\VarianceLabel.png">
       <Name>VarianceLabel</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="UI\ChartTexture.png">
+      <Name>ChartTexture</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

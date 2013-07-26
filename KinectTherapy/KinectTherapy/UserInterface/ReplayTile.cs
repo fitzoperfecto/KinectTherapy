@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SWENG.Service;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 
 namespace SWENG.UserInterface
 {
@@ -35,12 +36,12 @@ namespace SWENG.UserInterface
         }
         #endregion
 
-        private ContentManager _contentManager;
-
         private Texture2D _titleTexture;
         private Rectangle _titleDestination;
         private Rectangle _titleSource;
 
+		private GuiChart _chartTexture;
+		
         private const int HEADER = 40;
 
         private const int SCROLLRATE = 5;
@@ -92,10 +93,20 @@ namespace SWENG.UserInterface
                 return;
             }
 
-            _contentManager = contentManager;
+            string[] _axesNames = { "Time - seconds", "Deviation" };
+            string ChartType = "Repetitions";
+            bool ChartLines = true;
+            bool TickMarks = true;
+            int MarkerSize = 2;
+            float[] _dataPoints = { 1f, .33f, 1f, .67f, 1f, -1f, 0f, -.33f, 0f, 0f, 0f, -.67f, 0f, 1f, 0f };
+            float _timeSpan;
+            float RepDuration = 47500;
+            _timeSpan = _dataPoints.Length;
+            GuiChartOptions chartOptions = new GuiChartOptions(_axesNames, ChartType, ChartLines, TickMarks, MarkerSize, _dataPoints, _timeSpan, RepDuration);
+			
             Texture2D = contentManager.Load<Texture2D>(@"UI\ReplayTile");
 
-            _titleTexture = CreateTitleTexture(game, _contentManager, spriteBatch);
+            _titleTexture = CreateTitleTexture(game, contentManager, spriteBatch);
             _titleDestination = new Rectangle(
                 (int)Position.X + MARGIN,
                 (int)Position.Y + MARGIN,
@@ -103,6 +114,22 @@ namespace SWENG.UserInterface
                 _titleTexture.Height
             );
 
+            RecordingManager rec = (RecordingManager)game.Services.GetService(typeof(RecordingManager));
+
+            SkeletonStamp[] stamps = rec.ReadProcessedData(FileId);
+
+            Debug.WriteLine(stamps.Length);
+
+            /*
+            _chartTexture = new GuiChart(
+                "Text",
+                Size - new Vector2(_titleTexture.Width, _titleTexture.Height),
+                Position + new Vector2(_titleTexture.Width, _titleTexture.Height),
+                chartOptions
+            );
+
+            _chartTexture.LoadContent(game, contentManager, spriteBatch);
+            */
             _titleSource = new Rectangle(
                 0,
                 0,
@@ -173,6 +200,8 @@ namespace SWENG.UserInterface
                 }
             }
 
+			//_chartTexture.Update(currentState, oldMouseState, mouseBoundingBox, gameTime);
+			
             _oldGameTime = currentGameTime;
         }
 
@@ -196,6 +225,8 @@ namespace SWENG.UserInterface
                     _titleSource,
                     Color.White
                 );
+				
+                //_chartTexture.Draw(spriteBatch);
             }
         }
     }
