@@ -7,11 +7,23 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Kinect;
 using SWENG.Service;
 using SWENG.Criteria;
+using System.Diagnostics;
 
 namespace SWENG
 {
     // used for repetition starting
     public delegate void StartedRepetitionEventHandler(object sender, EventArgs e);
+    public delegate void CountdownChangedEventHandler(object sender, CountdownEventArgs e);
+
+    public class CountdownEventArgs : EventArgs
+    {
+        public int Counter;
+
+        public CountdownEventArgs(int counter)
+        {
+            Counter = counter;
+        }
+    }
 
     public class ExerciseGameComponent : GameComponent
     {
@@ -26,6 +38,16 @@ namespace SWENG
         }
 
         private Boolean _reptitionStarted;
+
+        public event CountdownChangedEventHandler CountdownChanged;
+
+        protected virtual void OnCountdownChanged(CountdownEventArgs e)
+        {
+            if (CountdownChanged != null)
+            {
+                CountdownChanged(this, e);
+            }
+        }
         #endregion
         /// <summary>
         /// Gets the SkeletonPool from the services.
@@ -55,8 +77,6 @@ namespace SWENG
                     repetition.Checkpoint = 0;
                 }
                 _reptitionStarted = value;
-                
-
             }
         }
         
@@ -68,9 +88,34 @@ namespace SWENG
         public List<string> RepetitionToFileId { get; internal set; }
         public List<string> ExerciseToCatalogId { get; internal set; }
 
+        /* Countdown settings do determine when to start the exercise */
+        public bool ExerciseStarted; // has the exercise started
+        private bool CountdownStarted; // so we can restart the timer if the patient goes out of position
+        public int Counter
+        {
+            get
+            {
+                return _counter;
+            }
+            set
+            {
+                if (_counter != value)
+                {
+                    OnCountdownChanged(new CountdownEventArgs(value));
+                }
+                _counter = value;
+            }
+        }
+        private int _counter = -1;// the counter counts down from 3 to 0 
+        private int limit = -1; // when the counter stops.
+        private float countDuration = 1f; // counter changes value every 1 second.
+        private float currentTime = 0f; //amount of time that has elapsed in seconds
+
         public ExerciseGameComponent(Game game,Exercise exercise)
             : base(game)
         {
+            ExerciseStarted = false;
+            CountdownStarted = false;
             RepetitionComplete = false;
             RepetitionStarted = false;
             Repetitions = 0;
@@ -95,7 +140,41 @@ namespace SWENG
             // determine whether a rep has been started based on Exercise Start Criteria.
             if (skeletonStamp != null && skeletonStamp.GetTrackedSkeleton() != null)
             {
-                if (!RepetitionStarted)
+                if (!ExerciseStarted)
+                {
+                    /* make sure we're in the correct starting position */
+                    if (repetition.isRepStarted(skeletonStamp))
+                    {
+                        if (!CountdownStarted)
+                        {
+                            /* its the finallllllll countdowwwwwwwn http://www.youtube.com/watch?v=9jK-NcRmVcw */
+                            CountdownStarted = true;
+                            Counter = 3;
+                        }
+                        else
+                        {
+                            currentTime += (float)gameTime.ElapsedGameTime.TotalSeconds; //Time passed since last Update() 
+                            if (currentTime >= countDuration)
+                            {
+                                Counter--;
+                                currentTime -= countDuration; // clearout the time
+                            }
+                            if (Counter <= limit)
+                            {
+                                ExerciseStarted = RepetitionStarted = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        /* reset the counter */
+                        CountdownStarted = false;
+                        Counter = -1;
+                        // initialize the checkpoint to the 0 based checkpoint. 
+                        repetition.Checkpoint = _exercise.Checkpoints.Length;
+                    }
+                }
+                else if (!RepetitionStarted)
                 {
                     // initialize the checkpoint to the 0 based checkpoint. 
                     repetition.Checkpoint = _exercise.Checkpoints.Length;
@@ -107,7 +186,7 @@ namespace SWENG
                     // A couple updates could occur before the next draw. 
                     if (!RepetitionComplete)
                     {
-                        
+
                         // see if the rep has been completed
                         if (RepetitionComplete = repetition.isRepComplete(skeletonStamp))
                         {

@@ -138,5 +138,22 @@ namespace SWENG.Criteria
             return null;
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Angle: ");
+            sb.Append(Angle);
+            sb.Append("\nVertex: ");
+            sb.Append(Vertex.GetJointType().ToString());
+            sb.Append("\nJoint1: ");
+            sb.Append(OtherJoints[0].GetJointType().ToString());
+            sb.Append("\nJoint2: ");
+            sb.Append(OtherJoints[1].GetJointType().ToString());
+            sb.Append("\nOperation: ");
+            sb.Append(Operation.ToString());
+
+
+            return sb.ToString();
+        }
     }
 }

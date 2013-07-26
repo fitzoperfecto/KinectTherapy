@@ -48,7 +48,7 @@ namespace SWENG.UserInterface
         private Vector2 _tileSize;
         private Vector2 _tileTextPosition;
         private string _repetitionString;
-
+        private Texture2D _countTexture;
         private RecordingManager recordingManager
         {
             get
@@ -257,6 +257,8 @@ namespace SWENG.UserInterface
             if (_isInitialized)
             {
                 GraphicsDevice.Clear(Color.WhiteSmoke);
+                _colorStream.Draw(gameTime);
+
                 var spriteBatch = SharedSpriteBatch;
                 spriteBatch.Begin();
 
@@ -283,9 +285,15 @@ namespace SWENG.UserInterface
                     );
                 }
 
+                if (_countTexture != null)
+                {
+                    spriteBatch.Draw(
+                        _countTexture,
+                        _colorStreamPosition,
+                        Color.White
+                    );
+                }
                 spriteBatch.End();
-
-                _colorStream.Draw(gameTime);
             }
 
             base.Draw(gameTime);
@@ -311,6 +319,8 @@ namespace SWENG.UserInterface
             /** Draw at the same height for cycling through */
             for (int i = 0; i < exercises.Length; i = i + 1)
             {
+                /* listen for exercise game components counter */
+                exercises[i].CountdownChanged += CountdownChanged;
                 _exerciseTiles[i] = new ExerciseTile(Game, exercises[i], i, _tileSize, _tilePosition);
                 _exerciseTiles[i].LoadContent(Game, contentManager, SharedSpriteBatch);
                 if (i == 0)
@@ -321,5 +331,22 @@ namespace SWENG.UserInterface
 
             base.Transition();
         }
+
+        public void CountdownChanged(object sender, CountdownEventArgs args)
+        {
+            if (args.Counter > 0)
+            {
+                _countTexture = contentManager.Load<Texture2D>(@"UI\" + args.Counter);
+            }
+            else if (args.Counter == 0)
+            {
+                _countTexture = contentManager.Load<Texture2D>(@"UI\Begin");
+            }
+            else
+            {
+                _countTexture = null;
+            }
+        }
+
     }
 }

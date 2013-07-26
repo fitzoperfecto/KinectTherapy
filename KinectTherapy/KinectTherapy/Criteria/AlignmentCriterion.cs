@@ -135,6 +135,23 @@ namespace SWENG.Criteria
         {
             throw new NotImplementedException();
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Alignment: ");
+            sb.Append(Alignment);
+            if (CenterJoint != null)
+            {
+                sb.Append("\nCenterJoint: ");
+                sb.Append(CenterJoint.GetJointType().ToString());
+            }
+            sb.Append("\nJoint1: ");
+            sb.Append(Joints[0].GetJointType().ToString());
+            sb.Append("\nJoint2: ");
+            sb.Append(Joints[1].GetJointType().ToString());
+            return sb.ToString();
+        }
     }
 
 
