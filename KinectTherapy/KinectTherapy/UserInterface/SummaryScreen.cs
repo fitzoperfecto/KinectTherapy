@@ -297,6 +297,12 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
+            RecordingManager rm = (RecordingManager)Game.Services.GetService(typeof(RecordingManager));
+            if (rm.Status == RecordingManagerStatus.Recording)
+            {
+                rm.StopRecording();
+            }
+
             if (_isInitialized
                 && (ScreenState & UserInterface.ScreenState.NonInteractive) == 0)
             {
