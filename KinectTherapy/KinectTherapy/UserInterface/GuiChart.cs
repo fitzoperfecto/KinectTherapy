@@ -10,10 +10,9 @@ namespace SWENG.UserInterface
     class GuiChart : GuiDrawable
     {
         #region Game related objects
-        private ContentManager _contentManager;
-        private SpriteBatch _spriteBatch;
+
         private SpriteFont _spriteFont;
-        private Game _game;
+
         #endregion
 
         #region Chart objects and variables
@@ -24,7 +23,7 @@ namespace SWENG.UserInterface
         private readonly bool _tickMarks;
         private readonly bool _chartLines;
         private readonly float[] _dataPoints;
-        private readonly int _markerSize;
+        private readonly float _scale;
         private readonly float _timeSpan;
         private readonly float _repDuration;
 
@@ -32,14 +31,19 @@ namespace SWENG.UserInterface
         private Texture2D _yAxisTitleTexture;
         private Texture2D _chartMarkerTexture;
         private Texture2D _yAxisIntervalTexture;
+        private Texture2D _dataPointTexture;
+
         private Rectangle _yIntervalDestination;
         private Rectangle _yIntervalSource;
-
+        
         private Rectangle _xAxisDestination;
         private Rectangle _xSource;
         private Rectangle _yAxisDestination;
         private Rectangle _ySource;
         private Rectangle _dataPointDestination;
+        private Rectangle _dataPointTextureDestination;
+        private Rectangle _dataPointTextureSource;
+
         private Rectangle _texture2DRectangle;
         #endregion
 
@@ -52,9 +56,15 @@ namespace SWENG.UserInterface
 
         #region Miscellaneous variables
         private readonly Vector2 _position;
+        private readonly Vector2 _size;
 
         private const int MARGIN = 15;
+        private const int MarkerSize = 2;
         #endregion
+
+        public GuiChart(string text, Vector2 size, Vector2 position)
+            : base(text, size, position)
+        {}
 
         /// <summary>
         /// GuiChart is a class that handles taking datapoints from the Summary Screen and creates a chart object to be displayed and returns a percentage
@@ -71,7 +81,7 @@ namespace SWENG.UserInterface
             _chartType = chartOptions.ChartType;
             _tickMarks = chartOptions.TickMarks;
             _dataPoints = chartOptions.DataPoints;
-            _markerSize = chartOptions.MarkerSize;
+            _scale = chartOptions.Scale;
             _timeSpan = chartOptions.TimeInterval;
             _repDuration = chartOptions.RepDuration;
             _chartLines = chartOptions.ChartLines;
@@ -91,42 +101,78 @@ namespace SWENG.UserInterface
             {
                 spriteBatch.Draw(
                     Texture2D,
-                    _position,
-                    Color.White
-                );
+                    _position, 
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
+                    0
+                  );
 
                 spriteBatch.Draw(
                     _xAxisTitleTexture,
-                    _xAxisDestination,
-                    _xSource,
-                    Color.White
-                );
+                    new Vector2(_xAxisDestination.X * _scale, _xAxisDestination.Y * _scale), 
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
+                    0
+                  );
 
                 if (_chartType.Equals("Time"))
                 {
                     spriteBatch.DrawString(
                         _spriteFont,
                         (_repDuration * .001f).ToString(CultureInfo.InvariantCulture),
-                        new Vector2((_yAxisTitleTexture.Width + MARGIN) + Texture2D.Width, Texture2D.Height + (MARGIN * 3)),
-                        Color.Blue
-                    );
-                } 
-                
+                        new Vector2((_yAxisTitleTexture.Width) + _texture2DRectangle.Width, _texture2DRectangle.Height + MARGIN),
+                        Color.Blue,
+                        0,
+                        Vector2.Zero,
+                        _scale,
+                        SpriteEffects.None, 
+                        0
+                      );
+                }
+
                 spriteBatch.Draw(
                     _yAxisTitleTexture,
-                    _yAxisDestination,
-                    _ySource,
-                    Color.White
-                );
+                    new Vector2(_yAxisDestination.X * _scale, _yAxisDestination.Y * _scale),
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
+                    0
+                  );
 
                 spriteBatch.Draw(
                     _yAxisIntervalTexture,
-                    _yIntervalDestination,
-                    _yIntervalSource,
-                    Color.White
-                );
+                    new Vector2(_yIntervalDestination.X * _scale, _yIntervalDestination.Y * _scale),
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
+                    0
+                  ); 
 
-                DrawDataPointTexture(_game, spriteBatch, _dataPoints, _timeSpan);
+                spriteBatch.Draw(
+                    _dataPointTexture,
+                    _position,
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
+                    0
+                    );
 
             }
             spriteBatch.End();
@@ -143,16 +189,18 @@ namespace SWENG.UserInterface
         {
             if (null == contentManager) return;
 
-            Texture2D = _contentManager.Load<Texture2D>(@"UI\ChartTexture");
-            _chartMarkerTexture = _contentManager.Load<Texture2D>(@"blank");
+            Texture2D = contentManager.Load<Texture2D>(@"UI\ChartTexture");
+            _texture2DRectangle = new Rectangle((int)_position.X, (int)_position.Y, Texture2D.Width, Texture2D.Height);
 
-            _xAxisTitleTexture = CreateXAxisTitleTexture(game, _contentManager, spriteBatch);
-            _yAxisTitleTexture = CreateYAxisTitleTexture(game, _contentManager, spriteBatch);
+            _chartMarkerTexture = contentManager.Load<Texture2D>(@"blank");
 
-            _xAxisTitleTexture = CreateXAxisTitleTexture(game, _contentManager, spriteBatch);
+            _xAxisTitleTexture = CreateXAxisTitleTexture(game, contentManager, spriteBatch);
+            _yAxisTitleTexture = CreateYAxisTitleTexture(game, contentManager, spriteBatch);
+
+            _xAxisTitleTexture = CreateXAxisTitleTexture(game, contentManager, spriteBatch);
             _xAxisDestination = new Rectangle(
-                Texture2D.Width / 2,
-                Texture2D.Height + (MARGIN * 3),
+                _texture2DRectangle.Width / 2,
+                _texture2DRectangle.Height + (MARGIN * 3),
                 _xAxisTitleTexture.Width,
                 _xAxisTitleTexture.Height
             );
@@ -164,10 +212,10 @@ namespace SWENG.UserInterface
                 _xAxisTitleTexture.Height
             );
 
-            _yAxisTitleTexture = CreateYAxisTitleTexture(game, _contentManager, spriteBatch);
+            _yAxisTitleTexture = CreateYAxisTitleTexture(game, contentManager, spriteBatch);
             _yAxisDestination = new Rectangle(
                 MARGIN,
-                Texture2D.Height / 2,
+                _texture2DRectangle.Height / 2,
                 _yAxisTitleTexture.Width,
                 _yAxisTitleTexture.Height
             );
@@ -179,7 +227,7 @@ namespace SWENG.UserInterface
                 _yAxisTitleTexture.Height
             );
 
-            _yAxisIntervalTexture = CreateYAxisIntervalTexture(game, _contentManager, spriteBatch);
+            _yAxisIntervalTexture = CreateYAxisIntervalTexture(game, contentManager, spriteBatch);
             _yIntervalDestination = new Rectangle(
                 _yAxisTitleTexture.Width,
                 Texture2D.Bounds.Top,
@@ -194,8 +242,9 @@ namespace SWENG.UserInterface
                 _yAxisIntervalTexture.Height
             );
 
-            /* Create bounding rectangle for mouse functionality */
-            //_texture2DRectangle = new Rectangle(Texture2D.Bounds.X + MARGIN, Texture2D.Bounds.Y + 3, Texture2D.Width + 100, Texture2D.Height + 3);
+            _dataPointTexture = DrawDataPointTexture(game, spriteBatch, _dataPoints, _timeSpan);
+            _dataPointTextureDestination = new Rectangle(_texture2DRectangle.X, _texture2DRectangle.Y, _dataPointTexture.Width, _dataPointTexture.Height);
+            _dataPointTextureSource = new Rectangle(0, 0, _dataPointTexture.Width, _dataPointTexture.Height);
 
         }
 
@@ -209,7 +258,7 @@ namespace SWENG.UserInterface
         /// <param name="gameTime"></param>
         public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
         {
-            if (!mouseBoundingBox.Intersects(Rectangle)) return;
+            if (!mouseBoundingBox.Intersects(_texture2DRectangle)) return;
 
             if (mouseState.LeftButton == ButtonState.Released && oldMouseState.LeftButton == ButtonState.Pressed)
             {
@@ -325,58 +374,85 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch"></param>
         /// <param name="dataPoints"></param>
         /// <param name="timeSpan"></param>
-        private void DrawDataPointTexture(Game game, SpriteBatch spriteBatch, float[] dataPoints, float timeSpan)
+        private Texture2D DrawDataPointTexture(Game game, SpriteBatch spriteBatch, float[] dataPoints, float timeSpan)
         {
             int i;
             float x;
             float y;
 
-            int j;
-
-            RenderTarget2D renderTarget2D = new RenderTarget2D(game.GraphicsDevice, _chartMarkerTexture.Width * _markerSize, _chartMarkerTexture.Height * _markerSize);
+            RenderTarget2D renderTarget2D = new RenderTarget2D(game.GraphicsDevice, _texture2DRectangle.Width, _texture2DRectangle.Bottom + MARGIN * 2);
             game.GraphicsDevice.SetRenderTarget(renderTarget2D);
             game.GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
+            spriteBatch.Begin();
+
             for (i = 0; i < dataPoints.Length - 1; i++)
             {
-                x = i * Texture2D.Width / timeSpan;
-                y = ((Math.Abs(dataPoints[i]) * -(Texture2D.Height)) + Texture2D.Bounds.Bottom) + 5;
+                x = (i * _texture2DRectangle.Width) / timeSpan;
+                y = ((dataPoints[i] * -(_texture2DRectangle.Height)) + (_texture2DRectangle.Height - _chartMarkerTexture.Height * MarkerSize));
 
                 /* Normalize y-point to go no higher than 1 */
-                if (y.Equals(0))
-                    y += y + (_chartMarkerTexture.Height * (_markerSize + 1));
+                if (y.Equals(-(_chartMarkerTexture.Height * MarkerSize)))
+                    y = -(y + (_chartMarkerTexture.Height * MarkerSize));
+
+                _dataPointDestination = new Rectangle((int)x, (int)y, _chartMarkerTexture.Width * MarkerSize, _chartMarkerTexture.Height * MarkerSize);
 
                 spriteBatch.Draw(_chartMarkerTexture, _dataPointDestination, Color.Red);
 
-                Vector2 vectorStart = new Vector2(x,y);
-                Vector2 vectorStop = new Vector2((i + 1) * Texture2D.Width / timeSpan, ((Math.Abs(dataPoints[i + 1]) * -(Texture2D.Height)) + Texture2D.Bounds.Bottom) + 5);
-
-                float length = (vectorStop - vectorStart).Length();
-                Rectangle dataLineRectangle = new Rectangle((int) ((_yAxisTitleTexture.Width + MARGIN) + x) + (_markerSize / 2), (int) vectorStart.Y, (int) length, 1);
-
                 if (_chartLines)
                 {
-                    float rotation = (float) Math.Atan2(vectorStop.Y - vectorStart.Y, vectorStop.X - vectorStart.X);
+                    Vector2 vectorStart = new Vector2(x, y + (MarkerSize * 2));
+                    Vector2 vectorStop = Vector2.Zero;
+
+                    //Normalize for boundaries
+                    if (dataPoints[i + 1].Equals(1))
+                    {
+                        vectorStop = new Vector2(x + (_texture2DRectangle.Width/timeSpan),
+                                                         ((dataPoints[i + 1]*-(_texture2DRectangle.Height)) +
+                                                          _texture2DRectangle.Height) + (MarkerSize * 2));
+                    }
+                    else if (dataPoints[i + 1].Equals(0))
+                    {
+                        vectorStop = new Vector2(x + (_texture2DRectangle.Width / timeSpan),
+                                    ((dataPoints[i + 1] * -(_texture2DRectangle.Height)) +
+                                     _texture2DRectangle.Height) - (MarkerSize * 2));   
+                    }
+                    else
+                    {
+                        vectorStop = new Vector2(x + (_texture2DRectangle.Width / timeSpan),
+                                                         ((dataPoints[i + 1] * -(_texture2DRectangle.Height)) +
+                                                          _texture2DRectangle.Height));                        
+                    }
+
+                    float length = (vectorStop - vectorStart).Length();
+                    Rectangle dataLineRectangle = new Rectangle((int)x + (_chartMarkerTexture.Width * MarkerSize / 2), (int)vectorStart.Y, (int)length, 1);
+
+                    float rotation = (float)Math.Atan2(vectorStop.Y - vectorStart.Y, vectorStop.X - vectorStart.X);
                     spriteBatch.Draw(_chartMarkerTexture, dataLineRectangle, null, Color.Red, rotation, Vector2.Zero,
                                      SpriteEffects.None, 0);
                 }
 
                 if (_tickMarks)
-                    DrawXInterval(spriteBatch, i.ToString(CultureInfo.InvariantCulture), new Vector2((int)((_yAxisTitleTexture.Width + MARGIN) + x), Texture2D.Height + MARGIN));
+                    DrawXInterval(spriteBatch, i.ToString(CultureInfo.InvariantCulture), new Vector2((int)x, _texture2DRectangle.Height + MARGIN));
             }
 
             /* Plot last point */
-            x = i * Texture2D.Width / timeSpan;
-            y = ((Math.Abs(dataPoints[i]) * -(Texture2D.Height)) + Texture2D.Bounds.Bottom) + 5;
+            x = i * _texture2DRectangle.Width / timeSpan;
+            y = ((dataPoints[i] * -(_texture2DRectangle.Height)) + (_texture2DRectangle.Height - _chartMarkerTexture.Height * MarkerSize));
 
-            _dataPointDestination = new Rectangle((int)((_yAxisTitleTexture.Width + MARGIN) + x), (int) y, _chartMarkerTexture.Width * _markerSize, _chartMarkerTexture.Height * _markerSize);
+            _dataPointDestination = new Rectangle((int)x, (int)y, _chartMarkerTexture.Width * MarkerSize, _chartMarkerTexture.Height * MarkerSize);
 
             spriteBatch.Draw(_chartMarkerTexture, _dataPointDestination, Color.Red);
 
             if (_tickMarks)
-                DrawXInterval(spriteBatch, i.ToString(CultureInfo.InvariantCulture), new Vector2((int)((_yAxisTitleTexture.Width + MARGIN) + x), Texture2D.Height + MARGIN));
+                DrawXInterval(spriteBatch, i.ToString(CultureInfo.InvariantCulture), new Vector2((int)x, _texture2DRectangle.Height + MARGIN));
+
+            spriteBatch.End();
 
             game.GraphicsDevice.SetRenderTarget(null);
+
+            return renderTarget2D;
+
         }
 
         /// <summary>

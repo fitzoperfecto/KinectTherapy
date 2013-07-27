@@ -20,7 +20,7 @@
         public float[] DataPoints { get; set; }
 
         /* Marker size for data points */
-        public int MarkerSize { get; set; }
+        public float Scale { get; set; }
 
         /* Time Interval for x-axis tick marks */
         public float TimeInterval { get; set; }
@@ -38,17 +38,17 @@
         /// <param name="chartType"></param>
         /// <param name="chartLines"></param>
         /// <param name="tickMarks"></param>
-        /// <param name="markerSize"></param>
+        /// <param name="scale"></param>
         /// <param name="dataPoints"></param>
         /// <param name="timeInterval"></param>
         /// <param name="repDuration"></param>
-        public GuiChartOptions(string[] axesNames, string chartType, bool chartLines, bool tickMarks, int markerSize, float[] dataPoints, float timeInterval, float repDuration)
+        public GuiChartOptions(string[] axesNames, string chartType, bool chartLines, bool tickMarks, float scale, float[] dataPoints, float timeInterval, float repDuration)
         {
             AxesName = axesNames;
             ChartType = chartType;
             TickMarks = tickMarks;
             DataPoints = dataPoints;
-            MarkerSize = markerSize;
+            Scale = scale;
             TimeInterval = timeInterval;
             RepDuration = repDuration;
             ChartLines = chartLines;
