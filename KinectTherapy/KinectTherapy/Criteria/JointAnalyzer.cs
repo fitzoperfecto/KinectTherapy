@@ -30,15 +30,16 @@ namespace SWENG.Criteria
             Joint startingJoint = otherJoints[0];
             Joint endingJoint = otherJoints[1];
 
+            // ray startingJoint -> centerJoint 
             Vector3 vector0 = new Vector3(centerJoint.Position.X - startingJoint.Position.X, centerJoint.Position.Y - startingJoint.Position.Y, centerJoint.Position.Z - startingJoint.Position.Z);
-            // get vector vertex -> joint1
+            // ray startingJoint -> endingJoint
             Vector3 vector1 = new Vector3(endingJoint.Position.X - startingJoint.Position.X, endingJoint.Position.Y - startingJoint.Position.Y, endingJoint.Position.Z - startingJoint.Position.Z);
 
             // Normalize vectors so we can use Dot product correctly
             vector0.Normalize();
             vector1.Normalize();
             float dot = Vector3.Dot(vector0, vector1);
-
+            
             // must be the same point so return 0
             if (float.IsNaN(dot))
             {
@@ -58,7 +59,7 @@ namespace SWENG.Criteria
         {
             Joint joint = new Joint();
             SkeletonPoint sp = new SkeletonPoint();
-            sp.X = aligningJoint.Position.X + 1;
+            sp.X = aligningJoint.Position.X + 100;
             sp.Y = aligningJoint.Position.Y;
             sp.Z = aligningJoint.Position.Z;
             joint.Position = sp;

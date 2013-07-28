@@ -29,7 +29,7 @@ namespace SWENG.Criteria
         {
             get
             {
-                return 0f + 1f * Variance * .01f;
+                return 1f - (Variance / 100);
             }
         }
 
@@ -79,7 +79,6 @@ namespace SWENG.Criteria
                     alignmentValue = JointAnalyzer.alignedVertically(trackedJoints[0], trackedJoints[1]);
                     break;
             }
-
             return alignmentValue > MaximumAcceptedRange;
         }
 

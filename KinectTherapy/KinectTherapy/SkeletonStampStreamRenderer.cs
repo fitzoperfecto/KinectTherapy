@@ -151,7 +151,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                         SkeletonStamp stamp = SkeletonPool.GetOldestProcessedSkeleton();
                         RecordingManager.Record(stamp.PercentBad, stamp.TimeStamp);
                         ++_counter;
-                        Debug.WriteLine(_counter);
+                        //Debug.WriteLine(_counter);
 
                         RecordingManager.Record(skeletonFrame);
                     }
