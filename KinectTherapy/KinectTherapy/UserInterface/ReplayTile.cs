@@ -117,7 +117,7 @@ namespace SWENG.UserInterface
             bool chartLines = true;
             bool tickMarks = false;
             //int markerSize = 2;
-            float scale = 0.5f;
+            float scale = 1f;
             float repetitionDuration = 0f;
             float[] dataPoints = CalculateSkeletonChartLine(_skeletons, out repetitionDuration);
             float timeSpan;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -35,7 +36,7 @@ namespace SWENG.UserInterface
 
         private Rectangle _yIntervalDestination;
         private Rectangle _yIntervalSource;
-        
+
         private Rectangle _xAxisDestination;
         private Rectangle _xSource;
         private Rectangle _yAxisDestination;
@@ -58,13 +59,13 @@ namespace SWENG.UserInterface
         private readonly Vector2 _position;
         private readonly Vector2 _size;
 
-        private const int MARGIN = 15;
+        private const int MARGIN = 10;
         private const int MarkerSize = 2;
         #endregion
 
         public GuiChart(string text, Vector2 size, Vector2 position)
             : base(text, size, position)
-        {}
+        { }
 
         /// <summary>
         /// GuiChart is a class that handles taking datapoints from the Summary Screen and creates a chart object to be displayed and returns a percentage
@@ -74,7 +75,8 @@ namespace SWENG.UserInterface
         /// <param name="size"></param>
         /// <param name="position"></param>
         /// <param name="chartOptions"></param>
-        public GuiChart(string text, Vector2 size, Vector2 position, GuiChartOptions chartOptions) : base(text, size, position)
+        public GuiChart(string text, Vector2 size, Vector2 position, GuiChartOptions chartOptions)
+            : base(text, size, position)
         {
             _xAxisLabel = chartOptions.AxesName[0];
             _yAxisLabel = chartOptions.AxesName[1];
@@ -95,82 +97,84 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch"></param>
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (Texture2D == null) return;
-
-            spriteBatch.Draw(
-                Texture2D,
-                new Vector2(_yAxisDestination.X * _scale, _scale),
-                null,
-                Color.White,
-                0,
-                Vector2.Zero,
-                _scale,
-                SpriteEffects.None,
-                0
-                );
-
-            spriteBatch.Draw(
-                _xAxisTitleTexture,
-                new Vector2(_xAxisDestination.X * _scale, _xAxisDestination.Y * _scale), 
-                null,
-                Color.White,
-                0,
-                Vector2.Zero,
-                _scale,
-                SpriteEffects.None,
-                0
-                );
-
-            if (_chartType.Equals("Time"))
+            if (Texture2D != null)
             {
-                spriteBatch.DrawString(
-                    _spriteFont,
-                    (_repDuration * .001f).ToString(CultureInfo.InvariantCulture),
-                    new Vector2((_yAxisTitleTexture.Width) + _texture2DRectangle.Width, _texture2DRectangle.Height + MARGIN),
-                    Color.Blue,
+                spriteBatch.Draw(
+                    Texture2D,
+                    new Vector2(_yAxisDestination.X * _scale, _scale),
+                    null,
+                    Color.White,
                     0,
                     Vector2.Zero,
                     _scale,
-                    SpriteEffects.None, 
+                    SpriteEffects.None,
+                    0
+                  );
+
+                spriteBatch.Draw(
+                    _xAxisTitleTexture,
+                    new Vector2(_xAxisDestination.X * _scale, (_xAxisDestination.Y * _scale) + MarkerSize * 2),
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
+                    0
+                  );
+
+                if (_chartType.Equals("Time"))
+                {
+                    spriteBatch.DrawString(
+                        _spriteFont,
+                        (_repDuration * .001f).ToString(CultureInfo.InvariantCulture),
+                        new Vector2((_yAxisTitleTexture.Width) + _texture2DRectangle.Width, _texture2DRectangle.Height + MARGIN),
+                        Color.Blue,
+                        0,
+                        Vector2.Zero,
+                        _scale,
+                        SpriteEffects.None,
+                        0
+                      );
+                }
+
+                spriteBatch.Draw(
+                    _yAxisTitleTexture,
+                    new Vector2(_yAxisDestination.X * _scale, _yAxisDestination.Y * _scale),
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
+                    0
+                  );
+
+                spriteBatch.Draw(
+                    _yAxisIntervalTexture,
+                    new Vector2(_yIntervalDestination.X * _scale, _yIntervalDestination.Y * _scale),
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
+                    0
+                  );
+
+                spriteBatch.Draw(
+                    _dataPointTexture,
+                    new Vector2((_yAxisTitleTexture.Width * _scale) + MARGIN, MARGIN),
+                    null,
+                    Color.White,
+                    0,
+                    Vector2.Zero,
+                    _scale,
+                    SpriteEffects.None,
                     0
                     );
+
             }
-
-            spriteBatch.Draw(
-                _yAxisTitleTexture,
-                new Vector2(_yAxisDestination.X * _scale, _yAxisDestination.Y * _scale),
-                null,
-                Color.White,
-                0,
-                Vector2.Zero,
-                _scale,
-                SpriteEffects.None,
-                0
-                );
-
-            spriteBatch.Draw(
-                _yAxisIntervalTexture,
-                new Vector2(_yIntervalDestination.X * _scale, _yIntervalDestination.Y * _scale),
-                null,
-                Color.White,
-                0,
-                Vector2.Zero,
-                _scale,
-                SpriteEffects.None,
-                0
-                ); 
-
-            spriteBatch.Draw(
-                _dataPointTexture,
-                _position,
-                null,
-                Color.White,
-                0,
-                Vector2.Zero,
-                _scale,
-                SpriteEffects.None,
-                0
-                );
         }
 
         /// <summary>
@@ -272,7 +276,7 @@ namespace SWENG.UserInterface
         /// <param name="game"></param>
         /// <param name="contentManager"></param>
         /// <param name="spriteBatch"></param>
-        private Texture2D CreateChartTexture(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
+        public Texture2D CreateChartTexture(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
             Texture2D = contentManager.Load<Texture2D>(@"UI\ChartTexture");
             _texture2DRectangle = new Rectangle((int)_position.X, (int)_position.Y, Texture2D.Width, Texture2D.Height);
@@ -312,7 +316,7 @@ namespace SWENG.UserInterface
             spriteBatch.DrawString(
                 _spriteFont,
                 _xAxisLabel,
-                Vector2.Zero, 
+                Vector2.Zero,
                 Color.Blue
             );
 
@@ -385,7 +389,7 @@ namespace SWENG.UserInterface
             game.GraphicsDevice.SetRenderTarget(null);
 
             return renderTarget2d;
-          
+
         }
 
         /// <summary>
@@ -428,21 +432,21 @@ namespace SWENG.UserInterface
                     //Normalize for boundaries
                     if (dataPoints[i + 1].Equals(1))
                     {
-                        vectorStop = new Vector2(x + (_texture2DRectangle.Width/timeSpan),
-                                                         ((dataPoints[i + 1]*-(_texture2DRectangle.Height)) +
+                        vectorStop = new Vector2(x + (_texture2DRectangle.Width / timeSpan),
+                                                         ((dataPoints[i + 1] * -(_texture2DRectangle.Height)) +
                                                           _texture2DRectangle.Height) + (MarkerSize * 2));
                     }
                     else if (dataPoints[i + 1].Equals(0))
                     {
                         vectorStop = new Vector2(x + (_texture2DRectangle.Width / timeSpan),
                                     ((dataPoints[i + 1] * -(_texture2DRectangle.Height)) +
-                                     _texture2DRectangle.Height) - (MarkerSize * 2));   
+                                     _texture2DRectangle.Height) - (MarkerSize * 2));
                     }
                     else
                     {
                         vectorStop = new Vector2(x + (_texture2DRectangle.Width / timeSpan),
                                                          ((dataPoints[i + 1] * -(_texture2DRectangle.Height)) +
-                                                          _texture2DRectangle.Height));                        
+                                                          _texture2DRectangle.Height));
                     }
 
                     float length = (vectorStop - vectorStart).Length();
