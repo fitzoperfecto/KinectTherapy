@@ -10,6 +10,7 @@ using System.IO;
 using Microsoft.Xna.Framework.Storage;
 using System.Xml;
 using SWENG.Record;
+using System.Diagnostics;
 
 // TODO: place enum into a new file
 // ?keep delegate and eventarg class here?
@@ -58,7 +59,6 @@ namespace SWENG.Service
         private FileStream recordingStream;
         private FileStream replayStream;
         private FileStream dataOutStream;
-
 
         private string fileLocation;
         public Dictionary<string, string> filesUsed { get; internal set; }
@@ -286,7 +286,7 @@ namespace SWENG.Service
         {
             SkeletonStamp[] stamps = new SkeletonStamp[0];
 
-            using (FileStream fs = new FileStream(filesUsed[fileId] + "_data", FileMode.Open))
+            using (FileStream fs = new FileStream(filesUsed[fileId] + "_data", FileMode.Open, FileAccess.Read))
             {
                 PostProcessedRead ppr = new PostProcessedRead(fs);
                 stamps = ppr.Data;

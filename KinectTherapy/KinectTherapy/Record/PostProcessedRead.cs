@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using Microsoft.Kinect;
 using SWENG;
+using System.Diagnostics;
 
 namespace SWENG.Record
 {
@@ -24,8 +25,6 @@ namespace SWENG.Record
 
             while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
-                /** In case multiple types of basic data needs to be recorded eventually */
-                reader.ReadInt32();
                 CreateFromReader(reader);
             }
         }
@@ -33,20 +32,23 @@ namespace SWENG.Record
         private void CreateFromReader(BinaryReader reader)
         {
             SkeletonStamp frame = new SkeletonStamp(new Skeleton[0], 0);
-            frame.PercentBad = new double[jointLength];
-
-            for (int i = 0; i < jointLength; ++i)
+            try
             {
-                if (reader.BaseStream.Position == reader.BaseStream.Length)
-                    return;
-                frame.PercentBad[i] = reader.ReadInt32();
+                frame.PercentBad = new double[jointLength];
+
+                frame.TimeStamp = reader.ReadInt64();
+                for (int i = 0; i < jointLength; ++i)
+                {
+                    frame.PercentBad[i] = reader.ReadDouble();
+                }
+
+                frames.Add(frame);
             }
-
-            if (reader.BaseStream.Position == reader.BaseStream.Length)
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
                 return;
-            frame.TimeStamp = reader.ReadInt64();
-
-            frames.Add(frame);
+            }
         }
     }
 }

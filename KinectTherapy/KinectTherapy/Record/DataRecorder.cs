@@ -22,7 +22,6 @@ namespace SWENG.Record
             TimeSpan timeSpan = DateTime.Now.Subtract(referenceTime);
             referenceTime = DateTime.Now;
 
-            writer.Write(1);
             writer.Write((long)timeSpan.TotalMilliseconds);
 
             for (int i = 0; i < processed.Length; ++i)

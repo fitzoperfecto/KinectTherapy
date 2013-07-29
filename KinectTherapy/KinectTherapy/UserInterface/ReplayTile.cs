@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SWENG.Service;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace SWENG.UserInterface
 {
@@ -27,7 +28,7 @@ namespace SWENG.UserInterface
     {
         #region event stuff
         public event ReplaySelected OnSelected;
-
+        private Game _game;
         /** Invoke a selected event in order to tell the subscribers */
         protected virtual void ReplaySelected(ReplaySelectedEventArgs e)
         {
@@ -35,6 +36,8 @@ namespace SWENG.UserInterface
                 OnSelected(this, e);
         }
         #endregion
+
+        private SkeletonStamp[] _skeletons;
 
         private Texture2D _titleTexture;
         private Rectangle _titleDestination;
@@ -92,17 +95,6 @@ namespace SWENG.UserInterface
             {
                 return;
             }
-
-            string[] _axesNames = { "Time - seconds", "Deviation" };
-            string ChartType = "Repetitions";
-            bool ChartLines = true;
-            bool TickMarks = true;
-            int MarkerSize = 2;
-            float[] _dataPoints = { 1f, .33f, 1f, .67f, 1f, -1f, 0f, -.33f, 0f, 0f, 0f, -.67f, 0f, 1f, 0f };
-            float _timeSpan;
-            float RepDuration = 47500;
-            _timeSpan = _dataPoints.Length;
-            GuiChartOptions chartOptions = new GuiChartOptions(_axesNames, ChartType, ChartLines, TickMarks, MarkerSize, _dataPoints, _timeSpan, RepDuration);
 			
             Texture2D = contentManager.Load<Texture2D>(@"UI\ReplayTile");
 
@@ -114,13 +106,25 @@ namespace SWENG.UserInterface
                 _titleTexture.Height
             );
 
-            RecordingManager rec = (RecordingManager)game.Services.GetService(typeof(RecordingManager));
+            _game = game;
 
-            SkeletonStamp[] stamps = rec.ReadProcessedData(FileId);
+            /** Grab the data off of the recording manager now because we don't have a reference to the game forever */
+            RecordingManager recorder = (RecordingManager)game.Services.GetService(typeof(RecordingManager));
+            _skeletons = recorder.ReadProcessedData(FileId);
 
-            Debug.WriteLine(stamps.Length);
+            string[] axesNames = { "Time - seconds", "Deviation" };
+            string chartType = "Repetitions";
+            bool chartLines = true;
+            bool tickMarks = false;
+            int markerSize = 2;
+            float repetitionDuration = 0f;
+            float[] dataPoints = CalculateSkeletonChartLine(_skeletons, out repetitionDuration);
+            float timeSpan;
+            timeSpan = dataPoints.Length;
+            
+            GuiChartOptions chartOptions = new GuiChartOptions(axesNames, chartType, chartLines, tickMarks, markerSize, dataPoints, timeSpan, repetitionDuration);
 
-            /*
+
             _chartTexture = new GuiChart(
                 "Text",
                 Size - new Vector2(_titleTexture.Width, _titleTexture.Height),
@@ -129,13 +133,53 @@ namespace SWENG.UserInterface
             );
 
             _chartTexture.LoadContent(game, contentManager, spriteBatch);
-            */
+
             _titleSource = new Rectangle(
                 0,
                 0,
                 _titleTexture.Width,
                 _titleTexture.Height
             );
+        }
+
+        private float[] CalculateSkeletonChartLine(SkeletonStamp[] skeletons, out float repetitionDuration)
+        {
+            List<float> consolidatedTimeSpans = new List<float>();
+            int listLength = 0;
+            float sumOfAbsoluteAmounts = 0;
+            float numberOfInstances = 0;
+            int dataPoints = 0;
+            repetitionDuration = 0f;
+
+            foreach (SkeletonStamp stamp in skeletons)
+            {
+                repetitionDuration += stamp.TimeStamp;
+
+                if (repetitionDuration - (100 * dataPoints) >= 100)
+                {
+                    ++dataPoints;
+
+                    if (consolidatedTimeSpans[listLength] != null)
+                    {
+                        consolidatedTimeSpans[listLength] = sumOfAbsoluteAmounts / numberOfInstances;
+                    }
+
+                    sumOfAbsoluteAmounts = 0;
+                    numberOfInstances = 0;
+
+                    consolidatedTimeSpans.Add(0f);
+                    listLength = consolidatedTimeSpans.Count - 1;
+                }
+
+                foreach (double d in stamp.PercentBad)
+                {
+                    sumOfAbsoluteAmounts += (float)Math.Abs(d);
+                }
+
+                ++numberOfInstances;
+            }
+
+            return consolidatedTimeSpans.ToArray();
         }
 
         /// <summary>
@@ -200,7 +244,7 @@ namespace SWENG.UserInterface
                 }
             }
 
-			//_chartTexture.Update(currentState, oldMouseState, mouseBoundingBox, gameTime);
+            _chartTexture.Update(currentState, oldMouseState, mouseBoundingBox, gameTime);
 			
             _oldGameTime = currentGameTime;
         }
@@ -225,8 +269,8 @@ namespace SWENG.UserInterface
                     _titleSource,
                     Color.White
                 );
-				
-                //_chartTexture.Draw(spriteBatch);
+
+                _chartTexture.Draw(spriteBatch);
             }
         }
     }
