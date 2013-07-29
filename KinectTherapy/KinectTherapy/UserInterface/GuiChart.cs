@@ -95,83 +95,82 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch"></param>
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (Texture2D != null)
+            if (Texture2D == null) return;
+
+            spriteBatch.Draw(
+                Texture2D,
+                new Vector2(_yAxisDestination.X * _scale, _scale),
+                null,
+                Color.White,
+                0,
+                Vector2.Zero,
+                _scale,
+                SpriteEffects.None,
+                0
+                );
+
+            spriteBatch.Draw(
+                _xAxisTitleTexture,
+                new Vector2(_xAxisDestination.X * _scale, _xAxisDestination.Y * _scale), 
+                null,
+                Color.White,
+                0,
+                Vector2.Zero,
+                _scale,
+                SpriteEffects.None,
+                0
+                );
+
+            if (_chartType.Equals("Time"))
             {
-                spriteBatch.Draw(
-                    Texture2D,
-                    _position, 
-                    null,
-                    Color.White,
+                spriteBatch.DrawString(
+                    _spriteFont,
+                    (_repDuration * .001f).ToString(CultureInfo.InvariantCulture),
+                    new Vector2((_yAxisTitleTexture.Width) + _texture2DRectangle.Width, _texture2DRectangle.Height + MARGIN),
+                    Color.Blue,
                     0,
                     Vector2.Zero,
                     _scale,
-                    SpriteEffects.None,
-                    0
-                  );
-
-                spriteBatch.Draw(
-                    _xAxisTitleTexture,
-                    new Vector2(_xAxisDestination.X * _scale, _xAxisDestination.Y * _scale), 
-                    null,
-                    Color.White,
-                    0,
-                    Vector2.Zero,
-                    _scale,
-                    SpriteEffects.None,
-                    0
-                  );
-
-                if (_chartType.Equals("Time"))
-                {
-                    spriteBatch.DrawString(
-                        _spriteFont,
-                        (_repDuration * .001f).ToString(CultureInfo.InvariantCulture),
-                        new Vector2((_yAxisTitleTexture.Width) + _texture2DRectangle.Width, _texture2DRectangle.Height + MARGIN),
-                        Color.Blue,
-                        0,
-                        Vector2.Zero,
-                        _scale,
-                        SpriteEffects.None, 
-                        0
-                      );
-                }
-
-                spriteBatch.Draw(
-                    _yAxisTitleTexture,
-                    new Vector2(_yAxisDestination.X * _scale, _yAxisDestination.Y * _scale),
-                    null,
-                    Color.White,
-                    0,
-                    Vector2.Zero,
-                    _scale,
-                    SpriteEffects.None,
-                    0
-                  );
-
-                spriteBatch.Draw(
-                    _yAxisIntervalTexture,
-                    new Vector2(_yIntervalDestination.X * _scale, _yIntervalDestination.Y * _scale),
-                    null,
-                    Color.White,
-                    0,
-                    Vector2.Zero,
-                    _scale,
-                    SpriteEffects.None,
-                    0
-                  ); 
-
-                spriteBatch.Draw(
-                    _dataPointTexture,
-                    _position,
-                    null,
-                    Color.White,
-                    0,
-                    Vector2.Zero,
-                    _scale,
-                    SpriteEffects.None,
+                    SpriteEffects.None, 
                     0
                     );
             }
+
+            spriteBatch.Draw(
+                _yAxisTitleTexture,
+                new Vector2(_yAxisDestination.X * _scale, _yAxisDestination.Y * _scale),
+                null,
+                Color.White,
+                0,
+                Vector2.Zero,
+                _scale,
+                SpriteEffects.None,
+                0
+                );
+
+            spriteBatch.Draw(
+                _yAxisIntervalTexture,
+                new Vector2(_yIntervalDestination.X * _scale, _yIntervalDestination.Y * _scale),
+                null,
+                Color.White,
+                0,
+                Vector2.Zero,
+                _scale,
+                SpriteEffects.None,
+                0
+                ); 
+
+            spriteBatch.Draw(
+                _dataPointTexture,
+                _position,
+                null,
+                Color.White,
+                0,
+                Vector2.Zero,
+                _scale,
+                SpriteEffects.None,
+                0
+                );
         }
 
         /// <summary>
@@ -184,8 +183,10 @@ namespace SWENG.UserInterface
         {
             if (null == contentManager) return;
 
-            Texture2D = contentManager.Load<Texture2D>(@"UI\ChartTexture");
-            _texture2DRectangle = new Rectangle((int)_position.X, (int)_position.Y, Texture2D.Width, Texture2D.Height);
+            //Texture2D = contentManager.Load<Texture2D>(@"UI\ChartTexture");
+            //_texture2DRectangle = new Rectangle((int)_position.X, (int)_position.Y, Texture2D.Width, Texture2D.Height);
+
+            Texture2D = CreateChartTexture(game, contentManager, spriteBatch);
 
             _chartMarkerTexture = contentManager.Load<Texture2D>(@"blank");
 
@@ -263,6 +264,31 @@ namespace SWENG.UserInterface
                 MouseYCoord = mouseState.Y;
                 MouseYPercent = 100 - ((MouseYCoord / Rectangle.Height) * 100);
             }
+        }
+
+        /// <summary>
+        /// Creates the game texture used to create the chart background
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="contentManager"></param>
+        /// <param name="spriteBatch"></param>
+        private Texture2D CreateChartTexture(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
+        {
+            Texture2D = contentManager.Load<Texture2D>(@"UI\ChartTexture");
+            _texture2DRectangle = new Rectangle((int)_position.X, (int)_position.Y, Texture2D.Width, Texture2D.Height);
+
+            RenderTarget2D renderTarget2D = new RenderTarget2D(game.GraphicsDevice, Texture2D.Width + 50, Texture2D.Height + 50);
+            game.GraphicsDevice.SetRenderTarget(renderTarget2D);
+            game.GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+
+            spriteBatch.Begin();
+
+            spriteBatch.Draw(Texture2D, _texture2DRectangle, Color.White);
+
+            spriteBatch.End();
+            game.GraphicsDevice.SetRenderTarget(null);
+
+            return renderTarget2D;
         }
 
         /// <summary>
