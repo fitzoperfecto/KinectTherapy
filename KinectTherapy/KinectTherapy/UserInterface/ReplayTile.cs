@@ -116,14 +116,15 @@ namespace SWENG.UserInterface
             string chartType = "Repetitions";
             bool chartLines = true;
             bool tickMarks = false;
-            int markerSize = 2;
+            //int markerSize = 2;
+            float scale = 0.5f;
             float repetitionDuration = 0f;
             float[] dataPoints = CalculateSkeletonChartLine(_skeletons, out repetitionDuration);
             float timeSpan;
             timeSpan = dataPoints.Length;
             
-            GuiChartOptions chartOptions = new GuiChartOptions(axesNames, chartType, chartLines, tickMarks, markerSize, dataPoints, timeSpan, repetitionDuration);
-
+            //GuiChartOptions chartOptions = new GuiChartOptions(axesNames, chartType, chartLines, tickMarks, markerSize, dataPoints, timeSpan, repetitionDuration);
+            GuiChartOptions chartOptions = new GuiChartOptions(axesNames, chartType, chartLines, tickMarks, scale, dataPoints, timeSpan, repetitionDuration);
 
             _chartTexture = new GuiChart(
                 "Text",
@@ -159,6 +160,9 @@ namespace SWENG.UserInterface
                 {
                     ++dataPoints;
 
+                    consolidatedTimeSpans.Add(0f);
+                    listLength = consolidatedTimeSpans.Count - 1;
+
                     if (consolidatedTimeSpans[listLength] != null)
                     {
                         consolidatedTimeSpans[listLength] = sumOfAbsoluteAmounts / numberOfInstances;
@@ -166,9 +170,6 @@ namespace SWENG.UserInterface
 
                     sumOfAbsoluteAmounts = 0;
                     numberOfInstances = 0;
-
-                    consolidatedTimeSpans.Add(0f);
-                    listLength = consolidatedTimeSpans.Count - 1;
                 }
 
                 foreach (double d in stamp.PercentBad)
