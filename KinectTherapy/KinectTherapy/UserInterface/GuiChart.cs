@@ -97,7 +97,6 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch"></param>
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Begin();
 
             if (Texture2D != null)
             {
@@ -177,7 +176,6 @@ namespace SWENG.UserInterface
                     );
 
             }
-            spriteBatch.End();
 
         }
 
