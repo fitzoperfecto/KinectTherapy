@@ -97,6 +97,8 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch"></param>
         public override void Draw(SpriteBatch spriteBatch)
         {
+            spriteBatch.Begin();
+
             if (Texture2D != null)
             {
                 spriteBatch.Draw(
@@ -105,7 +107,7 @@ namespace SWENG.UserInterface
                     null,
                     Color.White,
                     0,
-                    Vector2.Zero,
+                    new Vector2(_position.X, _position.Y),
                     _scale,
                     SpriteEffects.None,
                     0
@@ -117,7 +119,7 @@ namespace SWENG.UserInterface
                     null,
                     Color.White,
                     0,
-                    Vector2.Zero,
+                    new Vector2(_position.X, _position.Y),
                     _scale,
                     SpriteEffects.None,
                     0
@@ -131,7 +133,7 @@ namespace SWENG.UserInterface
                         new Vector2((_yAxisTitleTexture.Width) + _texture2DRectangle.Width, _texture2DRectangle.Height + MARGIN),
                         Color.Blue,
                         0,
-                        Vector2.Zero,
+                        new Vector2(_position.X, _position.Y),
                         _scale,
                         SpriteEffects.None,
                         0
@@ -144,7 +146,7 @@ namespace SWENG.UserInterface
                     null,
                     Color.White,
                     0,
-                    Vector2.Zero,
+                    new Vector2(_position.X, _position.Y),
                     _scale,
                     SpriteEffects.None,
                     0
@@ -156,7 +158,7 @@ namespace SWENG.UserInterface
                     null,
                     Color.White,
                     0,
-                    Vector2.Zero,
+                    new Vector2(_position.X, _position.Y),
                     _scale,
                     SpriteEffects.None,
                     0
@@ -168,13 +170,15 @@ namespace SWENG.UserInterface
                     null,
                     Color.White,
                     0,
-                    Vector2.Zero,
+                    new Vector2(_position.X, _position.Y),
                     _scale,
                     SpriteEffects.None,
                     0
                     );
 
             }
+            spriteBatch.End();
+
         }
 
         /// <summary>
