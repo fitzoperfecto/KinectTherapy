@@ -60,6 +60,8 @@ namespace SWENG.UserInterface
 
         public string FileId { get; private set; }
 
+        private Texture2D _blank;
+
         /// <summary>
         /// Construct a 
         /// </summary>
@@ -97,7 +99,7 @@ namespace SWENG.UserInterface
             }
 			
             Texture2D = contentManager.Load<Texture2D>(@"UI\ReplayTile");
-
+            _blank = contentManager.Load<Texture2D>(@"blank");
             _titleTexture = CreateTitleTexture(game, contentManager, spriteBatch);
             _titleDestination = new Rectangle(
                 (int)Position.X + MARGIN,
@@ -128,8 +130,8 @@ namespace SWENG.UserInterface
 
             _chartTexture = new GuiChart(
                 "Text",
-                Size - new Vector2(_titleTexture.Width, _titleTexture.Height),
-                Position + new Vector2(_titleTexture.Width, _titleTexture.Height),
+                Size - new Vector2(MARGIN * 2, MARGIN + 30f),
+                Position + new Vector2(MARGIN, _titleTexture.Height),
                 chartOptions
             );
 
@@ -258,6 +260,12 @@ namespace SWENG.UserInterface
         {
             if (_titleTexture != null)
             {
+
+                spriteBatch.Draw(
+                    _blank,
+                    new Rectangle((int)Position.X - 5, (int)Position.Y - 5, (int)Size.X, (int)Size.Y),
+                    Color.Red
+                );
                 spriteBatch.Draw(
                     Texture2D,
                     Position,
@@ -270,6 +278,8 @@ namespace SWENG.UserInterface
                     _titleSource,
                     Color.White
                 );
+
+                
 
                 _chartTexture.Draw(spriteBatch);
             }
