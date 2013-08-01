@@ -1,12 +1,11 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Samples.Kinect.XnaBasics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SWENG.Service;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace SWENG.UserInterface
 {
@@ -17,39 +16,32 @@ namespace SWENG.UserInterface
     {
         private readonly Rectangle _viewableArea;
         private readonly GuiDrawable[] _guiDrawable;
-
-        private SpriteFont _spriteFont;
+        private readonly ColorStreamRenderer _colorStream;
 
         private const float MARGIN = 10f;
 
+        private string _repetitionString;
         private bool _isInitialized;
 
-        #region ColorStreamRenderer Variables
-        private readonly ColorStreamRenderer _colorStream;
+        private SpriteFont _spriteFont;
         private Vector2 _colorStreamPosition;
         private Vector2 _colorStreamSize;
-        #endregion
+        private Vector2 _tilePosition;
+        private Vector2 _tileSize;
+        private Vector2 _tileTextPosition;
+        private ExerciseTile[] _exerciseTiles;
+        private MouseState _oldMouseState;
+        private Texture2D _countTexture;
 
-        #region ExerciseQueue Variables
-        // queue of exercises
-        // reference to the exercise queue service
-        private ExerciseQueue ExerciseQueue
+        private ExerciseQueue _exerciseQueue
         {
             get
             {
                 return (ExerciseQueue)Game.Services.GetService(typeof(ExerciseQueue));
             }
         }
-        private ExerciseTile[] _exerciseTiles;
-        private MouseState _oldMouseState;
-        #endregion
 
-        private Vector2 _tilePosition;
-        private Vector2 _tileSize;
-        private Vector2 _tileTextPosition;
-        private string _repetitionString;
-        private Texture2D _countTexture;
-        private RecordingManager recordingManager
+        private RecordingManager _recordingManager
         {
             get
             {
@@ -174,24 +166,6 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// Central button click management.
-        /// </summary>
-        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
-        {
-            switch (e.ClickedOn)
-            {
-                case "Menu":
-                    ScreenState = UserInterface.ScreenState.Hidden;
-                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
-                    break;
-                case "Skip":
-                    break;
-                case "End Queue":
-                    break;
-            }
-        }
-
-        /// <summary>
         /// This method creates a new ContentManager 
         /// and loads the textures and fonts.
         /// </summary>
@@ -238,8 +212,8 @@ namespace SWENG.UserInterface
 
                 _repetitionString = string.Format(
                     "Completed {0} of {1}",
-                    ExerciseQueue.CurrentExercise.Repetitions,
-                    ExerciseQueue.CurrentExercise.RepetitionsToComplete
+                    _exerciseQueue.CurrentExercise.Repetitions,
+                    _exerciseQueue.CurrentExercise.RepetitionsToComplete
                 );
 
                 _oldMouseState = currentState;
@@ -300,11 +274,27 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
+        /// Central button click management.
+        /// </summary>
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "Menu":
+                    ScreenState = UserInterface.ScreenState.Hidden;
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                case "Skip":
+                    break;
+                case "End Queue":
+                    break;
+            }
+        }
+
+        /// <summary>
         /// The method to use when the exercise screen
         /// should be triggered to close when an event occurs
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="args"></param>
         public void QueueIsDone(object sender, EventArgs args)
         {
             ScreenState = UserInterface.ScreenState.Hidden;
@@ -313,7 +303,7 @@ namespace SWENG.UserInterface
 
         public override void OpenScreen()
         {
-            ExerciseGameComponent[] exercises = ExerciseQueue.Exercises;
+            ExerciseGameComponent[] exercises = _exerciseQueue.Exercises;
             _exerciseTiles = new ExerciseTile[exercises.Length];
 
             /** Draw at the same height for cycling through */

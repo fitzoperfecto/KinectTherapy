@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Input;
 
 namespace SWENG.UserInterface
 {
-
     public class GuiCheckbox : GuiDrawable
     {
         #region event stuff
@@ -20,7 +19,7 @@ namespace SWENG.UserInterface
         }
         #endregion
 
-        public bool Checked;
+        public bool Checked { get; set; }
 
         public GuiCheckbox(string text, Vector2 size, Vector2 position)
             : base(text, size, position) { Checked = false; }
@@ -42,7 +41,6 @@ namespace SWENG.UserInterface
             {
                 Hovered = Checked;
             }
-
         }
 
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 

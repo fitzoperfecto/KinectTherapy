@@ -9,24 +9,23 @@ namespace SWENG.Record
 {
     public class PostProcessedRecorder
     {
-        readonly BinaryWriter writer;
+        private readonly BinaryWriter _writer;
+        private readonly DataRecorder _dataRecorder;
 
-        Stream recordStream;
-        DateTime previousFlushDate;
+        private Stream _recordStream;
+        private DateTime _previousFlushDate;
 
-        readonly DataRecorder dataRecorder;
-
-        public DateTime startTime { get; internal set; }
+        public DateTime StartTime { get; internal set; }
         public bool IsRecording { get; internal set; }
 
         public PostProcessedRecorder(Stream stream)
         {
-            recordStream = stream;
-            writer = new BinaryWriter(recordStream);
+            _recordStream = stream;
+            _writer = new BinaryWriter(_recordStream);
 
-            if (writer != null)
+            if (_writer != null)
             {
-                dataRecorder = new DataRecorder(writer);
+                _dataRecorder = new DataRecorder(_writer);
             }
             else
             {
@@ -34,48 +33,48 @@ namespace SWENG.Record
             }
 
             IsRecording = false;
-            previousFlushDate = DateTime.Now;
+            _previousFlushDate = DateTime.Now;
         }
 
         public void Record(double[] processed, long milliseconds)
         {
-            if (writer != null && IsRecording)
+            if (_writer != null && IsRecording)
             {
-                if (dataRecorder == null)
+                if (_dataRecorder == null)
                     return;
 
-                dataRecorder.Record(processed, milliseconds);
+                _dataRecorder.Record(processed, milliseconds);
                 Flush();
             }
         }
 
         void Flush()
         {
-            var now = DateTime.Now;
+            DateTime now = DateTime.Now;
 
-            if (now.Subtract(previousFlushDate).TotalSeconds > 60)
+            if (now.Subtract(_previousFlushDate).TotalSeconds > 60)
             {
-                previousFlushDate = now;
-                if (writer != null)
+                _previousFlushDate = now;
+                if (_writer != null)
                 {
-                    writer.Flush();
+                    _writer.Flush();
                 }
             }
         }
 
         public void Stop()
         {
-            if (writer != null)
+            if (_writer != null)
             {
-                writer.Close();
-                writer.Dispose();
+                _writer.Close();
+                _writer.Dispose();
             }
 
-            if (recordStream != null)
+            if (_recordStream != null)
             {
-                recordStream.Close();
-                recordStream.Dispose();
-                recordStream = null;
+                _recordStream.Close();
+                _recordStream.Dispose();
+                _recordStream = null;
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -34,26 +33,26 @@ namespace SWENG.UserInterface
         }
         #endregion
 
-        #region Description texture creation
-        private Game _game;
-        Texture2D _overlayTexture;
-        SpriteFont _spriteFont;
-        
-        /// <summary>
-        /// Gets the SpriteBatch from the services.
-        /// </summary>
-        private SpriteBatch SharedSpriteBatch
-        {
-            get
-            {
-                return (SpriteBatch)_game.Services.GetService(typeof(SpriteBatch));
-            }
-        }
-        #endregion
+        private const float MARGIN = 10f;
+        private const int SCROLL_RATE = 5;
+        private const int INITIAL_WAIT = 60;
 
-        #region Catalog data
-        public string ItemID { get; private set; }
         private string _description;
+        private int _frameCount = 0;
+        private int _updateButtonIndex;
+
+        private Game _game;
+        private Texture2D _overlayTexture;
+        private SpriteFont _spriteFont;
+        private Rectangle _innerTextDestination;
+        private Rectangle _innerTextSource;
+        private GuiDrawable[] _guiDrawables;
+
+        /// <summary>
+        /// Meant for debugging purposes only.
+        /// </summary>
+        public GuiDrawable[] GuiDrawables { get { return _guiDrawables; } }
+        public string ItemID { get; private set; }
 
         private CatalogManager _catalogManager
         {
@@ -62,41 +61,15 @@ namespace SWENG.UserInterface
                 return (CatalogManager)_game.Services.GetService(typeof(CatalogManager));
             }
         }
-        #endregion
 
-        #region Scrolling Text
-        /** Rates as a number of frames */
-        private const int _scrollRate = 5;
-        private const int _initialWait = 60;
+        private SpriteBatch _sharedSpriteBatch
+        {
+            get
+            {
+                return (SpriteBatch)_game.Services.GetService(typeof(SpriteBatch));
+            }
+        }
 
-        /** Lacking a game timer, just going to use a frame counter */
-        private int _frameCount = 0;
-
-        /** Where to place the texture */
-        private Rectangle _innerTextDestination;
-
-        /** What portion of the texture to display */
-        private Rectangle _innerTextSource;
-        #endregion
-
-        private const float MARGIN = 10f;
-        private GuiDrawable[] _guiDrawables;
-        private int _updateButtonIndex;
-        
-        /// <summary>
-        /// Meant for debugging purposes only.
-        /// </summary>
-        public GuiDrawable[] GuiDrawables { get { return _guiDrawables; } }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="game"></param>
-        /// <param name="itemId"></param>
-        /// <param name="title"></param>
-        /// <param name="description"></param>
-        /// <param name="size"></param>
-        /// <param name="position"></param>
         public GuiCatalogTile(Game game, string itemId, string title, string description, Vector2 size, Vector2 position)
             : base(title, size, position)
         {
@@ -150,9 +123,6 @@ namespace SWENG.UserInterface
             Initialize();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void Initialize()
         {
             foreach (GuiDrawable guiDrawable in _guiDrawables)
@@ -169,64 +139,13 @@ namespace SWENG.UserInterface
             }
         }
 
-        /// <summary>
-        /// Central button click management.
-        /// </summary>
-        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
-        {
-            switch (e.ClickedOn)
-            {
-                case "UpdateQueue":
-                    changeTileQueueStatus();
-                    break;
-                case "EditSettings":
-                    /** Add to the queue if it is not already */
-                    changeTileQueueStatus(true);
-                    OnEditSettings(new EditCatalogSettingsArgs(ItemID));
-                    break;
-            }
-        }
-
-        private void changeTileQueueStatus()
-        {
-            bool isEnqueued = !Hovered;
-            changeTileQueueStatus(isEnqueued);
-        }
-
-        /// <summary>
-        /// Notify those that care to add or remove the catalog item from the queue
-        /// </summary>
-        private void changeTileQueueStatus(bool isEnqueued)
-        {
-            Hovered = isEnqueued;
-            ((GuiCheckbox)_guiDrawables[_updateButtonIndex]).Checked = Hovered;
-
-            if (_catalogManager != null)
-            {
-                if (isEnqueued)
-                {
-                    _catalogManager.AddExerciseToSelected(ItemID, Text);
-                }
-                else
-                {
-                    _catalogManager.RemoveExerciseFromSelected(ItemID);
-                }
-            }
-        }
-
-        public void SilentSetChecked()
-        {
-            Hovered = true;
-            ((GuiCheckbox)_guiDrawables[_updateButtonIndex]).Checked = true;
-        }
-
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
         {
             Texture2D = contentManager.Load<Texture2D>(@"UI\CatalogTile");
 
             foreach (GuiDrawable guiDrawable in _guiDrawables)
             {
-                guiDrawable.LoadContent(_game, contentManager, SharedSpriteBatch);
+                guiDrawable.LoadContent(_game, contentManager, _sharedSpriteBatch);
             }
 
             _spriteFont = contentManager.Load<SpriteFont>("Arial10");
@@ -274,6 +193,57 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
+        /// Central button click management.
+        /// </summary>
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "UpdateQueue":
+                    changeTileQueueStatus();
+                    break;
+                case "EditSettings":
+                    /** Add to the queue if it is not already */
+                    ChangeTileQueueStatus(true);
+                    OnEditSettings(new EditCatalogSettingsArgs(ItemID));
+                    break;
+            }
+        }
+
+        private void changeTileQueueStatus()
+        {
+            bool isEnqueued = !Hovered;
+            ChangeTileQueueStatus(isEnqueued);
+        }
+
+        /// <summary>
+        /// Notify those that care to add or remove the catalog item from the queue
+        /// </summary>
+        private void ChangeTileQueueStatus(bool isEnqueued)
+        {
+            Hovered = isEnqueued;
+            ((GuiCheckbox)_guiDrawables[_updateButtonIndex]).Checked = Hovered;
+
+            if (_catalogManager != null)
+            {
+                if (isEnqueued)
+                {
+                    _catalogManager.AddExerciseToSelected(ItemID, Text);
+                }
+                else
+                {
+                    _catalogManager.RemoveExerciseFromSelected(ItemID);
+                }
+            }
+        }
+
+        public void SilentSetChecked()
+        {
+            Hovered = true;
+            ((GuiCheckbox)_guiDrawables[_updateButtonIndex]).Checked = true;
+        }
+
+        /// <summary>
         /// Creates a texture to show in the tile instead of constantly re-drawing the text.
         /// </summary>
         public Texture2D CreateNewTexture()
@@ -299,10 +269,10 @@ namespace SWENG.UserInterface
             _game.GraphicsDevice.SetRenderTarget(renderTarget2d);
             _game.GraphicsDevice.Clear(ClearOptions.Target, Color.White, 0, 0);
 
-            SharedSpriteBatch.Begin();
+            _sharedSpriteBatch.Begin();
 
             /** Red title */
-            SharedSpriteBatch.DrawString(
+            _sharedSpriteBatch.DrawString(
                 _spriteFont,
                 Text + ": ",
                 Vector2.Zero,
@@ -310,14 +280,14 @@ namespace SWENG.UserInterface
             );
 
             /** Black text */
-            SharedSpriteBatch.DrawString(
+            _sharedSpriteBatch.DrawString(
                     _spriteFont,
                     toWrite,
                     new Vector2(titleWidth.X, 0f),
                     Color.Black
                 );
 
-            SharedSpriteBatch.End();
+            _sharedSpriteBatch.End();
             _game.GraphicsDevice.SetRenderTarget(null);
 
             return (Texture2D)renderTarget2d;

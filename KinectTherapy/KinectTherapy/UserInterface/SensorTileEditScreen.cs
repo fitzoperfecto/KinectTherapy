@@ -1,12 +1,10 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Samples.Kinect.XnaBasics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Samples.Kinect.XnaBasics;
-using System.Diagnostics;
-using Microsoft.Kinect;
-using System;
-using System.Collections.Generic;
 
 namespace SWENG.UserInterface
 {
@@ -15,30 +13,25 @@ namespace SWENG.UserInterface
     /// </summary>
     public class SensorTileEditScreen : Screen
     {
+        private readonly ColorStreamRenderer _colorStream;
         private readonly Rectangle _viewableArea;
         private readonly GuiDrawable[] _guiDrawable;
 
         private const float MARGIN = 10f;
-
-        private bool _isInitialized;
-        private MouseState _oldMouseState;
-        private Texture2D _blankTexture;
-        
-        private Texture2D _inputBoxTexture;
-        private Rectangle _inputBoxDestination;
-        
-        private Texture2D _inputSensorTexture;
-
-        #region ColorStreamRenderer Variables
-        private readonly ColorStreamRenderer colorStream;
-        private Vector2 colorStreamPosition;
-        private Vector2 colorStreamSize;
-        #endregion
-
-        private GuiScrollable _scrollable;
         private const float SCROLL_WIDTH = 20f;
+
         private int _elevationAngle = 0;
         private double _timeStamp;
+        private bool _isInitialized;
+
+        private MouseState _oldMouseState;
+        private Texture2D _blankTexture;
+        private Texture2D _inputSensorTexture;        
+        private Texture2D _inputBoxTexture;
+        private Rectangle _inputBoxDestination;
+        private Vector2 _colorStreamPosition;
+        private Vector2 _colorStreamSize;
+        private GuiScrollable _scrollable;
 
         /// <summary>
         /// Initialize a new instance of the ExerciseScreen class.
@@ -55,7 +48,7 @@ namespace SWENG.UserInterface
 
             Title = "Sensor Setup";
 
-            colorStream = new ColorStreamRenderer(game);
+            _colorStream = new ColorStreamRenderer(game);
 
             #region Laying out the positions
             Vector2 modalSize = new Vector2(512, 384);
@@ -79,24 +72,24 @@ namespace SWENG.UserInterface
                     buttonBottom
                 ));
 
-            colorStreamSize = new Vector2(
+            _colorStreamSize = new Vector2(
                     (float)((modalSize.X / 2) - (2 * MARGIN)),
                     (float)((modalSize.Y / 2))
                 );
 
-            colorStreamPosition = new Vector2(
+            _colorStreamPosition = new Vector2(
                     (float)(_inputBoxDestination.Left + MARGIN),
-                    (float)(_inputBoxDestination.Bottom - colorStreamSize.Y - MARGIN - buttonSize.Y)
+                    (float)(_inputBoxDestination.Bottom - _colorStreamSize.Y - MARGIN - buttonSize.Y)
                 );
 
             _scrollable = new GuiScrollable(
                 new Vector2(
                     SCROLL_WIDTH,
-                    colorStreamSize.Y
+                    _colorStreamSize.Y
                 ),
                 new Vector2(
                     _inputBoxDestination.Right - SCROLL_WIDTH - (2 * MARGIN),
-                    colorStreamPosition.Y
+                    _colorStreamPosition.Y
                 ),
                 @"UI\Slider"
             );
@@ -114,9 +107,9 @@ namespace SWENG.UserInterface
         /// </summary>
         public override void Initialize()
         {
-            colorStream.Position = colorStreamPosition;
-            colorStream.Size = colorStreamSize;
-            colorStream.Initialize();
+            _colorStream.Position = _colorStreamPosition;
+            _colorStream.Size = _colorStreamSize;
+            _colorStream.Initialize();
 
             _isInitialized = true;
             _scrollable.Initialize();
@@ -132,22 +125,6 @@ namespace SWENG.UserInterface
             base.Initialize();
         }
 
-        /// <summary>
-        /// Central button click management.
-        /// </summary>
-        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
-        {
-            switch (e.ClickedOn)
-            {
-                case "Submit":
-                case "Cancel":
-                    ScreenState = UserInterface.ScreenState.Hidden;
-                    OnTransition(new TransitionEventArgs(Title, "Return"));
-                    break;
-            }
-        }
-
-        /** TODO: Make this better... seriously */
         public override void LoadContent()
         {
             if (null == contentManager)
@@ -184,7 +161,7 @@ namespace SWENG.UserInterface
             {
                 MouseState currentState = Mouse.GetState();
                 Rectangle mouseBoundingBox = new Rectangle(currentState.X, currentState.Y, 1, 1);
-                colorStream.Update(gameTime);
+                _colorStream.Update(gameTime);
 
                 foreach (GuiDrawable guiDrawable in _guiDrawable)
                 {
@@ -210,20 +187,69 @@ namespace SWENG.UserInterface
                         && gameTime.TotalGameTime.TotalMilliseconds - _timeStamp > 1500)
                     {
                         _timeStamp = double.MinValue;
+                        /** Sometimes, the USB port can just cause an error because of its drivers */
                         try
                         {
                             Chooser.Sensor.ElevationAngle = _elevationAngle;
                         }
-                        catch (Exception e)
-                        {
-                            Debug.WriteLine(e.Message);
-                        }
+                        catch (Exception e) { }
                     }
                 }
 
                 _oldMouseState = currentState;
             }
             base.Update(gameTime);
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+            if (_isInitialized)
+            {
+                var spriteBatch = SharedSpriteBatch;
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+
+                spriteBatch.Draw(
+                    _blankTexture,
+                    _viewableArea,
+                    Color.WhiteSmoke * 0.5f
+                );
+
+                spriteBatch.End();
+
+                spriteBatch.Begin();
+
+                spriteBatch.Draw(
+                    _inputBoxTexture,
+                    _inputBoxDestination,
+                    Color.White
+                );
+
+                foreach (GuiDrawable guiDrawable in _guiDrawable)
+                {
+                    guiDrawable.Draw(spriteBatch);
+                }
+
+                _scrollable.Draw(spriteBatch);
+                spriteBatch.End();
+
+                _colorStream.Draw(gameTime);
+            }
+            base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Central button click management.
+        /// </summary>
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "Submit":
+                case "Cancel":
+                    ScreenState = UserInterface.ScreenState.Hidden;
+                    OnTransition(new TransitionEventArgs(Title, "Return"));
+                    break;
+            }
         }
 
         public int GetAngle()
@@ -258,42 +284,6 @@ namespace SWENG.UserInterface
             }
 
             return r;
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            if (_isInitialized)
-            {
-                var spriteBatch = SharedSpriteBatch;
-                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-
-                spriteBatch.Draw(
-                    _blankTexture,
-                    _viewableArea,
-                    Color.WhiteSmoke * 0.5f
-                );
-
-                spriteBatch.End();
-
-                spriteBatch.Begin();
-
-                spriteBatch.Draw(
-                    _inputBoxTexture,
-                    _inputBoxDestination,
-                    Color.White
-                );
-
-                foreach (GuiDrawable guiDrawable in _guiDrawable)
-                {
-                    guiDrawable.Draw(spriteBatch);
-                }
-
-                _scrollable.Draw(spriteBatch);
-                spriteBatch.End();
-
-                colorStream.Draw(gameTime);
-            }
-            base.Draw(gameTime);
         }
     }
 }

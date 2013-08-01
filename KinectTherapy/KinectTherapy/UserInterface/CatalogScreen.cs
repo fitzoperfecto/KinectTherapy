@@ -9,11 +9,21 @@ using SWENG.Service;
 
 namespace SWENG.UserInterface
 {
-    /// <summary>
-    /// This class implements the screen for its use with the Manager
-    /// </summary>
     public class CatalogScreen : Screen
     {
+        private readonly Rectangle _viewableArea;
+        private readonly GuiDrawable[] _guiDrawable;
+
+        private const float MARGIN = 10f;
+
+        private string _selectedCategory;
+        private int _catalogLocation;
+        private bool _isInitialized;
+
+        private MouseState _oldMouseState;
+        private SpriteFont _spriteFont;
+        private Vector2 _listItemPosition;
+
         private CatalogManager _catalogManager
         {
             get
@@ -21,22 +31,6 @@ namespace SWENG.UserInterface
                 return (CatalogManager)Game.Services.GetService(typeof(CatalogManager));
             }
         }
-
-        private readonly Rectangle _viewableArea;
-        private readonly GuiDrawable[] _guiDrawable;
-        private int _catalogLocation;
-
-        private const float MARGIN = 10f;
-        /** Flag to let us know if the screens initialize method was ran. */
-        private bool _isInitialized;
-
-        /** The subsequent gui elements will need to know the before and current states of the mouse */
-        private MouseState _oldMouseState;
-
-        private SpriteFont _spriteFont;
-
-        private string _selectedCategory;
-        private Vector2 _listItemPosition;
 
         /// <summary>
         /// Initialize a new instance of the ExerciseScreen class.
@@ -221,72 +215,6 @@ namespace SWENG.UserInterface
             base.Initialize();
         }
 
-        /// <summary>
-        /// Central button click management.
-        /// </summary>
-        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
-        {
-            switch (e.ClickedOn)
-            {
-                case "Start":
-                    if (_catalogManager.GetSelectedWorkouts().Length != 0)
-                    {
-                        ScreenState = UserInterface.ScreenState.Hidden;
-                        OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
-                        _catalogManager.Status = CatalogManagerStatus.Complete;
-                    }
-                    break;
-                case "SensorSetup":
-                    ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
-                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
-                    break;
-                case "ExitProgram":
-                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
-                    break;
-                default:
-                    changeCategory(e.ClickedOn);
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Invoke SwitchCategories and change the checked state of the GUI elements.
-        /// </summary>
-        /// <param name="category">GUI text to match on.</param>
-        private void changeCategory(string category)
-        {
-            foreach (GuiDrawable guiDrawable in _guiDrawable)
-            {
-                if (guiDrawable.Text == category)
-                {
-                    if (guiDrawable.GetType() == typeof(GuiCheckbox))
-                    {
-                        ((GuiCheckbox)guiDrawable).Checked = true;
-                    }
-                }
-                else if (guiDrawable.GetType() == typeof(GuiCheckbox))
-                {
-                    ((GuiCheckbox)guiDrawable).Checked = false;
-                }
-            }
-
-            SwitchCategories(category);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void GuiCatalogTileButtonWasClicked(object sender, EditCatalogSettingsArgs e)
-        {
-            ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
-            OnTransition(new TransitionEventArgs(e.ID, "CatalogTileEdit"));
-        }
-        
-        /// <summary>
-        /// 
-        /// </summary>
         public override void LoadContent()
         {
             if (null == contentManager)
@@ -304,9 +232,6 @@ namespace SWENG.UserInterface
             base.LoadContent();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public override void UnloadContent()
         {
             contentManager.Unload();
@@ -336,10 +261,6 @@ namespace SWENG.UserInterface
             base.Update(gameTime);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
             /** Without initialization then load content will not have happened; makes drawing very difficult */
@@ -379,6 +300,64 @@ namespace SWENG.UserInterface
                 LoadContent();
             }
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Central button click management.
+        /// </summary>
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "Start":
+                    if (_catalogManager.GetSelectedWorkouts().Length != 0)
+                    {
+                        ScreenState = UserInterface.ScreenState.Hidden;
+                        OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                        _catalogManager.Status = CatalogManagerStatus.Complete;
+                    }
+                    break;
+                case "SensorSetup":
+                    ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                case "ExitProgram":
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                default:
+                    ChangeCategory(e.ClickedOn);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Invoke SwitchCategories and change the checked state of the GUI elements.
+        /// </summary>
+        /// <param name="category">GUI text to match on.</param>
+        private void ChangeCategory(string category)
+        {
+            foreach (GuiDrawable guiDrawable in _guiDrawable)
+            {
+                if (guiDrawable.Text == category)
+                {
+                    if (guiDrawable.GetType() == typeof(GuiCheckbox))
+                    {
+                        ((GuiCheckbox)guiDrawable).Checked = true;
+                    }
+                }
+                else if (guiDrawable.GetType() == typeof(GuiCheckbox))
+                {
+                    ((GuiCheckbox)guiDrawable).Checked = false;
+                }
+            }
+
+            SwitchCategories(category);
+        }
+
+        private void GuiCatalogTileButtonWasClicked(object sender, EditCatalogSettingsArgs e)
+        {
+            ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
+            OnTransition(new TransitionEventArgs(e.ID, "CatalogTileEdit"));
         }
 
         public void SwitchCategories(string category)

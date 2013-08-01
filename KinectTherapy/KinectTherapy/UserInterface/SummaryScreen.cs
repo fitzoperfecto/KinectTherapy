@@ -14,27 +14,29 @@ namespace SWENG.UserInterface
     /// </summary>
     public class SummaryScreen : Screen
     {
-        #region Non-Specific Variables
+        private readonly ColorStreamRenderer _colorStream;
+
+        private const float ANIMATION_RATE = 0.25f;
+        private const float MARGIN = 10f;
+
+        private string _fileId;
+        private int _catalogLocation;
+        private bool _isInitialized;
+        private bool _isReplaying;
+
         private Texture2D _blankTexture;
         private SpriteFont _spriteFont;
         private Rectangle _viewableArea;
-        private bool _isInitialized;
-        private string _fileId;
-        private const float _ANIMATION_RATE = 0.25f;
-        private const float MARGIN = 10f;
-        private bool _isReplaying;
-        #endregion
-
-        #region ColorStreamRenderer Variables
-        private readonly ColorStreamRenderer _colorStream;
         private Vector2 _colorStreamPosition;
         private Vector2 _colorStreamSize;
         private Vector2 _colorStreamMaxSize;
-        #endregion
+        private ReplayTile[] _replayTiles;
+        private GuiDrawable[] _guiDrawable;
+        private GuiDrawable[] _guiDrawableSelect;
+        private GuiDrawable[] _guiDrawableReplay;
+        private Vector2 _startingPosition;
+        private MouseState _oldMouseState;
 
-        #region ExerciseQueue Variables
-        // queue of exercises
-        // reference to the exercise queue service
         private ExerciseQueue _exerciseQueue
         {
             get
@@ -42,9 +44,7 @@ namespace SWENG.UserInterface
                 return (ExerciseQueue)Game.Services.GetService(typeof(ExerciseQueue));
             }
         }
-        #endregion
 
-        #region Recording & Replay Variables
         private RecordingManager _recordingManager
         {
             get
@@ -52,18 +52,6 @@ namespace SWENG.UserInterface
                 return (RecordingManager)Game.Services.GetService(typeof(RecordingManager));
             }
         }
-        private ReplayTile[] _replayTiles;
-        #endregion
-
-        private GuiDrawable[] _guiDrawable;
-
-        #region Button Variables
-        private GuiDrawable[] _guiDrawableSelect;
-        private GuiDrawable[] _guiDrawableReplay;
-        private Vector2 _startingPosition;
-        private MouseState _oldMouseState;
-        private int _catalogLocation;
-        #endregion
 
         /// <summary>
         /// Initialize a new instance of the ExerciseScreen class.
@@ -198,6 +186,7 @@ namespace SWENG.UserInterface
             _catalogLocation = guiDrawable.Count - 1;
 
             #endregion
+
             _guiDrawable = guiDrawable.ToArray();
             _guiDrawableReplay = guiDrawableReplay.ToArray();
             _guiDrawableSelect = guiDrawableSelect.ToArray();
@@ -234,29 +223,6 @@ namespace SWENG.UserInterface
             _isInitialized = true;
 
             base.Initialize();
-        }
-
-        /// <summary>
-        /// Central button click management.
-        /// </summary>
-        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
-        {
-            switch (e.ClickedOn)
-            {
-                case "ExitProgram":
-                case "Finished":
-                    ScreenState = UserInterface.ScreenState.Hidden;
-                    closeReplay();
-                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
-                    break;
-                case "Replay":
-                    _recordingManager.RestartReplay();
-                    break;
-                case "Change":
-                    closeReplay();
-                    break;
-            }
-
         }
 
         /// <summary>
@@ -297,10 +263,13 @@ namespace SWENG.UserInterface
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            RecordingManager rm = (RecordingManager)Game.Services.GetService(typeof(RecordingManager));
-            if (rm.Status == RecordingManagerStatus.Recording)
+            /** 
+             * The exercise game component still "ups" the number of reps in its last update cycle
+             * SO, this makes sure that the recording stops
+             */
+            if (_recordingManager.Status == RecordingManagerStatus.Recording)
             {
-                rm.StopRecording();
+                _recordingManager.StopRecording();
             }
 
             if (_isInitialized
@@ -349,7 +318,7 @@ namespace SWENG.UserInterface
                 _colorStream.Size = Vector2.SmoothStep(
                     _colorStream.Size,
                     _colorStreamSize,
-                    _ANIMATION_RATE
+                    ANIMATION_RATE
                 );
                 
                 _colorStream.Update(gameTime);
@@ -358,42 +327,6 @@ namespace SWENG.UserInterface
             }
             
             base.Update(gameTime);
-        }
-
-        private void replayTileSelected(object sender, ReplaySelectedEventArgs e)
-        {
-            openReplay(e.ID);
-        }
-
-        /// <summary>
-        /// Move all the UI elements to their "open" state positions
-        /// </summary>
-        /// <param name="fileId">The ID of the file to play</param>
-        private void openReplay(string fileId)
-        {
-            if (_recordingManager.Status == RecordingManagerStatus.Replaying)
-            {
-                _recordingManager.StopReplaying();
-            }
-            else
-            {
-                _colorStreamSize = _colorStreamMaxSize;
-                _isReplaying = true;
-            }
-
-            _fileId = fileId;
-        }
-
-        /// <summary>
-        /// Move all the UI elements back to the original positioning and size
-        /// </summary>
-        private void closeReplay()
-        {
-            _fileId = string.Empty;
-            _recordingManager.StopReplaying();
-            _colorStreamSize = Vector2.Zero;
-
-            _isReplaying = false;
         }
 
         /// <summary>
@@ -447,6 +380,65 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
+        /// Central button click management.
+        /// </summary>
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "ExitProgram":
+                case "Finished":
+                    ScreenState = UserInterface.ScreenState.Hidden;
+                    CloseReplay();
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                case "Replay":
+                    _recordingManager.RestartReplay();
+                    break;
+                case "Change":
+                    CloseReplay();
+                    break;
+            }
+
+        }
+
+        private void ReplayTileSelected(object sender, ReplaySelectedEventArgs e)
+        {
+            OpenReplay(e.ID);
+        }
+
+        /// <summary>
+        /// Move all the UI elements to their "open" state positions
+        /// </summary>
+        /// <param name="fileId">The ID of the file to play</param>
+        private void OpenReplay(string fileId)
+        {
+            if (_recordingManager.Status == RecordingManagerStatus.Replaying)
+            {
+                _recordingManager.StopReplaying();
+            }
+            else
+            {
+                _colorStreamSize = _colorStreamMaxSize;
+                _isReplaying = true;
+            }
+
+            _fileId = fileId;
+        }
+
+        /// <summary>
+        /// Move all the UI elements back to the original positioning and size
+        /// </summary>
+        private void CloseReplay()
+        {
+            _fileId = string.Empty;
+            _recordingManager.StopReplaying();
+            _colorStreamSize = Vector2.Zero;
+
+            _isReplaying = false;
+        }
+
+        /// <summary>
         /// The method to use when the summary screen
         /// should be triggered to open when an event occurs
         /// </summary>
@@ -469,7 +461,7 @@ namespace SWENG.UserInterface
                             i
                         );
 
-                    replayTile.OnSelected += replayTileSelected;
+                    replayTile.OnSelected += ReplayTileSelected;
 
                     scrollableCollection.AddCatalogItem(replayTile);
                 }

@@ -1,32 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace SWENG.Record
 {
     class DataRecorder
     {
-        DateTime referenceTime;
-        readonly BinaryWriter writer;
+        private readonly BinaryWriter _writer;
+
+        private DateTime _referenceTime;
 
         public DataRecorder(BinaryWriter writer)
         {
-            this.writer = writer;
-            referenceTime = DateTime.Now;
+            _writer = writer;
+            _referenceTime = DateTime.Now;
         }
 
         public void Record(double[] processed, long milliseconds)
         {
-            TimeSpan timeSpan = DateTime.Now.Subtract(referenceTime);
-            referenceTime = DateTime.Now;
+            TimeSpan timeSpan = DateTime.Now.Subtract(_referenceTime);
+            _referenceTime = DateTime.Now;
 
-            writer.Write((long)timeSpan.TotalMilliseconds);
+            _writer.Write((long)timeSpan.TotalMilliseconds);
 
             for (int i = 0; i < processed.Length; ++i)
             {
-                writer.Write(processed[i]);
+                _writer.Write(processed[i]);
             }
         }
     }

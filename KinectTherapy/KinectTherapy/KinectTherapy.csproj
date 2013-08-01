@@ -139,7 +139,6 @@
     <Compile Include="Service\RecordingManager.cs" />
     <Compile Include="Service\SkeletonPool.cs" />
     <Compile Include="SkeletonStamp.cs" />
-    <Compile Include="SkeletonStreamRenderer.cs" />
     <Compile Include="TimerRepetition.cs" />
     <Compile Include="UserInterface\CatalogScreen.cs" />
     <Compile Include="UserInterface\CatalogTileEditScreen.cs" />

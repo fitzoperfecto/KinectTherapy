@@ -10,6 +10,7 @@ namespace SWENG.UserInterface
         private GuiButton _scrollButton;
         private string _textureName;
         private int _count = 0;
+
         public int Count 
         { 
             get 
@@ -23,14 +24,8 @@ namespace SWENG.UserInterface
             } 
         }
 
-        public Rectangle GraceArea { get; internal set; }
+        public Rectangle GraceArea { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="size"></param>
-        /// <param name="position"></param>
-        /// <param name="count"></param>
         public GuiScrollable(Vector2 size, Vector2 position, int count)
             : base(string.Empty, size, position) 
         {
@@ -50,12 +45,6 @@ namespace SWENG.UserInterface
             Color = new Color(0, 153, 153);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="size"></param>
-        /// <param name="position"></param>
-        /// <param name="count"></param>
         public GuiScrollable(Vector2 size, Vector2 position, string textureName)
             : base(string.Empty, size, position)
         {
@@ -66,25 +55,6 @@ namespace SWENG.UserInterface
             Color = new Color(0, 153, 153);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private GuiButton CreateGuiButton()
-        {
-            Vector2 scrollSize = new Vector2(Size.X * 0.9f, Size.Y / _count);
-            return new GuiButton("scroll", 
-                scrollSize,
-                new Vector2(
-                    Position.X + ((Size.X * 0.1f) / 2), 
-                    Position.Y
-                )
-            );
-        }
-
-        /// <summary>
-        /// Does nothing
-        /// </summary>
         public void Initialize() { }
 
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch) 
@@ -110,7 +80,6 @@ namespace SWENG.UserInterface
             }
         }
 
-
         /// <summary>
         /// This method renders the current state of the element to the screen.
         /// </summary>
@@ -126,11 +95,6 @@ namespace SWENG.UserInterface
             _scrollButton.Draw(spriteBatch);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mouseState"></param>
-        /// <param name="oldMouseState"></param>
         public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
         {
             if (mouseBoundingBox.Intersects(_scrollButton.Rectangle))
@@ -153,10 +117,18 @@ namespace SWENG.UserInterface
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        private GuiButton CreateGuiButton()
+        {
+            Vector2 scrollSize = new Vector2(Size.X * 0.9f, Size.Y / _count);
+            return new GuiButton("scroll",
+                scrollSize,
+                new Vector2(
+                    Position.X + ((Size.X * 0.1f) / 2),
+                    Position.Y
+                )
+            );
+        }
+
         internal float GetScrollTop()
         {
             float top = 0.0f;

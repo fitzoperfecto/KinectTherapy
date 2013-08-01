@@ -12,9 +12,8 @@ namespace Microsoft.Samples.Kinect.XnaBasics
     using Microsoft.Kinect;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
-    using SWENG.Service;
     using SWENG;
-    using System.Diagnostics;
+    using SWENG.Service;
 
     /// <summary>
     /// A delegate method explaining how to map a SkeletonPoint from one space to another.
@@ -81,7 +80,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
         private int _counter = 0;
 
         /// <summary>
-        /// Initializes a new instance of the SkeletonStreamRenderer class.
+        /// Initializes a new instance of the SkeletonStampStreamRenderer class.
         /// </summary>
         /// <param name="game">The related game object passed in by the color and depth stream renderers.</param>
         /// <param name="map">The method used to map the SkeletonPoint to the target space.</param>

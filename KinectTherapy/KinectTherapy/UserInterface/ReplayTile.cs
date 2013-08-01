@@ -1,11 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using SWENG.Service;
 using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
-using System.Collections.Generic;
+using SWENG.Service;
 
 namespace SWENG.UserInterface
 {
@@ -37,30 +36,25 @@ namespace SWENG.UserInterface
         }
         #endregion
 
-        private SkeletonStamp[] _skeletons;
-
-        private Texture2D _titleTexture;
-        private Rectangle _titleDestination;
-        private Rectangle _titleSource;
-
-		private GuiChart _chartTexture;
-		
         private const int HEADER = 40;
-
         private const int SCROLLRATE = 5;
-        private const double MILLISECONDS = 100;
         private const int MARGIN = 10;
-        private double _oldGameTime;
-
-        public string Title { get; internal set; }
-        public int ExerciseIndex { get; internal set; }
+        private const double MILLISECONDS = 100;
 
         private string _repetitionSentence;
         private int _repetitionNumber;
+        private double _oldGameTime;
 
-        public string FileId { get; private set; }
-
+        private SkeletonStamp[] _skeletons;
         private Texture2D _blank;
+        private Texture2D _titleTexture;
+        private Rectangle _titleDestination;
+        private Rectangle _titleSource;
+		private GuiChart _chartTexture;
+
+        public string Title { get; private set; }
+        public int ExerciseIndex { get; private set; }
+        public string FileId { get; private set; }
 
         /// <summary>
         /// Construct a 
@@ -118,14 +112,12 @@ namespace SWENG.UserInterface
             string chartType = "Repetitions";
             bool chartLines = true;
             bool tickMarks = false;
-            //int markerSize = 2;
             float scale = 1f;
             float repetitionDuration = 0f;
             float[] dataPoints = CalculateSkeletonChartLine(_skeletons, out repetitionDuration);
             float timeSpan;
             timeSpan = dataPoints.Length;
-            
-            //GuiChartOptions chartOptions = new GuiChartOptions(axesNames, chartType, chartLines, tickMarks, markerSize, dataPoints, timeSpan, repetitionDuration);
+
             GuiChartOptions chartOptions = new GuiChartOptions(axesNames, chartType, chartLines, tickMarks, scale, dataPoints, timeSpan, repetitionDuration);
 
             _chartTexture = new GuiChart(
@@ -260,7 +252,6 @@ namespace SWENG.UserInterface
         {
             if (_titleTexture != null)
             {
-
                 spriteBatch.Draw(
                     _blank,
                     new Rectangle((int)Position.X - 5, (int)Position.Y - 5, (int)Size.X, (int)Size.Y),
@@ -278,8 +269,6 @@ namespace SWENG.UserInterface
                     _titleSource,
                     Color.White
                 );
-
-                
 
                 _chartTexture.Draw(spriteBatch);
             }

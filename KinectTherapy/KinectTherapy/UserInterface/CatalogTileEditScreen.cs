@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -5,13 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SWENG.Criteria;
 using SWENG.Service;
-using System;
 
 namespace SWENG.UserInterface
 {
-    /// <summary>
-    /// This class implements the screen for its use with the Manager
-    /// </summary>
     public class CatalogTileEditScreen : Screen
     {
         private readonly Rectangle _viewableArea;
@@ -19,12 +16,15 @@ namespace SWENG.UserInterface
 
         private const float MARGIN = 10f;
 
+        private string _itemId;
+        private int _repetitionIndex;
+        private int _varianceIndex;
         private bool _isInitialized;
+
         private MouseState _oldMouseState;
         private Texture2D _blankTexture;
         private Texture2D _inputBoxTexture;
         private Rectangle _inputBoxDestination;
-
         private Exercise _exercise;
 
         private CatalogManager _catalogManager
@@ -34,10 +34,6 @@ namespace SWENG.UserInterface
                 return (CatalogManager)Game.Services.GetService(typeof(CatalogManager));
             }
         }
-
-        private string _itemId;
-        private int _repetitionIndex;
-        private int _varianceIndex;
 
         /// <summary>
         /// Initialize a new instance of the ExerciseScreen class.
@@ -147,23 +143,6 @@ namespace SWENG.UserInterface
         }
 
         /// <summary>
-        /// Reset input boxes "checked" status.
-        /// </summary>
-        private void InputBoxSelected(object sender, SelectedEventArgs e)
-        {
-            foreach (GuiDrawable guiDrawable in _guiDrawable)
-            {
-                if (guiDrawable.GetType() == typeof(GuiInputBox))
-                {
-                    if (guiDrawable.Text != e.ID)
-                    {
-                        ((GuiInputBox)guiDrawable).State = CheckboxState.Default;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
         /// to run.  This is where it can query for any required services and load content.
         /// </summary>
@@ -186,54 +165,6 @@ namespace SWENG.UserInterface
             }
 
             base.Initialize();
-        }
-
-        /// <summary>
-        /// Central button click management.
-        /// </summary>
-        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
-        {
-            InputBoxSelected(sender, new SelectedEventArgs(e.ClickedOn));
-
-            switch (e.ClickedOn)
-            {
-                case "Submit":
-                    ScreenState = UserInterface.ScreenState.Hidden;
-                    saveChanges();
-                    OnTransition(new TransitionEventArgs(Title, "Return"));
-                    break;
-                case "Cancel":
-                    ScreenState = UserInterface.ScreenState.Hidden;
-                    OnTransition(new TransitionEventArgs(Title, "Return"));
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Pass back the data to the CatalogManager
-        /// </summary>
-        private void saveChanges()
-        {
-            int tempInt = 0;
-            float tempFloat = 0;
-            _exercise = new Exercise();
-            _exercise.Id = _itemId;
-
-            /** Check the validity of the data first for the Repitition value */
-            GuiInputBox guiInputBox = (GuiInputBox)_guiDrawable[_repetitionIndex];
-            if (int.TryParse(guiInputBox.Value, out tempInt))
-            {
-                _exercise.Repetitions = tempInt;
-            }
-
-            /** Check the validity of the data first for the Variance value */
-            guiInputBox = (GuiInputBox)_guiDrawable[_varianceIndex];
-            if (float.TryParse(guiInputBox.Value, out tempFloat))
-            {
-                _exercise.Variance = tempFloat;
-            }
-
-            _catalogManager.SetExerciseOptions(_exercise);
         }
 
         public override void LoadContent()
@@ -311,6 +242,72 @@ namespace SWENG.UserInterface
                 spriteBatch.End();
             }
             base.Draw(gameTime);
+        }
+
+
+        /// <summary>
+        /// Reset input boxes "checked" status.
+        /// </summary>
+        private void InputBoxSelected(object sender, SelectedEventArgs e)
+        {
+            foreach (GuiDrawable guiDrawable in _guiDrawable)
+            {
+                if (guiDrawable.GetType() == typeof(GuiInputBox))
+                {
+                    if (guiDrawable.Text != e.ID)
+                    {
+                        ((GuiInputBox)guiDrawable).State = CheckboxState.Default;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Central button click management.
+        /// </summary>
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            InputBoxSelected(sender, new SelectedEventArgs(e.ClickedOn));
+
+            switch (e.ClickedOn)
+            {
+                case "Submit":
+                    ScreenState = UserInterface.ScreenState.Hidden;
+                    SaveChanges();
+                    OnTransition(new TransitionEventArgs(Title, "Return"));
+                    break;
+                case "Cancel":
+                    ScreenState = UserInterface.ScreenState.Hidden;
+                    OnTransition(new TransitionEventArgs(Title, "Return"));
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Pass back the data to the CatalogManager
+        /// </summary>
+        private void SaveChanges()
+        {
+            int tempInt = 0;
+            float tempFloat = 0;
+            _exercise = new Exercise();
+            _exercise.Id = _itemId;
+
+            /** Check the validity of the data first for the Repitition value */
+            GuiInputBox guiInputBox = (GuiInputBox)_guiDrawable[_repetitionIndex];
+            if (int.TryParse(guiInputBox.Value, out tempInt))
+            {
+                _exercise.Repetitions = tempInt;
+            }
+
+            /** Check the validity of the data first for the Variance value */
+            guiInputBox = (GuiInputBox)_guiDrawable[_varianceIndex];
+            if (float.TryParse(guiInputBox.Value, out tempFloat))
+            {
+                _exercise.Variance = tempFloat;
+            }
+
+            _catalogManager.SetExerciseOptions(_exercise);
         }
 
         /// <summary>
