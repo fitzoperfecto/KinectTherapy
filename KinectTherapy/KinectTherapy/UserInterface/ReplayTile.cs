@@ -108,7 +108,6 @@ namespace SWENG.UserInterface
             RecordingManager recorder = (RecordingManager)game.Services.GetService(typeof(RecordingManager));
             _skeletons = recorder.ReadProcessedData(FileId);
 
-<<<<<<< HEAD
             string[] axesNames = { "Time - seconds", "Deviation" };
             string chartType = "Time";
             bool chartLines = true;
@@ -119,19 +118,6 @@ namespace SWENG.UserInterface
             timeSpan = dataPoints.Length;
             
             GuiChartOptions chartOptions = new GuiChartOptions(axesNames, chartType, chartLines, tickMarks, dataPoints, timeSpan, repetitionDuration);
-=======
-            string[] axesNames = { "100 Millisecond Intervals", "Average\n\rTotal\n\rDeviation" };
-            string chartType = "Repetitions";
-            bool chartLines = true;
-            bool tickMarks = false;
-            float scale = 1f;
-            float repetitionDuration = 0f;
-            float[] dataPoints = CalculateSkeletonChartLine(_skeletons, out repetitionDuration);
-            float timeSpan;
-            timeSpan = dataPoints.Length;
-
-            GuiChartOptions chartOptions = new GuiChartOptions(axesNames, chartType, chartLines, tickMarks, scale, dataPoints, timeSpan, repetitionDuration);
->>>>>>> 3f83878636f294077b49563be9198ae95eea14f4
 
             _chartTexture = new GuiChart(
                 "Text",
