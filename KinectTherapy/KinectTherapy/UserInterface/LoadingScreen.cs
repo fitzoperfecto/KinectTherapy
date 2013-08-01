@@ -1,3 +1,4 @@
+﻿
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -6,15 +7,14 @@ using Microsoft.Xna.Framework.Input;
 
 namespace SWENG.UserInterface
 {
-    /// <summary>
-    /// This class implements the screen for its use with the Manager
-    /// </summary>
     public class LoadingScreen : Screen
     {
         private readonly Rectangle _viewableArea;
+
         private const float MARGIN = 10f;
 
         private bool _isInitialized;
+
         private Texture2D _blankTexture;
         private SpriteFont _spriteFont;
 
@@ -48,7 +48,7 @@ namespace SWENG.UserInterface
         public override void LoadContent()
         {
             base.LoadContent();
-            if (null == contentManager)
+            if (contentManager == null)
             {
                 contentManager = new ContentManager(Game.Services, "Content");
             }

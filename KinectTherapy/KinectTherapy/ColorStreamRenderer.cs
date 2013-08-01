@@ -4,6 +4,7 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+/** Added for class */
 using Kinect.Toolbox.Record;
 
 namespace Microsoft.Samples.Kinect.XnaBasics
@@ -18,10 +19,10 @@ namespace Microsoft.Samples.Kinect.XnaBasics
     /// </summary>
     public class ColorStreamRenderer : Object2D
     {
-
         /// <summary>
         /// This child responsible for rendering the color stream's overlay skeleton when an exercise is occurring.
         /// </summary>
+        /** Added for class */
         private readonly SkeletonStampStreamRenderer skeletonStampStream;
         
         /// <summary>
@@ -61,6 +62,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             this.RecordingManager.ColorEventListener.Add(Replay_ColorFrameReady);
         }
 
+        /** Added for class */
         void Replay_ColorFrameReady(object sender, ReplayColorImageFrameReadyEventArgs args)
         {
             // Sometimes we get a null frame back if no data is ready
@@ -121,7 +123,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                 return;
             }
 
-            if (this.RecordingManager.Status == RecordingManagerStatus.Replaying)
+            if (RecordingManager.Status == RecordingManagerStatus.Replaying)
             {
                 return;
             }
@@ -134,9 +136,9 @@ namespace Microsoft.Samples.Kinect.XnaBasics
                     return;
                 }
 
-                if (this.RecordingManager.Status == RecordingManagerStatus.Recording)
+                if (RecordingManager.Status == RecordingManagerStatus.Recording)
                 {
-                    this.RecordingManager.Record(frame);
+                    RecordingManager.Record(frame);
                 }
 
                 // Reallocate values if necessary

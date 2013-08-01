@@ -1,11 +1,8 @@
 ﻿namespace SWENG.Service
 {
-    using System;
+    using System.Collections.Generic;
     using Microsoft.Kinect;
     using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Graphics;
-    using System.Collections.Generic;
-    using System.Diagnostics;
 
     /// <summary>
     /// This is meant to allocate space for the program to use and
@@ -148,10 +145,6 @@
                 s.SkeletonData = skeleton;
                 s.InUse = false;
                 s.IsActive = true;
-            }
-            else
-            {
-                Debug.WriteLine("Out of skeletons!  Consider increasing the max instances on initialization.");
             }
         }
 

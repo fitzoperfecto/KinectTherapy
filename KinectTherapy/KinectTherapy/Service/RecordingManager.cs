@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Kinect;
-using Kinect.Toolbox.Record;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.IO;
-using Microsoft.Xna.Framework.Storage;
-using System.Xml;
+using Kinect.Toolbox.Record;
+using Microsoft.Kinect;
+using Microsoft.Xna.Framework;
 using SWENG.Record;
-using System.Diagnostics;
 
-// TODO: place enum into a new file
-// ?keep delegate and eventarg class here?
 namespace SWENG.Service
 {
     public enum RecordingManagerStatus
@@ -51,30 +43,29 @@ namespace SWENG.Service
         }
         #endregion
 
-        public KinectRecorder kinectRecorder { get; internal set; }
-        public KinectReplay kinectReplay { get; internal set; }
+        private FileStream _recordingStream;
+        private FileStream _replayStream;
+        private FileStream _dataOutStream;
+        private string _fileLocation;
 
-        public PostProcessedRecorder dataRecorder { get; internal set; }
+        public KinectRecorder KinectRecorder { get; private set; }
+        public KinectReplay KinectReplay { get; private set; }
+        public PostProcessedRecorder DataRecorder { get; private set; }
 
-        private FileStream recordingStream;
-        private FileStream replayStream;
-        private FileStream dataOutStream;
-
-        private string fileLocation;
-        public Dictionary<string, string> filesUsed { get; internal set; }
-        public RecordingManagerStatus Status { get; internal set; }
-        public List<EventHandler<ReplaySkeletonFrameReadyEventArgs>> SkeletonEventListener { get; internal set; }
-        public List<EventHandler<ReplayColorImageFrameReadyEventArgs>> ColorEventListener { get; internal set; }
-        public List<EventHandler<ReplayDepthImageFrameReadyEventArgs>> DepthEventListener { get; internal set; }
+        public Dictionary<string, string> FilesUsed { get; private set; }
+        public RecordingManagerStatus Status { get; private set; }
+        public List<EventHandler<ReplaySkeletonFrameReadyEventArgs>> SkeletonEventListener { get; private set; }
+        public List<EventHandler<ReplayColorImageFrameReadyEventArgs>> ColorEventListener { get; private set; }
+        public List<EventHandler<ReplayDepthImageFrameReadyEventArgs>> DepthEventListener { get; private set; }
 
         public RecordingManager()
         {
-            fileLocation = @"c:\school\" + DateTime.Now.ToFileTime() + @"\";
-            if (!Directory.Exists(fileLocation))
+            _fileLocation = @"c:\school\" + DateTime.Now.ToFileTime() + @"\";
+            if (!Directory.Exists(_fileLocation))
             {
-                Directory.CreateDirectory(fileLocation);
+                Directory.CreateDirectory(_fileLocation);
             }
-            filesUsed = new Dictionary<string, string>();
+            FilesUsed = new Dictionary<string, string>();
             Status = Service.RecordingManagerStatus.Standby;
             SkeletonEventListener = new List<EventHandler<ReplaySkeletonFrameReadyEventArgs>>();
             ColorEventListener = new List<EventHandler<ReplayColorImageFrameReadyEventArgs>>();
@@ -83,15 +74,15 @@ namespace SWENG.Service
 
         public void Initialize()
         {
-            string fakeFile = fileLocation + Guid.NewGuid().ToString();
-            recordingStream = new FileStream(fakeFile, FileMode.OpenOrCreate);
-            kinectRecorder = new KinectRecorder(0, recordingStream);
+            string fakeFile = _fileLocation + Guid.NewGuid().ToString();
+            _recordingStream = new FileStream(fakeFile, FileMode.OpenOrCreate);
+            KinectRecorder = new KinectRecorder(0, _recordingStream);
 
-            replayStream = new FileStream(fakeFile + "1", FileMode.OpenOrCreate);
-            kinectReplay = new KinectReplay(replayStream);
+            _replayStream = new FileStream(fakeFile + "1", FileMode.OpenOrCreate);
+            KinectReplay = new KinectReplay(_replayStream);
 
-            dataOutStream = new FileStream(fakeFile + "2", FileMode.OpenOrCreate);
-            dataRecorder = new PostProcessedRecorder(dataOutStream);
+            _dataOutStream = new FileStream(fakeFile + "2", FileMode.OpenOrCreate);
+            DataRecorder = new PostProcessedRecorder(_dataOutStream);
         }
 
         private void StartRecording(KinectRecordOptions options)
@@ -100,33 +91,33 @@ namespace SWENG.Service
             StopRecording();
 
             string fileId = Guid.NewGuid().ToString();
-            filesUsed.Add(fileId, fileLocation + fileId);
+            FilesUsed.Add(fileId, _fileLocation + fileId);
 
-            if (null != kinectRecorder && kinectRecorder.IsRecording)
+            if (null != KinectRecorder && KinectRecorder.IsRecording)
             {
-                kinectRecorder.Stop();
+                KinectRecorder.Stop();
             }
 
-            recordingStream = new FileStream(
-                filesUsed[fileId], 
+            _recordingStream = new FileStream(
+                FilesUsed[fileId], 
                 FileMode.OpenOrCreate
             );
 
-            if (null != dataRecorder && dataRecorder.IsRecording)
+            if (null != DataRecorder && DataRecorder.IsRecording)
             {
-                dataRecorder.Stop();
+                DataRecorder.Stop();
             }
 
-            dataOutStream = new FileStream(
-                filesUsed[fileId] + "_data",
+            _dataOutStream = new FileStream(
+                FilesUsed[fileId] + "_data",
                 FileMode.OpenOrCreate
             );
 
-            kinectRecorder = new KinectRecorder(options, recordingStream);
-            kinectRecorder.Start();
+            KinectRecorder = new KinectRecorder(options, _recordingStream);
+            KinectRecorder.Start();
 
-            dataRecorder = new PostProcessedRecorder(dataOutStream);
-            dataRecorder.Start();
+            DataRecorder = new PostProcessedRecorder(_dataOutStream);
+            DataRecorder.Start();
 
             Status = Service.RecordingManagerStatus.Recording;
             OnRecordingStatusChanged(new RecordingStatusChangedEventArg(fileId));
@@ -134,30 +125,30 @@ namespace SWENG.Service
 
         public void StopRecording()
         {
-            if (null != kinectRecorder && kinectRecorder.IsRecording)
+            if (null != KinectRecorder && KinectRecorder.IsRecording)
             {
-                kinectRecorder.Stop();
+                KinectRecorder.Stop();
             }
 
-            if (null != recordingStream)
+            if (null != _recordingStream)
             {
                 
-                recordingStream.Close();
-                recordingStream.Dispose();
-                recordingStream = null;
+                _recordingStream.Close();
+                _recordingStream.Dispose();
+                _recordingStream = null;
             }
 
-            if (null != dataRecorder && dataRecorder.IsRecording)
+            if (null != DataRecorder && DataRecorder.IsRecording)
             {
-                dataRecorder.Stop();
+                DataRecorder.Stop();
             }
 
-            if (null != dataOutStream)
+            if (null != _dataOutStream)
             {
 
-                dataOutStream.Close();
-                dataOutStream.Dispose();
-                dataOutStream = null;
+                _dataOutStream.Close();
+                _dataOutStream.Dispose();
+                _dataOutStream = null;
             }
 
             Status = Service.RecordingManagerStatus.Standby;
@@ -167,9 +158,9 @@ namespace SWENG.Service
         {
             StopRecording();
 
-            if (null != kinectReplay && kinectReplay.Started)
+            if (null != KinectReplay && KinectReplay.Started)
             {
-                kinectReplay.Dispose();
+                KinectReplay.Dispose();
             }
 
             if (null != SkeletonEventListener)
@@ -177,7 +168,7 @@ namespace SWENG.Service
                 foreach (EventHandler<ReplaySkeletonFrameReadyEventArgs> eventHandler
                     in SkeletonEventListener)
                 {
-                    kinectReplay.SkeletonFrameReady -= eventHandler;
+                    KinectReplay.SkeletonFrameReady -= eventHandler;
                 }
             }
 
@@ -186,24 +177,24 @@ namespace SWENG.Service
                 foreach (EventHandler<ReplayColorImageFrameReadyEventArgs> eventHandler
                     in ColorEventListener)
                 {
-                    kinectReplay.ColorImageFrameReady -= eventHandler;
+                    KinectReplay.ColorImageFrameReady -= eventHandler;
                 }
             }
 
-            replayStream = new FileStream(
-                filesUsed[fileId],
+            _replayStream = new FileStream(
+                FilesUsed[fileId],
                 FileMode.Open,
                 FileAccess.Read
             );
 
-            kinectReplay = new KinectReplay(replayStream);
+            KinectReplay = new KinectReplay(_replayStream);
 
             if (null != SkeletonEventListener)
             {
                 foreach (EventHandler<ReplaySkeletonFrameReadyEventArgs> eventHandler
                     in SkeletonEventListener)
                 {
-                    kinectReplay.SkeletonFrameReady += eventHandler;
+                    KinectReplay.SkeletonFrameReady += eventHandler;
                 }
             }
 
@@ -212,63 +203,63 @@ namespace SWENG.Service
                 foreach (EventHandler<ReplayColorImageFrameReadyEventArgs> eventHandler
                     in ColorEventListener)
                 {
-                    kinectReplay.ColorImageFrameReady += eventHandler;
+                    KinectReplay.ColorImageFrameReady += eventHandler;
                 }
             }
 
-            kinectReplay.Start();
+            KinectReplay.Start();
             Status = Service.RecordingManagerStatus.Replaying;
         }
 
         public void StopReplaying()
         {
-            if (null != kinectReplay && kinectReplay.Started)
+            if (null != KinectReplay && KinectReplay.Started)
             {
-                kinectReplay.Dispose();
+                KinectReplay.Dispose();
             }
             Status = Service.RecordingManagerStatus.Standby;
         }
 
         public void RestartReplay()
         {
-            if (null != kinectReplay && null != replayStream)
+            if (null != KinectReplay && null != _replayStream)
             {
-                replayStream.Position = 0;
-                kinectReplay.Stop();
-                kinectReplay.Start();
+                _replayStream.Position = 0;
+                KinectReplay.Stop();
+                KinectReplay.Start();
             }
             Status = Service.RecordingManagerStatus.Replaying;
         }
 
         public void Record(ColorImageFrame frame)
         {
-            if (null != kinectRecorder && kinectRecorder.IsRecording)
+            if (null != KinectRecorder && KinectRecorder.IsRecording)
             {
-                kinectRecorder.Record(frame);
+                KinectRecorder.Record(frame);
             }
         }
 
         public void Record(DepthImageFrame frame)
         {
-            if (null != kinectRecorder && kinectRecorder.IsRecording)
+            if (null != KinectRecorder && KinectRecorder.IsRecording)
             {
-                kinectRecorder.Record(frame);
+                KinectRecorder.Record(frame);
             }
         }
 
         public void Record(SkeletonFrame frame)
         {
-            if (null != kinectRecorder && kinectRecorder.IsRecording)
+            if (null != KinectRecorder && KinectRecorder.IsRecording)
             {
-                kinectRecorder.Record(frame);
+                KinectRecorder.Record(frame);
             }
         }
 
         public void Record(double[] processed, long milliseconds)
         {
-            if (null != dataRecorder && dataRecorder.IsRecording)
+            if (null != DataRecorder && DataRecorder.IsRecording)
             {
-                dataRecorder.Record(processed, milliseconds);
+                DataRecorder.Record(processed, milliseconds);
             }
         }
 
@@ -286,7 +277,7 @@ namespace SWENG.Service
         {
             SkeletonStamp[] stamps = new SkeletonStamp[0];
 
-            using (FileStream fs = new FileStream(filesUsed[fileId] + "_data", FileMode.Open, FileAccess.Read))
+            using (FileStream fs = new FileStream(FilesUsed[fileId] + "_data", FileMode.Open, FileAccess.Read))
             {
                 PostProcessedRead ppr = new PostProcessedRead(fs);
                 stamps = ppr.Data;

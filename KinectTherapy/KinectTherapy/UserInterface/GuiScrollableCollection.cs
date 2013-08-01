@@ -34,24 +34,20 @@ namespace SWENG.UserInterface
 
         private const float MARGIN = 10f;
         private const float SCROLL_WIDTH = 20f;
+
         private int _viewableItems = 5;
-
-        private List<GuiDrawable> _collection;
-        private GuiScrollable _scrollable;
-        public List<GuiDrawable> Collection { get { return _collection; } }
-
         private int _pages;
         private int _currentPage;
         private int _pageBeginning;
         private int _pageEnding;
         private bool _doScroll;
 
+        private List<GuiDrawable> _collection;
+        private GuiScrollable _scrollable;
+
+        public List<GuiDrawable> Collection { get { return _collection; } }
         public Vector2 ItemSize { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="viewableArea"></param>
         public GuiScrollableCollection(string text, Vector2 size, Vector2 position, int viewableItems, float itemHeight, float itemWidth)
             :base(text, size, position)
         {
@@ -109,12 +105,6 @@ namespace SWENG.UserInterface
 
         public override void Update(MouseState mouseState, MouseState oldMouseState, Rectangle mouseBoundingBox, GameTime gameTime)
         {
-            /** The client may have accidently come off the scroll icon */
-            if (_doScroll)
-            {
-
-            }
-
             if (mouseBoundingBox.Intersects(_scrollable.GraceArea))
             {
                 _scrollable.Update(mouseState, oldMouseState, mouseBoundingBox, gameTime);
@@ -154,9 +144,6 @@ namespace SWENG.UserInterface
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void AddCatalogItem(GuiDrawable item)
         {
             _collection.Add(item);
@@ -181,9 +168,6 @@ namespace SWENG.UserInterface
             return itemPosition;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public void UpdatePagination()
         {
             int count = _collection.Count;

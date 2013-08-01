@@ -20,7 +20,7 @@ namespace SWENG
             get { return skeletonData; } 
             set 
             {
-                if (null == skeletonData || value.Length != skeletonData.Length)
+                if (skeletonData == null || value.Length != skeletonData.Length)
                 {
                     skeletonData = new Skeleton[value.Length];
                 }

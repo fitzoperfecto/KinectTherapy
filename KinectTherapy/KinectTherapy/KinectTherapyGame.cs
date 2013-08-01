@@ -15,54 +15,6 @@ namespace KinectTherapy
     public class KinectTherapyGame : Microsoft.Xna.Framework.Game
     {
         /// <summary>
-        /// This is used to adjust the window size.
-        /// </summary>
-        private const int WIDTH = 1024;
-
-        /// <summary>
-        /// From XnaBasics; This control selects a sensor, and displays a notice if one is
-        /// not connected.
-        /// </summary>
-        private readonly KinectChooser chooser;
-
-        /// <summary>
-        /// This is the viewport of the streams.
-        /// </summary>
-        private readonly Rectangle viewPortRectangle;
-
-        /// <summary>
-        /// This tracks the previous keyboard state.
-        /// </summary>
-        private KeyboardState previousKeyboard;
-
-        /// <summary>
-        /// This is the queue of SkeletonStamps
-        /// </summary>
-        private readonly SkeletonPool skeletonPool;
-        private const int SKELETON_POOL_SIZE = 100;
-
-        /// <summary>
-        /// This manages the queue of exercises as well as the current exercise being performed
-        /// </summary>
-        private readonly ExerciseQueue exerciseQueue;
-
-        /// <summary>
-        /// The exercise screen
-        /// </summary>
-        private readonly Manager userInterfaceManager;
-
-        private readonly RecordingManager recordingManager;
-        private readonly CatalogManager catalogManager;
-
-        private readonly SummaryScreen _summaryScreen;
-        private readonly ExerciseScreen _exerciseScreen;
-        private readonly CatalogScreen _catalogScreen;
-        private readonly HomeScreen _homeScreen;
-        private readonly CatalogTileEditScreen _catalogTileEditScreen;
-        private readonly LoadingScreen _loadingScreen;
-        private readonly SensorTileEditScreen _sensorTileEditScreen;
-
-        /// <summary>
         /// preloading assets
         /// </summary>
         static readonly string[] preloadGraphics = 
@@ -71,59 +23,101 @@ namespace KinectTherapy
             "blank",
         };
 
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        /// <summary>
+        /// From XnaBasics; This control selects a sensor, and displays a notice if one is
+        /// not connected.
+        /// </summary>
+        private readonly KinectChooser _chooser;
+
+        /// <summary>
+        /// This is the viewport of the streams.
+        /// </summary>
+        private readonly Rectangle _viewPortRectangle;
+
+        /// <summary>
+        /// This is the queue of SkeletonStamps
+        /// </summary>
+        private readonly SkeletonPool _skeletonPool;
+
+        /// <summary>
+        /// This manages the queue of exercises as well as the current exercise being performed
+        /// </summary>
+        private readonly ExerciseQueue _exerciseQueue;
+
+        /// <summary>
+        /// The exercise screen
+        /// </summary>
+        private readonly Manager _userInterfaceManager;
+        private readonly RecordingManager _recordingManager;
+        private readonly CatalogManager _catalogManager;
+        private readonly SummaryScreen _summaryScreen;
+        private readonly ExerciseScreen _exerciseScreen;
+        private readonly CatalogScreen _catalogScreen;
+        private readonly HomeScreen _homeScreen;
+        private readonly CatalogTileEditScreen _catalogTileEditScreen;
+        private readonly LoadingScreen _loadingScreen;
+        private readonly SensorTileEditScreen _sensorTileEditScreen;
+
+        private const int SKELETON_POOL_SIZE = 100;
+        private const int WIDTH = 1024; // window size
+
+        /// <summary>
+        /// This tracks the previous keyboard state.
+        /// </summary>
+        private KeyboardState _previousKeyboard;
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
 
         public KinectTherapyGame()
         {
             IsMouseVisible = true;
             Window.Title = "Kinect Therapy";
-            previousKeyboard = Keyboard.GetState();
+            _previousKeyboard = Keyboard.GetState();
 
-            graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = WIDTH;
-            graphics.PreferredBackBufferHeight = (WIDTH / 4) * 3;
-            graphics.PreparingDeviceSettings += this.GraphicsDevicePreparingDeviceSettings;
-            graphics.SynchronizeWithVerticalRetrace = true;
-            graphics.IsFullScreen = false;
+            _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreferredBackBufferWidth = WIDTH;
+            _graphics.PreferredBackBufferHeight = (WIDTH / 4) * 3;
+            _graphics.PreparingDeviceSettings += this.GraphicsDevicePreparingDeviceSettings;
+            _graphics.SynchronizeWithVerticalRetrace = true;
+            _graphics.IsFullScreen = false;
             // this will give the viewport a border
-            viewPortRectangle = new Rectangle(10, 80, WIDTH - 20, ((WIDTH / 4) * 3) - 90);
+            _viewPortRectangle = new Rectangle(10, 80, WIDTH - 20, ((WIDTH / 4) * 3) - 90);
 
             Content.RootDirectory = "Content";
 
             #region Services
-            chooser = new KinectChooser(this, ColorImageFormat.RgbResolution640x480Fps30, DepthImageFormat.Resolution640x480Fps30);
-            Services.AddService(typeof(KinectChooser), this.chooser);
+            _chooser = new KinectChooser(this, ColorImageFormat.RgbResolution640x480Fps30, DepthImageFormat.Resolution640x480Fps30);
+            Services.AddService(typeof(KinectChooser), this._chooser);
 
-            skeletonPool = new SkeletonPool(this, SKELETON_POOL_SIZE);
-            Services.AddService(typeof(SkeletonPool), skeletonPool);
+            _skeletonPool = new SkeletonPool(this, SKELETON_POOL_SIZE);
+            Services.AddService(typeof(SkeletonPool), _skeletonPool);
 
-            exerciseQueue = new ExerciseQueue(this);
-            Services.AddService(typeof(ExerciseQueue), exerciseQueue);
+            _exerciseQueue = new ExerciseQueue(this);
+            Services.AddService(typeof(ExerciseQueue), _exerciseQueue);
 
-            recordingManager = new RecordingManager();
-            Services.AddService(typeof(RecordingManager), recordingManager);
+            _recordingManager = new RecordingManager();
+            Services.AddService(typeof(RecordingManager), _recordingManager);
 
-            catalogManager = new CatalogManager();
-            Services.AddService(typeof(CatalogManager), catalogManager);
+            _catalogManager = new CatalogManager();
+            Services.AddService(typeof(CatalogManager), _catalogManager);
             #endregion
 
             #region Components
-            userInterfaceManager = new Manager(this);
+            _userInterfaceManager = new Manager(this);
             #endregion
 
             #region Screens
-            _homeScreen = new HomeScreen(this, viewPortRectangle, ScreenState.Active);
-            _summaryScreen = new SummaryScreen(this, viewPortRectangle, ScreenState.Hidden);
-            _exerciseScreen = new ExerciseScreen(this, viewPortRectangle, ScreenState.Hidden);
-            _catalogScreen = new CatalogScreen(this, viewPortRectangle, ScreenState.Hidden);
+            _homeScreen = new HomeScreen(this, _viewPortRectangle, ScreenState.Active);
+            _summaryScreen = new SummaryScreen(this, _viewPortRectangle, ScreenState.Hidden);
+            _exerciseScreen = new ExerciseScreen(this, _viewPortRectangle, ScreenState.Hidden);
+            _catalogScreen = new CatalogScreen(this, _viewPortRectangle, ScreenState.Hidden);
             _catalogTileEditScreen = new CatalogTileEditScreen(
                 this, 
                 new Rectangle(
                     0, 
                     0, 
-                    graphics.PreferredBackBufferWidth, 
-                    graphics.PreferredBackBufferHeight
+                    _graphics.PreferredBackBufferWidth, 
+                    _graphics.PreferredBackBufferHeight
                 ), 
                 ScreenState.Hidden
             );
@@ -132,8 +126,8 @@ namespace KinectTherapy
                 new Rectangle(
                     0,
                     0,
-                    graphics.PreferredBackBufferWidth,
-                    graphics.PreferredBackBufferHeight
+                    _graphics.PreferredBackBufferWidth,
+                    _graphics.PreferredBackBufferHeight
                 ),
                 ScreenState.Hidden
             );
@@ -142,8 +136,8 @@ namespace KinectTherapy
                 new Rectangle(
                     0,
                     0,
-                    graphics.PreferredBackBufferWidth,
-                    graphics.PreferredBackBufferHeight
+                    _graphics.PreferredBackBufferWidth,
+                    _graphics.PreferredBackBufferHeight
                 ),
                 ScreenState.Hidden
             );
@@ -161,39 +155,37 @@ namespace KinectTherapy
         protected override void Initialize()
         {
             #region Attaching Events/Adding to Event Lists
-            exerciseQueue.RepetitionStartedListener.Add(new StartedRepetitionEventHandler(recordingManager.StartRecording));
-            exerciseQueue.QueueIsDone += recordingManager.StopRecording;
+            _exerciseQueue.RepetitionStartedListener.Add(new StartedRepetitionEventHandler(_recordingManager.StartRecording));
+            _exerciseQueue.QueueIsDone += _recordingManager.StopRecording;
+            _exerciseQueue.QueueIsDone += _exerciseScreen.QueueIsDone;
+            _exerciseQueue.QueueIsDone += _summaryScreen.QueueIsDone;
+            _exerciseQueue.LoadIsDone += _loadingScreen.CloseScreen;
 
-            catalogManager.CatalogCompleteEventHandler += exerciseQueue.LoadExercises;
-            exerciseQueue.LoadIsDone += _loadingScreen.CloseScreen;
+            _catalogManager.CatalogCompleteEventHandler += _exerciseQueue.LoadExercises;
 
-            recordingManager.RecordingStatusChanged += exerciseQueue.AssociateFiles;
-
-            exerciseQueue.QueueIsDone += _exerciseScreen.QueueIsDone;
-            exerciseQueue.QueueIsDone += _summaryScreen.QueueIsDone;
+            _recordingManager.RecordingStatusChanged += _exerciseQueue.AssociateFiles;
             #endregion
 
             #region Adding Screens
             //TODO: This needs to be refitted as the actual home screen.
-            userInterfaceManager.AddScreen(_homeScreen);
-            userInterfaceManager.AddScreen(_exerciseScreen);
-            userInterfaceManager.AddScreen(_summaryScreen);
-            userInterfaceManager.AddScreen(_catalogScreen);
-            userInterfaceManager.AddScreen(_catalogTileEditScreen);
-            userInterfaceManager.AddScreen(_loadingScreen);
-            userInterfaceManager.AddScreen(_sensorTileEditScreen);
+            _userInterfaceManager.AddScreen(_homeScreen);
+            _userInterfaceManager.AddScreen(_exerciseScreen);
+            _userInterfaceManager.AddScreen(_summaryScreen);
+            _userInterfaceManager.AddScreen(_catalogScreen);
+            _userInterfaceManager.AddScreen(_catalogTileEditScreen);
+            _userInterfaceManager.AddScreen(_loadingScreen);
+            _userInterfaceManager.AddScreen(_sensorTileEditScreen);
 
             #endregion
 
             #region Manual Initialization
-            skeletonPool.Initialize();
-            recordingManager.Initialize();
-            exerciseQueue.Initialize();
-            catalogManager.Initialize();
+            _skeletonPool.Initialize();
+            _recordingManager.Initialize();
+            _catalogManager.Initialize();
             #endregion
 
             #region Adding Components
-            Components.Add(userInterfaceManager);
+            Components.Add(_userInterfaceManager);
             #endregion
 
             base.Initialize();
@@ -205,11 +197,8 @@ namespace KinectTherapy
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            Services.AddService(typeof(SpriteBatch), this.spriteBatch);
-
-            // TODO: use this.Content to load your game content here
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            Services.AddService(typeof(SpriteBatch), this._spriteBatch);
         }
 
         /// <summary>
@@ -218,7 +207,6 @@ namespace KinectTherapy
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -234,9 +222,7 @@ namespace KinectTherapy
             {
                 this.Exit();
             }
-
-            // TODO: Add your update logic here
-            previousKeyboard = newState;
+            _previousKeyboard = newState;
 
             base.Update(gameTime);
         }
@@ -248,9 +234,6 @@ namespace KinectTherapy
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-
             base.Draw(gameTime);
         }
 

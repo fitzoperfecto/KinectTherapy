@@ -18,7 +18,7 @@ namespace SWENG.Service
     /// Exercises will be loaded from a local xml file. This service then can be accessed by the UI 
     /// components to display the necessary data. 
     /// </summary>
-    public class ExerciseQueue : IGameComponent //GameComponent
+    public class ExerciseQueue : IGameComponent
     {
         #region event stuff
         public event QueueIsDoneEventHandler QueueIsDone;
@@ -47,15 +47,15 @@ namespace SWENG.Service
         }
         #endregion
 
-        public ExerciseGameComponent[] Exercises { get; internal set; }
-        public Queue<ExerciseGameComponent> PendingExercises { get; internal set; }
-        public Queue<ExerciseGameComponent> CompletedExercises { get; internal set; }
-        public List<StartedRepetitionEventHandler> RepetitionStartedListener { get; internal set; }
-        public int MostRecentComlpleteIndex = 0;
-        public bool IsInitialized { get; internal set; }
-
         private Game _game;
 
+        public int MostRecentlyCompletedIndex = 0;
+        public bool IsInitialized { get; internal set; }
+
+        public ExerciseGameComponent[] Exercises { get; private set; }
+        public Queue<ExerciseGameComponent> PendingExercises { get; private set; }
+        public Queue<ExerciseGameComponent> CompletedExercises { get; private set; }
+        public List<StartedRepetitionEventHandler> RepetitionStartedListener { get; private set; }
         // an exercise game component for the current exercise.
         public ExerciseGameComponent CurrentExercise;
 
@@ -80,11 +80,8 @@ namespace SWENG.Service
             Update();
         }
 
-        public void Initialize()
-        {
-            // since it got moved to LoadExercises we probably don't need this anymore. 
-            // Leaving stubbed out for now.
-        }
+        /** Required for compiling */
+        public void Initialize() { }
 
         private void ReInitialize()
         {
@@ -111,6 +108,7 @@ namespace SWENG.Service
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(Exercise));
                 StreamReader reader = new StreamReader(path + e.Exercises[i].Id + ".xml");
+                
                 // deserialize the xml and create an Exercise
                 Exercise temp = (Exercise)serializer.Deserialize(reader);
                 temp.Repetitions = e.Exercises[i].Repetitions;
@@ -138,6 +136,7 @@ namespace SWENG.Service
 
                 // complete the exercise
                 CompletedExercises.Enqueue(CurrentExercise);
+                
                 // see if we're completely done
                 // if so, call people
                 if (PendingExercises.Count > 0)
@@ -173,6 +172,5 @@ namespace SWENG.Service
 
             _game.Components.Add(CurrentExercise);
         }
-
     }
 }

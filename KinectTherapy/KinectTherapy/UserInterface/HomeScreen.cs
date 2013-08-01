@@ -6,19 +6,15 @@ using System.Collections.Generic;
 
 namespace SWENG.UserInterface
 {
-    /// <summary>
-    /// This class implements the screen for its use with the Manager
-    /// </summary>
     public class HomeScreen : Screen
     {
         private readonly Rectangle _viewableArea;
         private readonly GuiDrawable[] _guiDrawable;
-        //private readonly GuiHeader _header;
-        //private readonly GuiSensorStatus _sensorStatus;
 
         private const float MARGIN = 10f;
 
         private bool _isInitialized;
+
         private MouseState _oldMouseState;
 
         /// <summary>
@@ -43,9 +39,9 @@ namespace SWENG.UserInterface
             #region Laying out the positions
             Dictionary<string, GuiDrawable> _buttonDct = new Dictionary<string,GuiDrawable>();
             _buttonDct.Add(
-                "LogIn",
+                "Catalog",
                 new GuiButton(
-                    "LogIn", 
+                    "Catalog", 
                     buttonSize,
                     buttonBottom
                     - (new Vector2(0f, 2 * MARGIN))
@@ -122,30 +118,9 @@ namespace SWENG.UserInterface
             base.Initialize();
         }
 
-        /// <summary>
-        /// Central button click management.
-        /// </summary>
-        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
-        {
-            switch (e.ClickedOn)
-            {
-                case "LogIn":
-                    ScreenState = UserInterface.ScreenState.Hidden;
-                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
-                    break;
-                case "SensorSetup":
-                    ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
-                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
-                    break;
-                case "ExitProgram":
-                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
-                    break;
-            }
-        }
-
         public override void LoadContent()
         {
-            if (null == contentManager)
+            if (contentManager == null)
             {
                 contentManager = new ContentManager(Game.Services, "Content");
             }
@@ -201,6 +176,27 @@ namespace SWENG.UserInterface
                 spriteBatch.End();
             }
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Central button click management.
+        /// </summary>
+        private void GuiButtonWasClicked(object sender, GuiButtonClickedArgs e)
+        {
+            switch (e.ClickedOn)
+            {
+                case "Catalog":
+                    ScreenState = UserInterface.ScreenState.Hidden;
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                case "SensorSetup":
+                    ScreenState = UserInterface.ScreenState.Active | UserInterface.ScreenState.NonInteractive;
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+                case "ExitProgram":
+                    OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
+                    break;
+            }
         }
     }
 }

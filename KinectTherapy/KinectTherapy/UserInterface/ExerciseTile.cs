@@ -1,35 +1,30 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using SWENG.Criteria;
-using SWENG.Service;
 using Microsoft.Xna.Framework.Input;
+using SWENG.Criteria;
 
-// TODO: refactor similar functionality within ReplayTile to a "tile" drawablegamecomponent
 namespace SWENG.UserInterface
 {
     public class ExerciseTile : GuiDrawable
     {
-        private ContentManager _contentManager;
-
-        private Texture2D _titleTexture;
-        private Rectangle _titleDestination;
-        private Rectangle _titleSource;
-
-        private Texture2D _checkpointTexture;
-        private Rectangle _checkpointDestination;
         private const int HEADER = 40;
-
+        private const int MARGIN = 10;
         private const int SCROLLRATE = 5;
         private const double MILLISECONDS = 100;
-        private const int MARGIN = 10;
+
         private double _oldGameTime;
 
-        public string Title { get; internal set; }
-        public int ExerciseIndex { get; internal set; }
-        public string CheckpointId { get; internal set; }
+        private ContentManager _contentManager;
+        private Texture2D _titleTexture;
+        private Texture2D _checkpointTexture;
+        private Rectangle _titleDestination;
+        private Rectangle _titleSource;
+        private Rectangle _checkpointDestination;
 
+        public string Title { get; private set; }
+        public string CheckpointId { get; private set; }
+        public int ExerciseIndex { get; private set; }
         public bool IsCurrentTile { get; set; }
 
         public ExerciseTile(Game game, ExerciseGameComponent exercise, int exerciseIndex, Vector2 size, Vector2 position)
@@ -43,7 +38,7 @@ namespace SWENG.UserInterface
 
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            if (null == contentManager)
+            if (contentManager == null)
             {
                 return;
             }
@@ -72,31 +67,6 @@ namespace SWENG.UserInterface
                 _titleDestination.Width,
                 _titleDestination.Height
             );
-        }
-
-        private Texture2D CreateTitleTexture(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
-        {
-            SpriteFont spriteFont = contentManager.Load<SpriteFont>("Arial16");
-            Vector2 textMeasure = spriteFont.MeasureString(Text);
-            RenderTarget2D renderTarget2d = new RenderTarget2D(game.GraphicsDevice, (int)textMeasure.X, (int)textMeasure.Y);
-
-            game.GraphicsDevice.SetRenderTarget(renderTarget2d);
-            game.GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-
-            spriteBatch.Begin();
-
-            spriteBatch.DrawString(
-                spriteFont,
-                Text,
-                Vector2.Zero,
-                Color.White
-            );
-
-            spriteBatch.End();
-
-            game.GraphicsDevice.SetRenderTarget(null);
-
-            return (Texture2D)renderTarget2d;
         }
 
         /// <summary>
@@ -153,6 +123,31 @@ namespace SWENG.UserInterface
                     );
                 }
             }
+        }
+
+        private Texture2D CreateTitleTexture(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
+        {
+            SpriteFont spriteFont = contentManager.Load<SpriteFont>("Arial16");
+            Vector2 textMeasure = spriteFont.MeasureString(Text);
+            RenderTarget2D renderTarget2d = new RenderTarget2D(game.GraphicsDevice, (int)textMeasure.X, (int)textMeasure.Y);
+
+            game.GraphicsDevice.SetRenderTarget(renderTarget2d);
+            game.GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(
+                spriteFont,
+                Text,
+                Vector2.Zero,
+                Color.White
+            );
+
+            spriteBatch.End();
+
+            game.GraphicsDevice.SetRenderTarget(null);
+
+            return (Texture2D)renderTarget2d;
         }
 
         /// <summary>

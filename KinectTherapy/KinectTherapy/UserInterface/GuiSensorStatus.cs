@@ -9,6 +9,7 @@ namespace SWENG.UserInterface
     class GuiSensorStatus : GuiDrawable
     {
         private readonly Game _game;
+
         private int _oldStatus;
 
         private KinectChooser _chooser

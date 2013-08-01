@@ -139,7 +139,6 @@
     <Compile Include="Service\RecordingManager.cs" />
     <Compile Include="Service\SkeletonPool.cs" />
     <Compile Include="SkeletonStamp.cs" />
-    <Compile Include="SkeletonStreamRenderer.cs" />
     <Compile Include="TimerRepetition.cs" />
     <Compile Include="UserInterface\CatalogScreen.cs" />
     <Compile Include="UserInterface\CatalogTileEditScreen.cs" />
@@ -148,8 +147,8 @@
     <Compile Include="UserInterface\GuiLabel.cs" />
     <Compile Include="UserInterface\GuiCheckbox.cs" />
     <Compile Include="UserInterface\GuiInputBox.cs" />
-    <Compile Include="UserInterface\SensorTileEditScreen.cs" />
     <Compile Include="UserInterface\LoadingScreen.cs" />
+    <Compile Include="UserInterface\SensorTileEditScreen.cs" />
     <Compile Include="UserInterface\ExerciseScreen.cs" />
     <Compile Include="UserInterface\ExerciseTile.cs" />
     <Compile Include="UserInterface\GuiButton.cs" />

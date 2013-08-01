@@ -27,8 +27,6 @@ namespace SWENG.UserInterface
 
     public class GuiInputBox : GuiDrawable
     {
-        public CheckboxState State;
-
         #region event stuff
         public event Selected OnSelected;
 
@@ -40,8 +38,13 @@ namespace SWENG.UserInterface
         }
         #endregion
 
+        private float _defaultValue;
+        private float _minValue;
+        private float _maxValue;
+        private double _gameTimeStamp;
+
+        private SpriteFont _spriteFont;
         private KeyboardState _oldKeyState;
-        #region Keys
         private Keys[] _acceptable = new Keys[]{
                 Keys.NumPad0,
                 Keys.NumPad1,
@@ -65,14 +68,10 @@ namespace SWENG.UserInterface
                 Keys.D9,
                 Keys.OemPeriod
             };
-        #endregion
-        private double _gameTimeStamp;
-        private SpriteFont _spriteFont;
-        private float _defaultValue;
-        private float _minValue;
-        private float _maxValue;
 
         public string Value { get; set; }
+
+        public CheckboxState State { get; set; }
 
         public GuiInputBox(string id, Vector2 size, Vector2 position, Game game, float defaultValue, float maxValue, float minValue)
             : base(id, size, position)

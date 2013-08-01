@@ -142,7 +142,7 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch"></param>
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            if (null == contentManager) return;
+            if (contentManager == null) return;
 
             _chartMarkerTexture = contentManager.Load<Texture2D>(@"blank");
 
