@@ -136,15 +136,8 @@ namespace SWENG.UserInterface
                         CallOpen("Home");
                     }
                     break;
-                case "LogIn":
+                case "Catalog":
                     if (e.ScreenName == "Home")
-                    {
-                        //CallOpen("Log In");
-                        CallOpen("Catalog");
-                    }
-                    break;
-                case "Submit":
-                    if (e.ScreenName == "Log In")
                     {
                         CallOpen("Catalog");
                     }

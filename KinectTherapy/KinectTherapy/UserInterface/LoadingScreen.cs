@@ -1,3 +1,4 @@
+﻿
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -13,7 +14,7 @@ namespace SWENG.UserInterface
         private const float MARGIN = 10f;
 
         private bool _isInitialized;
-        
+
         private Texture2D _blankTexture;
         private SpriteFont _spriteFont;
 

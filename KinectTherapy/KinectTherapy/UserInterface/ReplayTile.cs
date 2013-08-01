@@ -108,7 +108,7 @@ namespace SWENG.UserInterface
             RecordingManager recorder = (RecordingManager)game.Services.GetService(typeof(RecordingManager));
             _skeletons = recorder.ReadProcessedData(FileId);
 
-            string[] axesNames = { "Time - seconds", "Deviation" };
+            string[] axesNames = { "100 Millisecond Intervals", "Average\n\rTotal\n\rDeviation" };
             string chartType = "Repetitions";
             bool chartLines = true;
             bool tickMarks = false;

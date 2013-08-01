@@ -39,9 +39,9 @@ namespace SWENG.UserInterface
             #region Laying out the positions
             Dictionary<string, GuiDrawable> _buttonDct = new Dictionary<string,GuiDrawable>();
             _buttonDct.Add(
-                "LogIn",
+                "Catalog",
                 new GuiButton(
-                    "LogIn", 
+                    "Catalog", 
                     buttonSize,
                     buttonBottom
                     - (new Vector2(0f, 2 * MARGIN))
@@ -185,7 +185,7 @@ namespace SWENG.UserInterface
         {
             switch (e.ClickedOn)
             {
-                case "LogIn":
+                case "Catalog":
                     ScreenState = UserInterface.ScreenState.Hidden;
                     OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
                     break;

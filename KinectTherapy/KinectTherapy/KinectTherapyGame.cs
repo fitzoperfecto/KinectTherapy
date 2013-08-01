@@ -157,14 +157,13 @@ namespace KinectTherapy
             #region Attaching Events/Adding to Event Lists
             _exerciseQueue.RepetitionStartedListener.Add(new StartedRepetitionEventHandler(_recordingManager.StartRecording));
             _exerciseQueue.QueueIsDone += _recordingManager.StopRecording;
-
-            _catalogManager.CatalogCompleteEventHandler += _exerciseQueue.LoadExercises;
-            _exerciseQueue.LoadIsDone += _loadingScreen.CloseScreen;
-
-            _recordingManager.RecordingStatusChanged += _exerciseQueue.AssociateFiles;
-
             _exerciseQueue.QueueIsDone += _exerciseScreen.QueueIsDone;
             _exerciseQueue.QueueIsDone += _summaryScreen.QueueIsDone;
+            _exerciseQueue.LoadIsDone += _loadingScreen.CloseScreen;
+
+            _catalogManager.CatalogCompleteEventHandler += _exerciseQueue.LoadExercises;
+
+            _recordingManager.RecordingStatusChanged += _exerciseQueue.AssociateFiles;
             #endregion
 
             #region Adding Screens
