@@ -87,7 +87,7 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch">Provide access to the screen's sprite batch.</param>
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            if (null == contentManager)
+            if (contentManager == null)
             {
                 return;
             }

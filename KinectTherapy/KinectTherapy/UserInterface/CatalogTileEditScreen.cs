@@ -169,7 +169,7 @@ namespace SWENG.UserInterface
 
         public override void LoadContent()
         {
-            if (null == contentManager)
+            if (contentManager == null)
             {
                 contentManager = new ContentManager(Game.Services, "Content");
             }

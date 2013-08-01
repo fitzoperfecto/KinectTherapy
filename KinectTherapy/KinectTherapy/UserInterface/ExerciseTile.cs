@@ -38,7 +38,7 @@ namespace SWENG.UserInterface
 
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            if (null == contentManager)
+            if (contentManager == null)
             {
                 return;
             }

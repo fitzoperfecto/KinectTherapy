@@ -151,7 +151,7 @@ namespace SWENG.UserInterface
         /// <param name="spriteBatch"></param>
         public override void LoadContent(Game game, ContentManager contentManager, SpriteBatch spriteBatch)
         {
-            if (null == contentManager) return;
+            if (contentManager == null) return;
 
             Texture2D = contentManager.Load<Texture2D>(@"UI\ChartTexture");
             _texture2DRectangle = new Rectangle((int)_position.X, (int)_position.Y, (int)Size.Length(), (int)Size.Y);
