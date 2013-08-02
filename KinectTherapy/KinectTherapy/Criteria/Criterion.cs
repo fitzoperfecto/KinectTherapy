@@ -30,21 +30,7 @@ namespace SWENG.Criteria
             this.Variance = variance;
         }
 
-        public Skeleton GetTrackedSkeleton(Skeleton[] skeletonData)
-        {
-            Skeleton trackedSkelly = null;
-            foreach (Skeleton skeleton in skeletonData)
-            {
-                if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
-                {
-                    trackedSkelly = skeleton;
-                    break;
-                }
-            }
-            return trackedSkelly;
-        }
-
-        public abstract bool matchesCriterion(SkeletonStamp skeletonStamp);
+        public abstract bool MatchesCriterion(SkeletonStamp skeletonStamp);
 
         public abstract double[] CheckForm(SkeletonStamp skeletonStamp);
 

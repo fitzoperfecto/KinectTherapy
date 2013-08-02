@@ -55,7 +55,7 @@ namespace SWENG.Criteria
             this.Joints = joints;
         }
 
-        public override bool matchesCriterion(SkeletonStamp skeletonStamp)
+        public override bool MatchesCriterion(SkeletonStamp skeletonStamp)
         {
             double alignmentValue = 0.0;
             Joint[] trackedJoints = new Joint[Joints.Length];
@@ -70,13 +70,13 @@ namespace SWENG.Criteria
             {
                 case Alignment.Point:
                     centerJoint = skeletonStamp.GetTrackedSkeleton().Joints[CenterJoint.GetJointType()];
-                    alignmentValue = JointAnalyzer.areJointsAligned(centerJoint, trackedJoints);
+                    alignmentValue = JointAnalyzer.AreJointsAligned(centerJoint, trackedJoints);
                     break;
                 case Alignment.Horizontal:
-                    alignmentValue = JointAnalyzer.alignedHorizontally(trackedJoints[0], trackedJoints[1]);
+                    alignmentValue = JointAnalyzer.AlignedHorizontally(trackedJoints[0], trackedJoints[1]);
                     break;
                 case Alignment.Vertical:
-                    alignmentValue = JointAnalyzer.alignedVertically(trackedJoints[0], trackedJoints[1]);
+                    alignmentValue = JointAnalyzer.AlignedVertically(trackedJoints[0], trackedJoints[1]);
                     break;
             }
             return alignmentValue > MaximumAcceptedRange;
@@ -110,18 +110,18 @@ namespace SWENG.Criteria
             {
                 case Alignment.Point:
                     centerJoint = skeletonStamp.GetTrackedSkeleton().Joints[CenterJoint.GetJointType()];
-                    tempValue = 1 - JointAnalyzer.areJointsAligned(centerJoint, trackedJoints);
+                    tempValue = 1 - JointAnalyzer.AreJointsAligned(centerJoint, trackedJoints);
                     alignmentValue[(int)CenterJoint.GetJointType()] = tempValue;
                     alignmentValue[(int)trackedJoints[0].JointType] = tempValue;
                     alignmentValue[(int)trackedJoints[1].JointType] = tempValue;
                     break;
                 case Alignment.Horizontal:
-                    tempValue = 1 - JointAnalyzer.alignedHorizontally(trackedJoints[0], trackedJoints[1]);
+                    tempValue = 1 - JointAnalyzer.AlignedHorizontally(trackedJoints[0], trackedJoints[1]);
                     alignmentValue[(int)trackedJoints[0].JointType] = tempValue;
                     alignmentValue[(int)trackedJoints[1].JointType] = tempValue;
                     break;
                 case Alignment.Vertical:
-                    tempValue = 1 - JointAnalyzer.alignedVertically(trackedJoints[0], trackedJoints[1]);
+                    tempValue = 1 - JointAnalyzer.AlignedVertically(trackedJoints[0], trackedJoints[1]);
                     alignmentValue[(int)trackedJoints[0].JointType] = tempValue;
                     alignmentValue[(int)trackedJoints[1].JointType] = tempValue;
                     break;
@@ -130,11 +130,19 @@ namespace SWENG.Criteria
             return alignmentValue;
         }
 
+        /// <summary>
+        /// This is a future enhancement to create a skeleton based upon the current skeletonstamp and the criteria for the exercise.
+        /// </summary>
+        /// <returns></returns>
         public override List<Joint> MatchSkeletonToCriterion()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// String representation of the Criterion used for debugging
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

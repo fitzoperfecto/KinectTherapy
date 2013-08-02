@@ -7,14 +7,7 @@ using System.Diagnostics;
 
 namespace SWENG.Criteria
 {
-    /// <summary>
-    /// This class expects a criteria for the start/stop position to be provided 
-    /// and the criteria will ensure the skeleton will match the criteria position.
-    /// 
-    /// </summary>
-    // publisher
     public delegate void CheckpointChangedEventHandler(object sender, CheckpointChangedEventArgs e);
-
     public class CheckpointChangedEventArgs : EventArgs
     {
         public string FileId;
@@ -24,6 +17,11 @@ namespace SWENG.Criteria
             FileId = fileId;
         }
     }
+
+    /// <summary>
+    /// This class expects a criteria for the start/stop position to be provided 
+    /// and the criteria will ensure the skeleton will match the criteria position.
+    /// </summary>
     public class Repetition : IRepetition
     {
 
@@ -39,9 +37,7 @@ namespace SWENG.Criteria
 
         #endregion
 
-        private Exercise Exercise;
-        private DateTime startTime;
-        private DateTime endTime;
+        private Exercise _exercise;
         private int _checkpoint;
 
         public int Checkpoint
@@ -56,39 +52,32 @@ namespace SWENG.Criteria
                 if (_checkpoint != value)
                 {
                     // if the checkpoint value changes send a new event.
-                    OnChanged(new CheckpointChangedEventArgs(Exercise.Id + value));
+                    OnChanged(new CheckpointChangedEventArgs(_exercise.Id + value));
                 }
                 _checkpoint = value;
             }
         }
 
         //***********************************
-        public Repetition(Exercise criteria)
+        public Repetition(Exercise exercise)
         {
-            this.Exercise = criteria;
+            this._exercise = exercise;
             this.Checkpoint = 0;
         }
 
         /// <summary>
-        /// Determines if the repetition has been started
+        /// Determines if the patient is in the starting position
         /// </summary>
         /// <param name="skeletonStamp"></param>
         /// <returns></returns>
         public bool isRepStarted(SkeletonStamp skeletonStamp)
         {
-            bool matches = Exercise.matchesCriteria(skeletonStamp, Exercise.StartingCriteria);
-            if (matches)
-            {
-                startTime = DateTime.Now;
-                /// add 2 seconds (hopefully they have moved within that time)
-                TimeSpan time = new TimeSpan(0, 0, 0, 2);
-                endTime = startTime.Add(time);
-            }
+            bool matches = _exercise.MatchesCriteria(skeletonStamp, _exercise.StartingCriteria);
             return matches;
         }
 
         /// <summary>
-        /// Determines whether the rep has been completed. 
+        /// Determines whether the rep has been completed by the patient
         /// </summary>
         /// <param name="skeletonStamp"></param>
         /// <returns></returns>
@@ -96,13 +85,13 @@ namespace SWENG.Criteria
         {
             bool matches = false;
 
-            matches = Exercise.matchesCriteria(skeletonStamp, Exercise.Checkpoints[_checkpoint].Criteria);
+            matches = _exercise.MatchesCriteria(skeletonStamp, _exercise.Checkpoints[_checkpoint].Criteria);
             if (matches)
             {
                 // increment the checkpoint
                 Checkpoint++;
 
-                if (Checkpoint >= Exercise.Checkpoints.Length)
+                if (Checkpoint >= _exercise.Checkpoints.Length)
                 {
                     // we have now completed a repetition reset our counter
                     Checkpoint = 0;
@@ -113,9 +102,14 @@ namespace SWENG.Criteria
             return false;
         }
 
+        /// <summary>
+        /// Check the form of the patient while they perform the repetition
+        /// </summary>
+        /// <param name="skeletonStamp"></param>
+        /// <returns></returns>
         public double[] checkForm(SkeletonStamp skeletonStamp)
         {
-            return Exercise.CheckForm(skeletonStamp);
+            return _exercise.CheckForm(skeletonStamp);
         }
     }
 }

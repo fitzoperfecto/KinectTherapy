@@ -24,7 +24,7 @@ namespace SWENG.Criteria
         /// <param name="centerJoint"></param>
         /// <param name="otherJoints"></param>
         /// <returns></returns>
-        public static float areJointsAligned(Joint centerJoint, Joint[] otherJoints)
+        public static float AreJointsAligned(Joint centerJoint, Joint[] otherJoints)
         {
             // 
             Joint startingJoint = otherJoints[0];
@@ -55,7 +55,7 @@ namespace SWENG.Criteria
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
-        public static float alignedHorizontally(Joint aligningJoint, Joint jointToBeAlignedTo)
+        public static float AlignedHorizontally(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             Joint joint = new Joint();
             SkeletonPoint sp = new SkeletonPoint();
@@ -66,7 +66,7 @@ namespace SWENG.Criteria
             Joint[] joints = new Joint[2];
             joints[0] = aligningJoint;
             joints[1] = jointToBeAlignedTo;
-            return areJointsAligned(joint, joints);
+            return AreJointsAligned(joint, joints);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace SWENG.Criteria
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
-        public static float alignedVertically(Joint aligningJoint, Joint jointToBeAlignedTo)
+        public static float AlignedVertically(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             Joint joint = new Joint();
             SkeletonPoint sp = new SkeletonPoint();
@@ -88,7 +88,7 @@ namespace SWENG.Criteria
             joints[0] = aligningJoint;
             joints[1] = jointToBeAlignedTo;
 
-            return areJointsAligned(joint, joints);
+            return AreJointsAligned(joint, joints);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace SWENG.Criteria
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
-        public static bool isLeftOf(Joint aligningJoint, Joint jointToBeAlignedTo)
+        public static bool IsLeftOf(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return aligningJoint.Position.X - jointToBeAlignedTo.Position.X < 0;
         }
@@ -108,7 +108,7 @@ namespace SWENG.Criteria
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
-        public static bool isRightOf(Joint aligningJoint, Joint jointToBeAlignedTo)
+        public static bool IsRightOf(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return aligningJoint.Position.X - jointToBeAlignedTo.Position.X > 0;
         }
@@ -119,7 +119,7 @@ namespace SWENG.Criteria
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
-        public static bool isAbove(Joint aligningJoint, Joint jointToBeAlignedTo)
+        public static bool IsAbove(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return aligningJoint.Position.Y - jointToBeAlignedTo.Position.Y > 0;
         }
@@ -130,7 +130,7 @@ namespace SWENG.Criteria
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
-        public static bool isBelow(Joint aligningJoint, Joint jointToBeAlignedTo)
+        public static bool IsBelow(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return aligningJoint.Position.Y - jointToBeAlignedTo.Position.Y < 0;
         }
@@ -141,7 +141,7 @@ namespace SWENG.Criteria
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
-        public static bool isAhead(Joint aligningJoint, Joint jointToBeAlignedTo)
+        public static bool IsAhead(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return aligningJoint.Position.Z - jointToBeAlignedTo.Position.Z < 0;
         }
@@ -152,7 +152,7 @@ namespace SWENG.Criteria
         /// <param name="aligningJoint"></param>
         /// <param name="jointToBeAlignedTo"></param>
         /// <returns></returns>
-        public static bool isBehind(Joint aligningJoint, Joint jointToBeAlignedTo)
+        public static bool IsBehind(Joint aligningJoint, Joint jointToBeAlignedTo)
         {
             return aligningJoint.Position.Z - jointToBeAlignedTo.Position.Z > 0;
         }
@@ -163,7 +163,7 @@ namespace SWENG.Criteria
         /// <param name="vertexJoint"></param>
         /// <param name="adjacentJoints"></param>
         /// <returns></returns>
-        public static int findAngle(Joint vertexJoint, Joint[] adjacentJoints)
+        public static int FindAngle(Joint vertexJoint, Joint[] adjacentJoints)
         {
             // get the vertex and other joints off the skeleton stamp
             Joint joint0 = adjacentJoints[0];
@@ -173,12 +173,6 @@ namespace SWENG.Criteria
             Vector3 vector0 = new Vector3(joint0.Position.X - vertexJoint.Position.X, joint0.Position.Y - vertexJoint.Position.Y, joint0.Position.Z - vertexJoint.Position.Z);
             // get vector vertex -> joint1
             Vector3 vector1 = new Vector3(joint1.Position.X - vertexJoint.Position.X, joint1.Position.Y - vertexJoint.Position.Y, joint1.Position.Z - vertexJoint.Position.Z);
-
-            //// determine the angle from two vectors in a 2D space...
-            // the old way
-            //float computedAngle = (float)Math.Atan2(vector0.Y, vector0.X) - (float)Math.Atan2(vector1.Y, vector1.X);
-            //// compare to the varience
-            //int convertedAngle = Convert.ToInt32(computedAngle * (180.0 / Math.PI));
 
             // the right way we're in 3D
             // using vector provided methods

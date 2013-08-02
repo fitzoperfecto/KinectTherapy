@@ -49,7 +49,7 @@ namespace SWENG.Criteria
         }
 
         /// <summary>
-        /// Will take the first two joints of the "otherJoints" Array
+        /// Constructor used for testing
         /// </summary>
         /// <param name="angle"></param>
         /// <param name="vertex"></param>
@@ -71,13 +71,20 @@ namespace SWENG.Criteria
         /// </summary>
         /// <param name="skeletonStamp"></param>
         /// <returns></returns>
-        public override bool matchesCriterion(SkeletonStamp skeletonStamp)
+        public override bool MatchesCriterion(SkeletonStamp skeletonStamp)
         {
             Joint vertexJoint; Joint[] adjacentJoints;
             int convertedDotAngle = FindAngle(skeletonStamp, out vertexJoint, out adjacentJoints);
             return convertedDotAngle > MinimumAngle && convertedDotAngle < MaximumAngle;
         }
 
+        /// <summary>
+        /// Finds the angle between the provided joints.
+        /// </summary>
+        /// <param name="skeletonStamp"></param>
+        /// <param name="vertexJoint"></param>
+        /// <param name="adjacentJoints"></param>
+        /// <returns></returns>
         private int FindAngle(SkeletonStamp skeletonStamp, out Joint vertexJoint, out Joint[] adjacentJoints)
         {
             // Test bone orientations
@@ -90,7 +97,7 @@ namespace SWENG.Criteria
             adjacentJoints = new Joint[2];
             adjacentJoints[0] = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[0].GetJointType()];
             adjacentJoints[1] = skeletonStamp.GetTrackedSkeleton().Joints[OtherJoints[1].GetJointType()];
-            int convertedDotAngle = JointAnalyzer.findAngle(vertexJoint, adjacentJoints);
+            int convertedDotAngle = JointAnalyzer.FindAngle(vertexJoint, adjacentJoints);
 
             return convertedDotAngle;
         }
@@ -138,6 +145,10 @@ namespace SWENG.Criteria
             return null;
         }
 
+        /// <summary>
+        /// String representation of the Criterion used for debugging
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

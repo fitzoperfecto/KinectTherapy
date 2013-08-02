@@ -70,13 +70,7 @@ namespace SWENG.Criteria
             }
         }
         private float _variance;
-        private void UpdateVariance(float newVariance, Criterion[] Criteria)
-        {
-            foreach (Criterion criterion in Criteria)
-            {
-                criterion.Variance = newVariance;
-            }
-        }
+
         /// <summary>
         /// Empty Constructor Needed for XmlSerializer
         /// </summary>
@@ -124,13 +118,13 @@ namespace SWENG.Criteria
         /// </summary>
         /// <param name="skeletonStamp"></param>
         /// <returns></returns>
-        internal bool matchesCriteria(SkeletonStamp skeletonStamp, Criterion[] criterion)
+        internal bool MatchesCriteria(SkeletonStamp skeletonStamp, Criterion[] criterion)
         {
             bool matches = true;
             // go through each joint's criteria and verify it is true
             foreach (Criterion c in criterion)
             {
-                if (!c.matchesCriterion(skeletonStamp))
+                if (!c.MatchesCriterion(skeletonStamp))
                 {
                     // no need to keep checking. 
                     return false;
@@ -139,7 +133,13 @@ namespace SWENG.Criteria
             return matches;
         }
 
-        public Skeleton createStartingSkeleton(SkeletonStamp skeletonStamp)
+        /// <summary>
+        /// Future Enchancement. Creates a skeleton based on the current patients skeleton and the 
+        /// starting criteria for that skeleton. 
+        /// </summary>
+        /// <param name="skeletonStamp"></param>
+        /// <returns></returns>
+        public Skeleton CreateStartingSkeleton(SkeletonStamp skeletonStamp)
         {
             Skeleton skeleton = skeletonStamp.GetTrackedSkeleton();
             /* Determine the joint types to calculate */
@@ -157,8 +157,19 @@ namespace SWENG.Criteria
             }
             return null;
         }
+
+        private void UpdateVariance(float newVariance, Criterion[] Criteria)
+        {
+            foreach (Criterion criterion in Criteria)
+            {
+                criterion.Variance = newVariance;
+            }
+        }
     }
 
+    /// <summary>
+    /// Workout object allows you to define multiple exercises within one xml file. 
+    /// </summary>
     [Serializable()]
     [System.Xml.Serialization.XmlRoot("Workout")]
     public class Workout
