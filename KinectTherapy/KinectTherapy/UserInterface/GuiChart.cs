@@ -266,12 +266,11 @@ namespace SWENG.UserInterface
             int i;
             float x;
             float y;
-            float y1;
 
             _min = (float) Math.Round(dataPoints.Min(), 6);
             _max = (float)Math.Round(dataPoints.Max(), 6);
 
-            int chartMax = _texture2DRectangle.Bottom;
+            int chartScale = _texture2DRectangle.Bottom - _texture2DRectangle.Height;
 
             RenderTarget2D renderTarget2D = new RenderTarget2D(game.GraphicsDevice, _texture2DRectangle.Width, _texture2DRectangle.Bottom + MARGIN * 2);
             game.GraphicsDevice.SetRenderTarget(renderTarget2D);
@@ -283,10 +282,12 @@ namespace SWENG.UserInterface
             {
                 x = (i * _texture2DRectangle.Width) / timeSpan;
 
-                //if (dataPoints[i].Equals(dataPoints.Max()))
-                //    y = _texture2DRectangle.Top + _chartMarkerTexture.Height;
-                //else
-                    y = (chartMax - (dataPoints[i] * Scale)) - _texture2DRectangle.Height;
+                if (dataPoints[i].Equals(dataPoints.Min()))
+                    y = _texture2DRectangle.Bottom;
+                else if (dataPoints[i].Equals(dataPoints.Max()))
+                    y = MARGIN;
+                else
+                    y = (chartScale - (dataPoints[i] * Scale));
 
                 _dataPointDestination = new Rectangle((int)x, (int)y, _chartMarkerTexture.Width * MarkerSize, _chartMarkerTexture.Height * MarkerSize);
 
@@ -294,16 +295,19 @@ namespace SWENG.UserInterface
 
                 if (_chartLines)
                 {
-                    //if (dataPoints[i + 1].Equals(dataPoints.Max()))
-                    //    y1 = _texture2DRectangle.Top + _chartMarkerTexture.Height;
-                    //else
-                        y1 = (chartMax - (dataPoints[i] * Scale)) - _texture2DRectangle.Height;
+                    int y1;
+                    if (dataPoints[i + 1].Equals(dataPoints.Min()))
+                        y1 = _texture2DRectangle.Bottom;
+                    else if (dataPoints[i + 1].Equals(dataPoints.Max()))
+                        y1 = MARGIN;
+                    else
+                        y1 = (int) (chartScale - (dataPoints[i + 1] * Scale));
 
                     Vector2 vectorStart = new Vector2(x, y);
                     Vector2 vectorStop = new Vector2(x + (_texture2DRectangle.Width / timeSpan), y1);
 
                     float length = (vectorStop - vectorStart).Length();
-                    Rectangle dataLineRectangle = new Rectangle((int) x, (int)y, (int)length, 1);
+                    Rectangle dataLineRectangle = new Rectangle((int)x, (int)y, (int)length, MarkerSize);
 
                     float rotation = (float)Math.Atan2(vectorStop.Y - vectorStart.Y, vectorStop.X - vectorStart.X);
                     spriteBatch.Draw(_chartMarkerTexture, dataLineRectangle, null, Color.Red, rotation, Vector2.Zero,
@@ -316,10 +320,13 @@ namespace SWENG.UserInterface
 
             /* Plot last point */
             x = i * _texture2DRectangle.Width / timeSpan;
-            //if (dataPoints[i].Equals(dataPoints.Max()))
-            //    y = _texture2DRectangle.Top + _chartMarkerTexture.Height;
-            //else
-                y = (chartMax - (dataPoints[i] * Scale)) - _texture2DRectangle.Height;
+
+            if (dataPoints[i].Equals(dataPoints.Min()))
+                y = _texture2DRectangle.Bottom;
+            else if (dataPoints[i].Equals(dataPoints.Max()))
+                y = MARGIN;
+            else
+                y = (chartScale - (dataPoints[i] * Scale));
 
             Array.Sort(dataPoints);
             _median = (float)Math.Round(dataPoints[dataPoints.Length / 2], 5);
