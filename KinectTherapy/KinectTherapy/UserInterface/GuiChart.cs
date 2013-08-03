@@ -39,7 +39,7 @@ namespace SWENG.UserInterface
         private Vector2 _xAxisMeasure;
         private Vector2 _yAxisMeasure;
 
-        private Rectangle _dataPointDestination;
+        //private Rectangle _dataPointDestination;
         private Rectangle _dataPointTextureDestination;
         private Rectangle _texture2DRectangle;
         #endregion
@@ -132,13 +132,13 @@ namespace SWENG.UserInterface
                 _max.ToString(CultureInfo.InvariantCulture),
                 new Vector2(_texture2DRectangle.Left - (MARGIN * 55), _texture2DRectangle.Top),
                 Color.Blue
-                );
+            );
 
             spriteBatch.Draw(
                 _dataPointTexture,
                 _dataPointTextureDestination,
                 Color.White
-                );
+            );
         }
 
         /// <summary>
@@ -164,8 +164,8 @@ namespace SWENG.UserInterface
                 (int)((int)Size.Y - _yAxisMeasure.Y - MARGIN)
             );
 
-            _dataPointTexture = DrawDataPointTexture(game, spriteBatch, _dataPoints, _timeSpan);
             _dataPointTextureDestination = new Rectangle(_texture2DRectangle.X + 5, _texture2DRectangle.Y, _texture2DRectangle.Width - 5, _texture2DRectangle.Height);
+            _dataPointTexture = DrawDataPointTexture(game, spriteBatch, _timeSpan);
         }
 
         /// <summary>
@@ -259,91 +259,82 @@ namespace SWENG.UserInterface
         /// </summary>
         /// <param name="game"></param>
         /// <param name="spriteBatch"></param>
-        /// <param name="dataPoints"></param>
         /// <param name="timeSpan"></param>
-        private Texture2D DrawDataPointTexture(Game game, SpriteBatch spriteBatch, float[] dataPoints, float timeSpan)
+        private Texture2D DrawDataPointTexture(Game game, SpriteBatch spriteBatch, float timeSpan)
         {
-            int i;
-            float x;
-            float y;
+            int height = _texture2DRectangle.Bottom + MARGIN * 2;
+            Rectangle dataPointDestination = Rectangle.Empty;
 
-            _min = (float) Math.Round(dataPoints.Min(), 6);
-            _max = (float)Math.Round(dataPoints.Max(), 6);
+            float[] dataPoints = new float[_dataPoints.Length];
+            _dataPoints.CopyTo(dataPoints, 0);
 
-            int chartScale = _texture2DRectangle.Bottom - _texture2DRectangle.Height;
+            /** Min and Max values for indexing */
+            float min = (float)Math.Round(dataPoints.Min(), 6);
+            float max = (float)Math.Round(dataPoints.Max(), 6);
 
-            RenderTarget2D renderTarget2D = new RenderTarget2D(game.GraphicsDevice, _texture2DRectangle.Width, _texture2DRectangle.Bottom + MARGIN * 2);
+            /** Min and Max values for labeling */
+            _min = (float)Math.Round(min, 2);
+            _max = (float)Math.Round(max, 2);
+
+            /** Get difference for scaling */
+            float difference = max - min;
+            difference = (float)Math.Round(difference, 6);
+
+            /** Get the newly indexed values and round because of sig figs */
+            for (int i = 0; i < dataPoints.Length; ++i)
+            {
+                float indexedPoint = (float)Math.Round(dataPoints[i], 6) - min;
+                dataPoints[i] = GetYScaledLocation(indexedPoint, difference, height);
+            }
+
+            RenderTarget2D renderTarget2D = new RenderTarget2D(game.GraphicsDevice, _texture2DRectangle.Width, height);
             game.GraphicsDevice.SetRenderTarget(renderTarget2D);
             game.GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
             spriteBatch.Begin();
 
-            for (i = 0; i < dataPoints.Length - 1; i++)
+            Vector2 oldPoint = Vector2.Zero;
+            for (int i = 0; i < dataPoints.Length; ++i)
             {
-                x = (i * _texture2DRectangle.Width) / timeSpan;
+                Vector2 point = new Vector2((i * _texture2DRectangle.Width) / timeSpan, dataPoints[i]);
 
-                if (dataPoints[i].Equals(dataPoints.Min()))
-                    y = _texture2DRectangle.Bottom;
-                else if (dataPoints[i].Equals(dataPoints.Max()))
-                    y = MARGIN;
-                else
-                    y = (chartScale - (dataPoints[i] * Scale));
+                dataPointDestination = new Rectangle((int)point.X, (int)point.Y, _chartMarkerTexture.Width * MarkerSize, _chartMarkerTexture.Height * MarkerSize);
 
-                _dataPointDestination = new Rectangle((int)x, (int)y, _chartMarkerTexture.Width * MarkerSize, _chartMarkerTexture.Height * MarkerSize);
+                spriteBatch.Draw(_chartMarkerTexture, dataPointDestination, Color.Red);
 
-                spriteBatch.Draw(_chartMarkerTexture, _dataPointDestination, Color.Red);
-
-                if (_chartLines)
+                if (_chartLines && i != 0)
                 {
-                    int y1;
-                    if (dataPoints[i + 1].Equals(dataPoints.Min()))
-                        y1 = _texture2DRectangle.Bottom;
-                    else if (dataPoints[i + 1].Equals(dataPoints.Max()))
-                        y1 = MARGIN;
-                    else
-                        y1 = (int) (chartScale - (dataPoints[i + 1] * Scale));
+                    Vector2 diff = point - oldPoint;
+                    Vector2 scale = new Vector2(1.0f, diff.Length() / _chartMarkerTexture.Width);
+                    float angle = (float)Math.Atan2(diff.Y, diff.X) - MathHelper.PiOver2;
 
-                    Vector2 vectorStart = new Vector2(x, y);
-                    Vector2 vectorStop = new Vector2(x + (_texture2DRectangle.Width / timeSpan), y1);
-
-                    float length = (vectorStop - vectorStart).Length();
-                    Rectangle dataLineRectangle = new Rectangle((int)x, (int)y, (int)length, MarkerSize);
-
-                    float rotation = (float)Math.Atan2(vectorStop.Y - vectorStart.Y, vectorStop.X - vectorStart.X);
-                    spriteBatch.Draw(_chartMarkerTexture, dataLineRectangle, null, Color.Red, rotation, Vector2.Zero,
-                                     SpriteEffects.None, 0);
+                    spriteBatch.Draw(_chartMarkerTexture, oldPoint, null, Color.DarkRed, angle, new Vector2(0.5f, 0f), scale, SpriteEffects.None, 1.0f);
                 }
 
                 if (_tickMarks)
-                    DrawXInterval(spriteBatch, i.ToString(CultureInfo.InvariantCulture), new Vector2((int)x, _texture2DRectangle.Height + MARGIN));
+                    DrawXInterval(spriteBatch, i.ToString(CultureInfo.InvariantCulture), new Vector2((int)point.X, _texture2DRectangle.Height + MARGIN));
+
+                oldPoint = point;
             }
-
-            /* Plot last point */
-            x = i * _texture2DRectangle.Width / timeSpan;
-
-            if (dataPoints[i].Equals(dataPoints.Min()))
-                y = _texture2DRectangle.Bottom;
-            else if (dataPoints[i].Equals(dataPoints.Max()))
-                y = MARGIN;
-            else
-                y = (chartScale - (dataPoints[i] * Scale));
-
-            Array.Sort(dataPoints);
-            _median = (float)Math.Round(dataPoints[dataPoints.Length / 2], 5);
-
-            _dataPointDestination = new Rectangle((int)x, (int)y, _chartMarkerTexture.Width * MarkerSize, _chartMarkerTexture.Height * MarkerSize);
-
-            spriteBatch.Draw(_chartMarkerTexture, _dataPointDestination, Color.Red);
-
-            if (_tickMarks)
-                DrawXInterval(spriteBatch, i.ToString(CultureInfo.InvariantCulture), new Vector2((int)x, _texture2DRectangle.Height + MARGIN));
 
             spriteBatch.End();
 
             game.GraphicsDevice.SetRenderTarget(null);
 
             return renderTarget2D;
+        }
 
+        /// <summary>
+        /// Return the scaled y location
+        /// </summary>
+        /// <param name="y">Indexed Y location</param>
+        /// <param name="difference">The top and bottom value on the chart</param>
+        /// <param name="height">The height of the chart plot</param>
+        private float GetYScaledLocation(float y, float difference, float height)
+        {
+            float percentOfDifference = y / difference;
+
+            return percentOfDifference * height;
         }
 
         /// <summary>

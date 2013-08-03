@@ -108,7 +108,7 @@ namespace SWENG.UserInterface
             RecordingManager recorder = (RecordingManager)game.Services.GetService(typeof(RecordingManager));
             _skeletons = recorder.ReadProcessedData(FileId);
 
-            string[] axesNames = { "Time - seconds", "Deviation" };
+            string[] axesNames = { "Time (ms)", "Deviation" };
             string chartType = "Time";
             bool chartLines = true;
             bool tickMarks = false;
@@ -155,12 +155,7 @@ namespace SWENG.UserInterface
 
                     consolidatedTimeSpans.Add(0f);
                     listLength = consolidatedTimeSpans.Count - 1;
-
-                    if (consolidatedTimeSpans[listLength] != null)
-                    {
-                        consolidatedTimeSpans[listLength] = sumOfAbsoluteAmounts / numberOfInstances;
-                    }
-
+                    consolidatedTimeSpans[listLength] = sumOfAbsoluteAmounts / numberOfInstances;
                     sumOfAbsoluteAmounts = 0;
                     numberOfInstances = 0;
                 }
@@ -173,7 +168,14 @@ namespace SWENG.UserInterface
                 ++numberOfInstances;
             }
 
-            return consolidatedTimeSpans.ToArray();
+            float[] dataPointCollection = consolidatedTimeSpans.ToArray();
+
+            for (int i = 0; i < dataPointCollection.Length; ++i)
+            {
+                dataPointCollection[i] *= 100;
+            }
+
+            return dataPointCollection;
         }
 
         /// <summary>
