@@ -177,8 +177,9 @@ namespace SWENG.UserInterface
                     "Catalog",
                     catalogSize,
                     catalogPosition,
-                    4,
-                    115f,
+                    2,
+                    //115f,
+                    230f,
                     650f
                 )
             );

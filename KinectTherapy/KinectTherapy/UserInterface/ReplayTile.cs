@@ -108,7 +108,7 @@ namespace SWENG.UserInterface
             RecordingManager recorder = (RecordingManager)game.Services.GetService(typeof(RecordingManager));
             _skeletons = recorder.ReadProcessedData(FileId);
 
-            string[] axesNames = { "Time (ms)", "Deviation" };
+            string[] axesNames = { "Time (ms)", "Avg. Deviation\n\r(per 100ms)" };
             string chartType = "Time";
             bool chartLines = true;
             bool tickMarks = false;
@@ -253,11 +253,6 @@ namespace SWENG.UserInterface
         {
             if (_titleTexture != null)
             {
-                spriteBatch.Draw(
-                    _blank,
-                    new Rectangle((int)Position.X - 5, (int)Position.Y - 5, (int)Size.X, (int)Size.Y),
-                    Color.Red
-                );
                 spriteBatch.Draw(
                     Texture2D,
                     Position,

@@ -15,15 +15,6 @@ namespace KinectTherapy
     public class KinectTherapyGame : Microsoft.Xna.Framework.Game
     {
         /// <summary>
-        /// preloading assets
-        /// </summary>
-        static readonly string[] preloadGraphics = 
-        {
-            "gradient",
-            "blank",
-        };
-
-        /// <summary>
         /// From XnaBasics; This control selects a sensor, and displays a notice if one is
         /// not connected.
         /// </summary>
@@ -79,7 +70,11 @@ namespace KinectTherapy
             _graphics.PreferredBackBufferHeight = (WIDTH / 4) * 3;
             _graphics.PreparingDeviceSettings += this.GraphicsDevicePreparingDeviceSettings;
             _graphics.SynchronizeWithVerticalRetrace = true;
+#if DEBUG
             _graphics.IsFullScreen = false;
+#else
+            _graphics.IsFullScreen = true;
+#endif
             // this will give the viewport a border
             _viewPortRectangle = new Rectangle(10, 80, WIDTH - 20, ((WIDTH / 4) * 3) - 90);
 
@@ -207,6 +202,7 @@ namespace KinectTherapy
         /// </summary>
         protected override void UnloadContent()
         {
+            _recordingManager.RemoveFiles();
         }
 
         /// <summary>
@@ -220,6 +216,7 @@ namespace KinectTherapy
             // Allows the game to exit
             if (newState.IsKeyDown(Keys.Escape))
             {
+                UnloadContent();
                 this.Exit();
             }
             _previousKeyboard = newState;

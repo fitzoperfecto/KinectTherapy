@@ -35,12 +35,11 @@ namespace SWENG.UserInterface
         private const float MARGIN = 10f;
         private const float SCROLL_WIDTH = 20f;
 
-        private int _viewableItems = 5;
+        private int _viewableItems;
         private int _pages;
         private int _currentPage;
         private int _pageBeginning;
         private int _pageEnding;
-        private bool _doScroll;
 
         private List<GuiDrawable> _collection;
         private GuiScrollable _scrollable;
@@ -94,7 +93,7 @@ namespace SWENG.UserInterface
         {
             if (_collection.Count != 0)
             {
-                for (int i = _pageBeginning; i < _pageEnding; i = i + 1)
+                for (int i = _pageBeginning; i < _pageEnding; ++i)
                 {
                     _collection[i].Draw(spriteBatch);
                 }
@@ -127,18 +126,14 @@ namespace SWENG.UserInterface
 
                 if (_pageEnding >= _collection.Count)
                     _pageEnding = _collection.Count;
-
-                _doScroll = true;
             }
             else
             {
                 if (_pageEnding >= _collection.Count)
                     _pageEnding = _collection.Count;
-
-                _doScroll = false;
             }
 
-            for (int i = _pageBeginning; i < _pageEnding; i = i + 1)
+            for (int i = _pageBeginning; i < _pageEnding; ++i)
             {
                 _collection[i].Update(mouseState, oldMouseState, mouseBoundingBox, gameTime);
             }
@@ -176,7 +171,7 @@ namespace SWENG.UserInterface
             _pages = (int)Math.Ceiling((1.0 * count) / _viewableItems);
             _scrollable.Count = _pages;
             _pageBeginning = 0;
-            _pageEnding = count < _viewableItems ? count : _viewableItems - 1;
+            _pageEnding = count < _viewableItems ? count : _viewableItems;
         }
 
         public void ClearCollection()

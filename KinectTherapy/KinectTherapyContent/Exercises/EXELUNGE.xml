@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-    <Exercise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Id="EXELUNGE" Name="Lunge" Repetitions="5" Description="Description of Lunge" Category="Thighs">
+    <Exercise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Id="EXELUNGE" Name="Lunge" Repetitions="5" Description="Description of Lunge" Category="Lower">
       <StartingCriteria>
         <Criterion xsi:type="AngleCriterion" Variance="10" Angle="180">
           <Vertex>

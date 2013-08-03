@@ -29,7 +29,6 @@ namespace SWENG.UserInterface
 
         private float _min;
         private float _max;
-        private float _median;
 
         private Texture2D _xAxisTitleTexture;
         private Texture2D _yAxisTitleTexture;
@@ -39,7 +38,6 @@ namespace SWENG.UserInterface
         private Vector2 _xAxisMeasure;
         private Vector2 _yAxisMeasure;
 
-        //private Rectangle _dataPointDestination;
         private Rectangle _dataPointTextureDestination;
         private Rectangle _texture2DRectangle;
         #endregion
@@ -77,7 +75,7 @@ namespace SWENG.UserInterface
             _tickMarks = chartOptions.TickMarks;
             _dataPoints = chartOptions.DataPoints;
             _timeSpan = chartOptions.TimeInterval;
-            _repDuration = (float) Math.Round(chartOptions.RepDuration * .001f, 3);
+            _repDuration = chartOptions.RepDuration;
             _chartLines = chartOptions.ChartLines;
 
             _position = position;

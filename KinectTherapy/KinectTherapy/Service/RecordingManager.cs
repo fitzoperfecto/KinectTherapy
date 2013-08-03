@@ -285,5 +285,14 @@ namespace SWENG.Service
 
             return stamps;
         }
+
+        public void RemoveFiles()
+        {
+            try
+            {
+                File.Delete(_fileLocation);
+            }
+            catch (Exception e) { }
+        }
     }
 }

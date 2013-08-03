@@ -415,7 +415,7 @@ namespace SWENG.UserInterface
             /** Reset the selected category so SwitchCategory loads the exercises */
             _selectedCategory = "";
 
-            string defaultCategory = "Arms";
+            string defaultCategory = "Upper";
             SwitchCategories(defaultCategory);
 
             foreach (GuiDrawable guiDrawable in _guiDrawable)
