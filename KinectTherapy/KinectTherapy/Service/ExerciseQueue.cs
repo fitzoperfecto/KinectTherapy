@@ -129,7 +129,7 @@ namespace SWENG.Service
         {
             // check to see if the reps for the exercise are complete.
             // if they are, move to the next exercise. 
-            if (CurrentExercise.isExerciseComplete())
+            if (CurrentExercise.IsExerciseComplete())
             {
                 // remove component from game components
                 _game.Components.Remove(CurrentExercise);

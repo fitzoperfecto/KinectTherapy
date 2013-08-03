@@ -37,8 +37,6 @@ namespace SWENG
                 Changed(this, e);
         }
 
-        private Boolean _reptitionStarted;
-
         public event CountdownChangedEventHandler CountdownChanged;
 
         protected virtual void OnCountdownChanged(CountdownEventArgs e)
@@ -49,20 +47,21 @@ namespace SWENG
             }
         }
         #endregion
+
         /// <summary>
         /// Gets the SkeletonPool from the services.
         /// </summary>
-        private SkeletonPool skeletonPool
+        private SkeletonPool _skeletonPool
         {
             get
             {
                 return (SkeletonPool)Game.Services.GetService(typeof(SkeletonPool));
             }
         }
-
         private Exercise _exercise;
+        private Boolean _reptitionStarted;
+
         public Boolean RepetitionComplete { get; internal set; }
-        
         public Boolean RepetitionStarted 
         {
             get 
@@ -79,7 +78,7 @@ namespace SWENG
                 _reptitionStarted = value;
             }
         }
-        
+
         public int Repetitions { get; internal set; }
         public int RepetitionsToComplete { get { return _exercise.Repetitions; } }
         public string Name { get; internal set; }
@@ -90,7 +89,7 @@ namespace SWENG
 
         /* Countdown settings do determine when to start the exercise */
         public bool ExerciseStarted; // has the exercise started
-        private bool CountdownStarted; // so we can restart the timer if the patient goes out of position
+        private bool _countdownStarted; // so we can restart the timer if the patient goes out of position
         public int Counter
         {
             get
@@ -107,15 +106,15 @@ namespace SWENG
             }
         }
         private int _counter = -1;// the counter counts down from 3 to 0 
-        private int limit = -1; // when the counter stops.
-        private float countDuration = 1f; // counter changes value every 1 second.
-        private float currentTime = 0f; //amount of time that has elapsed in seconds
+        private int _limit = -1; // when the counter stops.
+        private float _countDuration = 1f; // counter changes value every 1 second.
+        private float _currentTime = 0f; //amount of time that has elapsed in seconds
 
         public ExerciseGameComponent(Game game,Exercise exercise)
             : base(game)
         {
             ExerciseStarted = false;
-            CountdownStarted = false;
+            _countdownStarted = false;
             RepetitionComplete = false;
             RepetitionStarted = false;
             Repetitions = 0;
@@ -134,7 +133,7 @@ namespace SWENG
         {
 
             // the stamp being processed
-            SkeletonStamp skeletonStamp=skeletonPool.GetOldestActiveSkeleton();
+            SkeletonStamp skeletonStamp=_skeletonPool.GetOldestActiveSkeleton();
             double[] percentBad = new double[20]; 
 
             // determine whether a rep has been started based on Exercise Start Criteria.
@@ -145,21 +144,21 @@ namespace SWENG
                     /* make sure we're in the correct starting position */
                     if (repetition.isRepStarted(skeletonStamp))
                     {
-                        if (!CountdownStarted)
+                        if (!_countdownStarted)
                         {
                             /* its the finallllllll countdowwwwwwwn http://www.youtube.com/watch?v=9jK-NcRmVcw */
-                            CountdownStarted = true;
+                            _countdownStarted = true;
                             Counter = 3;
                         }
                         else
                         {
-                            currentTime += (float)gameTime.ElapsedGameTime.TotalSeconds; //Time passed since last Update() 
-                            if (currentTime >= countDuration)
+                            _currentTime += (float)gameTime.ElapsedGameTime.TotalSeconds; //Time passed since last Update() 
+                            if (_currentTime >= _countDuration)
                             {
                                 Counter--;
-                                currentTime -= countDuration; // clearout the time
+                                _currentTime -= _countDuration; // clearout the time
                             }
-                            if (Counter <= limit)
+                            if (Counter <= _limit)
                             {
                                 ExerciseStarted = RepetitionStarted = true;
                             }
@@ -168,7 +167,7 @@ namespace SWENG
                     else
                     {
                         /* reset the counter */
-                        CountdownStarted = false;
+                        _countdownStarted = false;
                         Counter = -1;
                         // initialize the checkpoint to the 0 based checkpoint. 
                         repetition.Checkpoint = _exercise.Checkpoints.Length;
@@ -194,7 +193,7 @@ namespace SWENG
                             Repetitions++;
                             RepetitionComplete = RepetitionStarted = false;
                             // remove all the skeletons before this skeleton
-                            skeletonPool.FinishedWithSkeleton(skeletonStamp.TimeStamp);
+                            _skeletonPool.FinishedWithSkeleton(skeletonStamp.TimeStamp);
                         }
                     }
                 }
@@ -206,13 +205,13 @@ namespace SWENG
             // remove the skeleton stamp so it can move on
             if (skeletonStamp != null)
             {
-                skeletonPool.FinishedWithSkeleton(skeletonStamp.TimeStamp);
+                _skeletonPool.FinishedWithSkeleton(skeletonStamp.TimeStamp);
             }
 
             base.Update(gameTime);
         }
 
-        public bool isExerciseComplete()
+        public bool IsExerciseComplete()
         {
             return Repetitions >= _exercise.Repetitions;
         }
