@@ -375,11 +375,6 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="UI\Shoulders.png">
-      <Name>Shoulders</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="UI\Skip.png">
       <Name>Skip</Name>
       <Importer>TextureImporter</Importer>
@@ -397,11 +392,6 @@
     </Compile>
     <Compile Include="UI\Submit.png">
       <Name>Submit</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="UI\Thighs.png">
-      <Name>Thighs</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

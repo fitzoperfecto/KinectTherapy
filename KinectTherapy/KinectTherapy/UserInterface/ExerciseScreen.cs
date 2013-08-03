@@ -285,8 +285,10 @@ namespace SWENG.UserInterface
                     OnTransition(new TransitionEventArgs(Title, e.ClickedOn));
                     break;
                 case "Skip":
+                    _exerciseQueue.NextExercise();
                     break;
-                case "End Queue":
+                case "EndQueue":
+                    _exerciseQueue.ForceQueueEnd();
                     break;
             }
         }

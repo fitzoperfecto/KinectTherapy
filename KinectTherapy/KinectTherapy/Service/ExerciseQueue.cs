@@ -130,13 +130,7 @@ namespace SWENG.Service
             // check to see if the reps for the exercise are complete.
             // if they are, move to the next exercise. 
             if (CurrentExercise.IsExerciseComplete())
-            {
-                // remove component from game components
-                _game.Components.Remove(CurrentExercise);
-
-                // complete the exercise
-                CompletedExercises.Enqueue(CurrentExercise);
-                
+            {                
                 // see if we're completely done
                 // if so, call people
                 if (PendingExercises.Count > 0)
@@ -145,14 +139,20 @@ namespace SWENG.Service
                 }
                 else
                 {
-                    OnQueueComplete(EventArgs.Empty);
+                    ForceQueueEnd();
                 }
             }
         }
 
         // moves the shifts the workout to the next exercise
-        private void NextExercise()
+        public void NextExercise()
         {
+            // remove component from game components
+            _game.Components.Remove(CurrentExercise);
+
+            // complete the exercise
+            CompletedExercises.Enqueue(CurrentExercise);
+
             if (null != CurrentExercise)
             {
                 foreach (StartedRepetitionEventHandler evt in RepetitionStartedListener)
@@ -172,5 +172,17 @@ namespace SWENG.Service
 
             _game.Components.Add(CurrentExercise);
         }
+
+        public void ForceQueueEnd()
+        {
+            // remove component from game components
+            _game.Components.Remove(CurrentExercise);
+
+            // complete the exercise
+            CompletedExercises.Enqueue(CurrentExercise);
+
+            OnQueueComplete(EventArgs.Empty);
+        }
+
     }
 }

@@ -213,12 +213,14 @@ namespace KinectTherapy
         protected override void Update(GameTime gameTime)
         {
             KeyboardState newState = Keyboard.GetState();
+#if DEBUG
             // Allows the game to exit
             if (newState.IsKeyDown(Keys.Escape))
             {
                 UnloadContent();
                 this.Exit();
             }
+#endif
             _previousKeyboard = newState;
 
             base.Update(gameTime);
