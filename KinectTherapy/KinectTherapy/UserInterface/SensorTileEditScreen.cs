@@ -26,7 +26,6 @@ namespace SWENG.UserInterface
 
         private MouseState _oldMouseState;
         private Texture2D _blankTexture;
-        private Texture2D _inputSensorTexture;        
         private Texture2D _inputBoxTexture;
         private Rectangle _inputBoxDestination;
         private Vector2 _colorStreamPosition;
@@ -134,7 +133,7 @@ namespace SWENG.UserInterface
 
             _blankTexture = contentManager.Load<Texture2D>(@"blank");
             _inputBoxTexture = contentManager.Load<Texture2D>(@"UI\SensorTileEdit");
-            _inputSensorTexture = contentManager.Load<Texture2D>(@"UI\SensorSlider");
+            contentManager.Load<Texture2D>(@"UI\SensorSlider");
 
             foreach (GuiDrawable guiDrawable in _guiDrawable)
             {

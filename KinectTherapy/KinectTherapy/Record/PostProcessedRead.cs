@@ -9,8 +9,7 @@ namespace SWENG.Record
     public class PostProcessedRead
     {
         private int _jointLength;
-        
-        private Stream _stream;
+
         private List<SkeletonStamp> _frames;
         
         public SkeletonStamp[] Data { get { return _frames.ToArray(); } }
@@ -18,7 +17,6 @@ namespace SWENG.Record
         public PostProcessedRead(Stream stream)
         {
             BinaryReader reader = new BinaryReader(stream);
-            _stream = stream;
             _frames = new List<SkeletonStamp>();
             _jointLength = Enum.GetNames(typeof(JointType)).Length;
 

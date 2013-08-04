@@ -77,7 +77,7 @@ namespace Microsoft.Samples.Kinect.XnaBasics
             }
         }
 
-        private int _counter = 0;
+        private int _counter;
 
         /// <summary>
         /// Initializes a new instance of the SkeletonStampStreamRenderer class.

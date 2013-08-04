@@ -52,10 +52,6 @@ namespace KinectTherapy
         private const int SKELETON_POOL_SIZE = 100;
         private const int WIDTH = 1024; // window size
 
-        /// <summary>
-        /// This tracks the previous keyboard state.
-        /// </summary>
-        private KeyboardState _previousKeyboard;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
@@ -63,7 +59,7 @@ namespace KinectTherapy
         {
             IsMouseVisible = true;
             Window.Title = "Kinect Therapy";
-            _previousKeyboard = Keyboard.GetState();
+            Keyboard.GetState();
 
             _graphics = new GraphicsDeviceManager(this);
             _graphics.PreferredBackBufferWidth = WIDTH;
@@ -221,7 +217,6 @@ namespace KinectTherapy
                 this.Exit();
             }
 #endif
-            _previousKeyboard = newState;
 
             base.Update(gameTime);
         }

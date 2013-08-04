@@ -27,7 +27,6 @@ namespace SWENG.UserInterface
     {
         #region event stuff
         public event ReplaySelected OnSelected;
-        private Game _game;
         /** Invoke a selected event in order to tell the subscribers */
         protected virtual void ReplaySelected(ReplaySelectedEventArgs e)
         {
@@ -41,12 +40,10 @@ namespace SWENG.UserInterface
         private const int MARGIN = 10;
         private const double MILLISECONDS = 100;
 
-        private string _repetitionSentence;
         private int _repetitionNumber;
         private double _oldGameTime;
 
         private SkeletonStamp[] _skeletons;
-        private Texture2D _blank;
         private Texture2D _titleTexture;
         private Rectangle _titleDestination;
         private Rectangle _titleSource;
@@ -73,10 +70,6 @@ namespace SWENG.UserInterface
             );
             FileId = fileId;
             _repetitionNumber = repetitionNumber;
-            _repetitionSentence = string.Format(
-                "Rep: {0}",
-                _repetitionNumber
-            );
         }
 
         /// <summary>
@@ -93,7 +86,7 @@ namespace SWENG.UserInterface
             }
 			
             Texture2D = contentManager.Load<Texture2D>(@"UI\ReplayTile");
-            _blank = contentManager.Load<Texture2D>(@"blank");
+            contentManager.Load<Texture2D>(@"blank");
             _titleTexture = CreateTitleTexture(game, contentManager, spriteBatch);
             _titleDestination = new Rectangle(
                 (int)Position.X + MARGIN,
@@ -101,8 +94,6 @@ namespace SWENG.UserInterface
                 _titleTexture.Width,
                 _titleTexture.Height
             );
-
-            _game = game;
 
             /** Grab the data off of the recording manager now because we don't have a reference to the game forever */
             RecordingManager recorder = (RecordingManager)game.Services.GetService(typeof(RecordingManager));

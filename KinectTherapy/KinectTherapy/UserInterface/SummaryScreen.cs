@@ -24,8 +24,6 @@ namespace SWENG.UserInterface
         private bool _isInitialized;
         private bool _isReplaying;
 
-        private Texture2D _blankTexture;
-        private SpriteFont _spriteFont;
         private Rectangle _viewableArea;
         private Vector2 _colorStreamPosition;
         private Vector2 _colorStreamSize;
@@ -237,8 +235,8 @@ namespace SWENG.UserInterface
                 contentManager = new ContentManager(Game.Services, "Content");
             }
 
-            _spriteFont = contentManager.Load<SpriteFont>("Arial16");
-            _blankTexture = contentManager.Load<Texture2D>("blank");
+            contentManager.Load<SpriteFont>("Arial16");
+            contentManager.Load<Texture2D>("blank");
 
             foreach (GuiDrawable guiDrawable in _guiDrawableReplay)
             {
