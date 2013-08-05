@@ -233,7 +233,7 @@ namespace SWENG.UserInterface
                 GraphicsDevice.Clear(Color.WhiteSmoke);
                 _colorStream.Draw(gameTime);
 
-                var spriteBatch = SharedSpriteBatch;
+                SpriteBatch spriteBatch = SharedSpriteBatch;
                 spriteBatch.Begin();
 
                 foreach (GuiDrawable guiDrawable in _guiDrawable)

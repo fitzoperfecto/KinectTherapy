@@ -165,7 +165,7 @@ namespace SWENG.UserInterface
             if (_isInitialized)
             {
                 GraphicsDevice.Clear(Color.WhiteSmoke);
-                var spriteBatch = SharedSpriteBatch;
+                SpriteBatch spriteBatch = SharedSpriteBatch;
                 spriteBatch.Begin();
 
                 foreach (GuiDrawable guiDrawable in _guiDrawable)

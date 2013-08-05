@@ -164,7 +164,7 @@ namespace SWENG.Service
         {
             _status = CatalogManagerStatus.Selecting;
             // Initialize catalog variables 
-            var applicationDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string applicationDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             CatalogFile = applicationDirectory + "../../../../KinectTherapyContent/Exercises/MasterCatalog.xml";
             _workoutList = new List<Exercise>();
             // load the datatable.
@@ -182,7 +182,7 @@ namespace SWENG.Service
         /// </summary>
         public void CatalogXmlLinqData()
         {
-            var catalogList =
+            IEnumerable<string> catalogList =
                 from c in XDocument.Load(CatalogDirectory + @"MasterCatalog.xml").Descendants("Group")
                 select c.Attribute("Name").Value;
 
@@ -196,7 +196,7 @@ namespace SWENG.Service
                 };
 
             var xmlFileList = exerciseList.ToList();
-            var xmlFileName = new List<string>(xmlFileList.Count);
+            List<string> xmlFileName = new List<string>(xmlFileList.Count);
             xmlFileName.AddRange(from t in xmlFileList where !t.xmlFile.Equals("MasterCatalog") select t.xmlFile);
 
             DataTable = new DataTable("ExerciseCatalog");
@@ -206,9 +206,9 @@ namespace SWENG.Service
             DataTable.Columns.Add("Name");
             DataTable.Columns.Add("Description");
 
-            foreach (var fileName in xmlFileName)
+            foreach (string fileName in xmlFileName)
             {
-                var newFileName = CatalogDirectory + @"\" + fileName + ".xml";
+                string newFileName = CatalogDirectory + @"\" + fileName + ".xml";
 
                 var query =
                     from s in XDocument.Load(CatalogDirectory + @"\MasterCatalog.xml").Descendants("Exercise")
@@ -334,8 +334,8 @@ namespace SWENG.Service
             List<CatalogItem> r = new List<CatalogItem>();
             try
             {
-                var dataRow = DataTable.Select("Category = '" + exerciseGroup + "'");
-                foreach (var row in dataRow)
+                DataRow[] dataRow = DataTable.Select("Category = '" + exerciseGroup + "'");
+                foreach (DataRow row in dataRow)
                 {
                     r.Add(
                         new CatalogItem()

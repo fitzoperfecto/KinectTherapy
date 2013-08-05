@@ -215,7 +215,7 @@ namespace SWENG.UserInterface
         {
             if (_isInitialized)
             {
-                var spriteBatch = SharedSpriteBatch;
+                SpriteBatch spriteBatch = SharedSpriteBatch;
                 spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
                 spriteBatch.Draw(

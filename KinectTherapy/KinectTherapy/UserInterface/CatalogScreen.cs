@@ -267,7 +267,7 @@ namespace SWENG.UserInterface
             if (_isInitialized)
             {
                 GraphicsDevice.Clear(Color.WhiteSmoke);
-                var spriteBatch = SharedSpriteBatch;
+                SpriteBatch spriteBatch = SharedSpriteBatch;
 
                 spriteBatch.Begin();
 
@@ -372,7 +372,7 @@ namespace SWENG.UserInterface
                 
                 scrollableCollection.ClearCollection();
 
-                foreach (var catalogItem in _catalogManager.GetExercisesByType(category))
+                foreach (CatalogItem catalogItem in _catalogManager.GetExercisesByType(category))
                 {
                     GuiCatalogTile guiCatalogTile = new GuiCatalogTile(
                         Game,

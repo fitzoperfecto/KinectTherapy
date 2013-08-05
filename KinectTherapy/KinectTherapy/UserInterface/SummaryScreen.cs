@@ -235,8 +235,8 @@ namespace SWENG.UserInterface
                 contentManager = new ContentManager(Game.Services, "Content");
             }
 
-            contentManager.Load<SpriteFont>("Arial16");
-            contentManager.Load<Texture2D>("blank");
+            //contentManager.Load<SpriteFont>("Arial16");
+            //contentManager.Load<Texture2D>("blank");
 
             foreach (GuiDrawable guiDrawable in _guiDrawableReplay)
             {
@@ -337,7 +337,7 @@ namespace SWENG.UserInterface
             if (_isInitialized)
             {
                 GraphicsDevice.Clear(Color.WhiteSmoke);
-                var spriteBatch = SharedSpriteBatch;
+                SpriteBatch spriteBatch = SharedSpriteBatch;
                 spriteBatch.Begin();
 
                 /** Draw only the items pertinent to a running replay */

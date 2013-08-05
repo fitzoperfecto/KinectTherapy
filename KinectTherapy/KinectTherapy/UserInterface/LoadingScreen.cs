@@ -76,7 +76,7 @@ namespace SWENG.UserInterface
             base.Draw(gameTime);
             if (_isInitialized)
             {
-                var spriteBatch = SharedSpriteBatch;
+                SpriteBatch spriteBatch = SharedSpriteBatch;
                 spriteBatch.GraphicsDevice.Clear(Color.Black);
                 spriteBatch.Begin();
 
